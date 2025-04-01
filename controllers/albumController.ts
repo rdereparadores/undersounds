@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Album from '../models/Album';
 import ArtistAlbum from '../models/ArtistAlbum';
+import Artist from '../models/Artist';
 import Song from '../models/Song';
 
 // Crear un nuevo álbum
@@ -16,6 +17,16 @@ export const createAlbum = async (req: Request, res: Response): Promise<void> =>
             url_download,
             artists // Array de IDs de artistas
         } = req.body;
+
+        // Se comprueba que el artista o artistas existen
+        const existingArtists = await Artist.find({ _id: { $in: artists } });
+        if (existingArtists.length !== artists.length) {
+            res.status(400).json({
+                success: false,
+                message: 'Uno o más artistas no existen'
+            });
+            return;
+        }
 
         // Crear el álbum
         const album = new Album({

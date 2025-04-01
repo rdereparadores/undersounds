@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
+import Artist from "../models/Artist";
 
 // Crear un nuevo usuario
 export const createUser = async (req: Request, res: Response): Promise<void> => {
@@ -114,6 +115,22 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
             res.status(404).json({
                 success: false,
                 message: 'Usuario no encontrado'
+            });
+            return;
+        }
+
+        //Comprueba que el correo no exista en otros usuarios
+        const existingUser = await User.findOne({
+            $and: [
+                { _id: { $ne: userId } },
+                { email },
+            ]
+        });
+
+        if (existingUser) {
+            res.status(400).json({
+                success: false,
+                message: 'El email ya está registrado'
             });
             return;
         }

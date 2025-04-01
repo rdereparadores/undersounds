@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Song from '../models/Song';
 import ArtistSong from '../models/ArtistSong';
+import Artist from "../models/Artist";
 import Reproduction from '../models/Reproduction';
 
 // Crear una nueva canción
@@ -19,6 +20,19 @@ export const createSong = async (req: Request, res: Response): Promise<void> => 
             album,
             artists // Array de IDs de artistas
         } = req.body;
+
+        // Primero se comrpueba si el o los artistas existen
+        if (artists && artists.length > 0) {
+            const artistSongPromises = artists.map((artistId: string) => {
+                const artistSong = new ArtistSong({
+                    artist: artistId,
+                    song: savedSong._id
+                });
+                return artistSong.save();
+            });
+
+            await Promise.all(artistSongPromises);
+        }
 
         // Crear la canción
         const song = new Song({

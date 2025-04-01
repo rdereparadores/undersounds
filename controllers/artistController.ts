@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import Artist from '../models/Artist';
 import ArtistSong from '../models/ArtistSong';
 import ArtistAlbum from '../models/ArtistAlbum';
+import { checkArtistDuplicates } from './utils/artistCheck';
 import Song from '../models/Song';
 import Album from '../models/Album';
 
@@ -21,13 +22,16 @@ export const createArtist = async (req: Request, res: Response): Promise<void> =
             bank_account
         } = req.body;
 
-        // Verificar si el artista ya existe
-        const existingArtist = await Artist.findOne({ email });
-        if (existingArtist) {
-            res.status(400).json({
-                success: false,
-                message: 'El email ya está registrado'
-            });
+        //Comprueba que el email y el nombre artístico no existan
+        const { exists, message } = await checkArtistDuplicates(email, artist_name);
+
+        if(exists){
+            res.status(400).json(
+                {
+                    success: false,
+                    message
+                }
+            )
             return;
         }
 
@@ -135,6 +139,16 @@ export const updateArtist = async (req: Request, res: Response): Promise<void> =
             res.status(404).json({
                 success: false,
                 message: 'Artista no encontrado'
+            });
+            return;
+        }
+
+        const { exists, message } = await checkArtistDuplicates(email, artist_name, artistId);
+
+        if(exists){
+            res.status(400).json({
+                success: false,
+                message
             });
             return;
         }
