@@ -15,7 +15,7 @@ export class App {
     }
 
     middlewares() {
-        this.app.use((req: express.Request, res, next) => {
+        this.app.use((req, res, next) => {
             req.db = this.db
             next()
         })
