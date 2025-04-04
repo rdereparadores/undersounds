@@ -1,5 +1,6 @@
 import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory";
 import express from 'express'
+import { checkoutRouter } from "./routes/checkoutRouter";
 
 export class App {
 
@@ -19,9 +20,11 @@ export class App {
             req.db = this.db
             next()
         })
+        this.app.use(express.json())
     }
 
     routes() {
+        this.app.use('/api/checkout', checkoutRouter)
 
     }
 
