@@ -1,12 +1,6 @@
 import { Schema } from 'mongoose';
-import User, { IUser } from './User';
-
-export interface IArtist extends IUser {
-    artist_name: string;
-    artist_user_name: string;
-    bank_account: string;
-    toObject(): any;
-}
+import User from './UserModel';
+import { IArtist } from './interfaces/IArtist';
 
 const ArtistSchema = new Schema({
     artist_name: { type: String, required: true },
@@ -17,3 +11,4 @@ const ArtistSchema = new Schema({
 const Artist = User.discriminator<IArtist>('Artist', ArtistSchema);
 
 export default Artist;
+
