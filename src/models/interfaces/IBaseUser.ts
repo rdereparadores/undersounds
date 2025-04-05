@@ -4,7 +4,7 @@ export interface IAddress {
     alias: string;
     name: string;
     sur_name: string;
-    phone: string;
+    phone: number;
     address: string;
     address_2?: string;
     province: string;
@@ -21,6 +21,6 @@ export interface IBaseUser extends Document {
     email: string;
     uid: string;
     img_url: string;
-    address: IAddress[];
+    addresses: IAddress[];
     role: 'User' | 'Artist';
 }

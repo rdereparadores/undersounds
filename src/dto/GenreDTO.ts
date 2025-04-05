@@ -1,6 +1,19 @@
-export interface GenreDTO {
-    id: string;
+export interface GenreDTOProps {
+    _id: string;
     genre: string;
-    createdAt: Date;
-    updatedAt: Date;
+}
+
+export class GenreDTO {
+    _id!: string;
+    genre!: string;
+
+    constructor(props: GenreDTOProps) {
+        Object.assign(this, props)
+    }
+
+    toJson() {
+        return {
+            ...this
+        }
+    }
 }

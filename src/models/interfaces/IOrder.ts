@@ -1,8 +1,9 @@
+import { Types } from "mongoose"
 import { IProduct } from "./IProduct"
 
 export interface IOrderLine {
     quantity: number,
-    product: IProduct
+    product: Types.ObjectId
 }
 
 export interface IOrder extends Document {
