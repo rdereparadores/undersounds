@@ -12,7 +12,7 @@ const OrderLineSchema = new Schema<IOrderLine>({
 
 const OrderSchema = new Schema<IOrder>({
     purchase_date: { type: Date, required: true },
-    status: { type: String, enum: ['processing', 'shipped', 'paid'], required: true },
+    status: { type: String, enum: ['processing', 'shipped', 'delivered'], required: true },
     paid: { type: Boolean, required: true },
     tracking_number: { type: String },
     lines: [OrderLineSchema]

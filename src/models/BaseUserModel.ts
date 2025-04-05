@@ -22,7 +22,7 @@ const BaseUserSchema = new Schema({
     email: { type: String, required: true, unique: true },
     uid: { type: String, required: true, unique: true },
     img_url: { type: String },
-    address: [AddressSchema],
+    addresses: [AddressSchema],
     role: { type: String, enum: ['User', 'Artist'], required: true }
 }, { discriminatorKey: 'role' })
 

@@ -1,7 +1,8 @@
 import { Document, Types } from 'mongoose';
 import { ISongVersion } from './ISongVersion';
+import { IProduct } from './IProduct';
 
-export interface ISong extends Document {
+export interface ISong extends IProduct {
     song_dir: string,
     plays: number,
     version_history: ISongVersion[],
