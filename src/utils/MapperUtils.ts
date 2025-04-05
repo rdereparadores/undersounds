@@ -3,19 +3,67 @@
 // import { ISong } from '../models/interfaces/ISong';
 // import { IGenre } from '../models/interfaces/IGenre';
 // import { IRating } from '../models/interfaces/IRating';
+// import { IUser } from '../models/interfaces/IUser';
+// import { IArtist } from '../models/interfaces/IArtist';
 //
-// import { ProductResponseDTO } from '../dto/ProductDTO';
-// import { AlbumResponseDTO } from '../dto/AlbumDTO';
-// import { SongResponseDTO, SimpleSongResponseDTO, ArtistBasicDTO } from '../dto/SongDTO';
-// import { GenreResponseDTO } from '../dto/GenreDTO';
-// import { RatingResponseDTO, SimpleRatingResponseDTO, UserBasicDTO } from '../dto/RatingDTO';
+// import { ProductDTO } from '../dto/ProductDTO';
+// import { AlbumDTO } from '../dto/AlbumDTO';
+// import { SongDTO } from '../dto/SongDTO';
+// import { GenreDTO } from '../dto/GenreDTO';
+// import { RatingDTO } from '../dto/RatingDTO';
+// import { UserDTO, AddressDTO } from '../dto/UserDTO';
+// import { ArtistDTO } from '../dto/ArtistDTO';
 //
 // export class MapperUtils {
 //     /*
-//      * Convierte un modelo Product a ProductResponseDTO
+//      * Convierte un modelo User a UserDTO
+//      * @param user El objeto usuario a convertir
+//      */
+//     static toUserDTO(user: IUser): UserDTO {
+//         return {
+//             id: user._id.toString(),
+//             name: user.name,
+//             sur_name: user.sur_name,
+//             birth_name: user.birth_name,
+//             email: user.email,
+//             uid: user.uid,
+//             img_url: user.img_url,
+//             addresses: user.addresses.map((address: any) => ({
+//                 alias: address.alias,
+//                 name: address.name,
+//                 sur_name: address.sur_name,
+//                 phone: address.phone,
+//                 address: address.address,
+//                 address_2: address.address_2,
+//                 province: address.province,
+//                 city: address.city,
+//                 zip_code: address.zip_code,
+//                 country: address.country,
+//                 observations: address.observations
+//             } as AddressDTO)),
+//             createdAt: user.createdAt,
+//             updatedAt: user.updatedAt
+//         };
+//     }
+//
+//     /*
+//      * Convierte un modelo Artist a ArtistDTO
+//      * @param artist El objeto artista a convertir
+//      */
+//     static toArtistDTO(artist: IArtist): ArtistDTO {
+//         return {
+//             ...this.toUserDTO(artist),
+//             artist_name: artist.artist_name,
+//             artist_user_name: artist.artist_user_name,
+//             bank_account: artist.bank_account
+//         };
+//     }
+//
+//     /*
+//      * Convierte un modelo Product a ProductDTO
 //      * @param product El objeto producto a convertir
 //      */
-//     static toProductDTO(product: IProduct): ProductResponseDTO {
+//     static toProductDTO(product: IProduct): ProductDTO {
 //         return {
 //             id: product._id.toString(),
 //             title: product.title,
@@ -36,37 +84,11 @@
 //     }
 //
 //     /*
-//      * Convierte un modelo Artist a ArtistBasicDTO
-//      * @param artist El objeto artista a convertir
-//      */
-//     static toArtistBasicDTO(artist: any): ArtistBasicDTO {
-//         return {
-//             id: artist._id.toString(),
-//             artist_name: artist.artist_name,
-//             artist_user_name: artist.artist_user_name,
-//             img_url: artist.img_url
-//         };
-//     }
-//
-//     /*
-//      * Convierte un modelo User a UserBasicDTO
-//      * @param user El objeto usuario a convertir
-//      */
-//     static toUserBasicDTO(user: any): UserBasicDTO {
-//         return {
-//             id: user._id.toString(),
-//             name: user.name,
-//             sur_name: user.sur_name,
-//             img_url: user.img_url
-//         };
-//     }
-//
-//     /*
-//      * Convierte un modelo Album a AlbumResponseDTO
+//      * Convierte un modelo Album a AlbumDTO
 //      * @param album El objeto álbum a convertir
 //      */
-//     static toAlbumDTO(album: IAlbum): AlbumResponseDTO {
-//         const albumDTO = this.toProductDTO(album) as AlbumResponseDTO;
+//     static toAlbumDTO(album: IAlbum): AlbumDTO {
+//         const albumDTO = this.toProductDTO(album) as AlbumDTO;
 //
 //         // Agregar track_list y genres solo si están populados
 //         if (album.track_list && typeof album.track_list[0] !== 'string') {
@@ -89,11 +111,11 @@
 //     }
 //
 //     /*
-//      * Convierte un modelo Song a SongResponseDTO
+//      * Convierte un modelo Song a SongDTO
 //      * @param song El objeto canción a convertir
 //      */
-//     static toSongDTO(song: ISong): SongResponseDTO {
-//         const songDTO: SongResponseDTO = {
+//     static toSongDTO(song: ISong): SongDTO {
+//         const songDTO: SongDTO = {
 //             id: song._id.toString(),
 //             song_dir: song.song_dir,
 //             title: song.title,
@@ -101,19 +123,19 @@
 //             plays: song.plays,
 //             createdAt: song.createdAt,
 //             updatedAt: song.updatedAt,
-//             performer: {} as ArtistBasicDTO,
+//             performer: {} as ArtistDTO,
 //             collaborators: [],
 //             genres: []
 //         };
 //
 //         // Agregar performer, collaborators y genres solo si están populados
 //         if (song.performer && typeof song.performer !== 'string') {
-//             songDTO.performer = this.toArtistBasicDTO(song.performer);
+//             songDTO.performer = this.toArtistDTO(song.performer as unknown as IArtist);
 //         }
 //
 //         if (song.collaborators && typeof song.collaborators[0] !== 'string') {
 //             songDTO.collaborators = song.collaborators.map((collaborator: any) =>
-//                 this.toArtistBasicDTO(collaborator)
+//                 this.toArtistDTO(collaborator as unknown as IArtist)
 //             );
 //         }
 //
@@ -127,23 +149,10 @@
 //     }
 //
 //     /*
-//      * Convierte un modelo Song a SimpleSongResponseDTO
-//      * @param song El objeto canción a convertir
-//      */
-//     static toSimpleSongDTO(song: ISong): SimpleSongResponseDTO {
-//         return {
-//             id: song._id.toString(),
-//             title: song.title,
-//             duration: song.duration,
-//             plays: song.plays
-//         };
-//     }
-//
-//     /*
-//      * Convierte un modelo Genre a GenreResponseDTO
+//      * Convierte un modelo Genre a GenreDTO
 //      * @param genre El objeto género a convertir
 //      */
-//     static toGenreDTO(genre: IGenre): GenreResponseDTO {
+//     static toGenreDTO(genre: IGenre): GenreDTO {
 //         return {
 //             id: genre._id.toString(),
 //             genre: genre.genre,
@@ -153,11 +162,11 @@
 //     }
 //
 //     /*
-//      * Convierte un modelo Rating a RatingResponseDTO
+//      * Convierte un modelo Rating a RatingDTO
 //      * @param rating El objeto valoración a convertir
 //      */
-//     static toRatingDTO(rating: IRating): RatingResponseDTO {
-//         const ratingDTO: RatingResponseDTO = {
+//     static toRatingDTO(rating: IRating): RatingDTO {
+//         const ratingDTO: RatingDTO = {
 //             id: rating._id.toString(),
 //             rating: rating.rating,
 //             title: rating.title,
@@ -165,13 +174,13 @@
 //             publish_date: rating.publish_date,
 //             createdAt: rating.createdAt,
 //             updatedAt: rating.updatedAt,
-//             author: {} as UserBasicDTO,
-//             product: {} as ProductResponseDTO
+//             author: {} as UserDTO,
+//             product: {} as ProductDTO
 //         };
 //
 //         // Agregar author y product solo si están populados
 //         if (rating.author && typeof rating.author !== 'string') {
-//             ratingDTO.author = this.toUserBasicDTO(rating.author);
+//             ratingDTO.author = this.toUserDTO(rating.author as unknown as IUser);
 //         }
 //
 //         if (rating.product && typeof rating.product !== 'string') {
@@ -179,34 +188,5 @@
 //         }
 //
 //         return ratingDTO;
-//     }
-//
-//     /*
-//      * Convierte un modelo Rating a SimpleRatingResponseDTO
-//      * @param rating El objeto valoración a convertir
-//      */
-//     static toSimpleRatingDTO(rating: IRating): SimpleRatingResponseDTO {
-//         const simpleRatingDTO: SimpleRatingResponseDTO = {
-//             id: rating._id.toString(),
-//             rating: rating.rating,
-//             title: rating.title,
-//             author: {
-//                 id: '',
-//                 name: '',
-//                 sur_name: ''
-//             }
-//         };
-//
-//         // Agregar autor solo si está populado
-//         if (rating.author && typeof rating.author !== 'string') {
-//             const author = rating.author as any;
-//             simpleRatingDTO.author = {
-//                 id: author._id.toString(),
-//                 name: author.name,
-//                 sur_name: author.sur_name
-//             };
-//         }
-//
-//         return simpleRatingDTO;
 //     }
 // }
