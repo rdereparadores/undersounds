@@ -1,23 +1,29 @@
 // import express from 'express';
-// import { AlbumController } from '../controllers/AlbumController';
+// import { AlbumInfoController } from '../controllers/albums/AlbumInfoController';
 //
 // const router = express.Router();
-// const albumController = new AlbumController();
+// const albumInfoController = new AlbumInfoController();
 //
-// // Album routes
-// router.get('/search', albumController.searchAlbumsByTitle);
-// router.get('/date-range', albumController.getAlbumsByDateRange);
-// router.get('/genre/:genreId', albumController.getAlbumsByGenre);
-// router.get('/', albumController.getAllAlbums);
-// router.get('/:id', albumController.getAlbumById);
-// router.post('/', albumController.createAlbum);
-// router.put('/:id', albumController.updateAlbum);
-// router.delete('/:id', albumController.deleteAlbum);
-//
-// // Album relationships routes
-// router.post('/:id/songs', albumController.addSongToAlbum);
-// router.delete('/:id/songs/:songId', albumController.removeSongFromAlbum);
-// router.post('/:id/genres', albumController.addGenreToAlbum);
-// router.delete('/:id/genres/:genreId', albumController.removeGenreFromAlbum);
+// /**
+//  * @swagger
+//  * /api/albums/info:
+//  *   get:
+//  *     summary: Get album information including tracklist and details
+//  *     tags: [Albums]
+//  *     parameters:
+//  *       - in: query
+//  *         name: id
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *     responses:
+//  *       200:
+//  *         description: Album information retrieved successfully
+//  *       404:
+//  *         description: Album not found
+//  *       500:
+//  *         description: Server error
+//  */
+// router.get('/info', albumInfoController.getAlbumInfo);
 //
 // export default router;

@@ -1,23 +1,35 @@
 // import express from 'express';
-// import { ProductController } from '../controllers/ProductController';
+// import pricingRoutes from './PricingRoutes';
 //
 // const router = express.Router();
-// const productController = new ProductController();
 //
-// // General product routes
-// router.get('/', productController.getAllProducts);
-// router.get('/:id', productController.getProductById);
-// router.post('/', productController.createProduct);
-// router.put('/:id', productController.updateProduct);
-// router.delete('/:id', productController.deleteProduct);
+// // Integrar rutas de pricing como subrutas de products
+// router.use('/pricing', pricingRoutes);
 //
-// // Search and filter routes
-// router.get('/search', productController.searchProductsByTitle);
-// router.get('/date-range', productController.getProductsByDateRange);
-// router.get('/compare-pricing', productController.compareProductsPricing);
-//
-// // Pricing routes
-// router.get('/:id/pricing', productController.getProductPricing);
-// router.put('/:id/pricing', productController.updateProductPricing);
+// /**
+//  * @swagger
+//  * /api/products:
+//  *   get:
+//  *     summary: Get products with pagination
+//  *     tags: [Products]
+//  *     parameters:
+//  *       - in: query
+//  *         name: page
+//  *         schema:
+//  *           type: integer
+//  *           default: 1
+//  *       - in: query
+//  *         name: limit
+//  *         schema:
+//  *           type: integer
+//  *           default: 10
+//  *     responses:
+//  *       200:
+//  *         description: Products retrieved successfully
+//  *       500:
+//  *         description: Server error
+//  */
+// // Añadir más rutas para productos cuando los controladores estén disponibles
+// // router.get('/', productController.getAllProducts);
 //
 // export default router;

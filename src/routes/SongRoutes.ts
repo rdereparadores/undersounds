@@ -1,25 +1,45 @@
 // import express from 'express';
-// import { SongController } from '../controllers/SongController';
+// import { SongInfoController } from '../controllers/songs/SongInfoController';
+// import { SongTrendingController } from '../controllers/songs/SongTrendingController';
 //
 // const router = express.Router();
-// const songController = new SongController();
+// const songInfoController = new SongInfoController();
+// const songTrendingController = new SongTrendingController();
 //
-// // Song routes
-// router.get('/search', songController.searchSongsByTitle);
-// router.get('/most-played', songController.getMostPlayedSongs);
-// router.get('/performer/:performerId', songController.getSongsByPerformer);
-// router.get('/genre/:genreId', songController.getSongsByGenre);
-// router.get('/', songController.getAllSongs);
-// router.get('/:id', songController.getSongById);
-// router.post('/', songController.createSong);
-// router.put('/:id', songController.updateSong);
-// router.delete('/:id', songController.deleteSong);
-// router.post('/:id/play', songController.incrementSongPlays);
+// /**
+//  * @swagger
+//  * /api/songs/info:
+//  *   get:
+//  *     summary: Get song information including artists and recommendations
+//  *     tags: [Songs]
+//  *     parameters:
+//  *       - in: query
+//  *         name: id
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *     responses:
+//  *       200:
+//  *         description: Song information retrieved successfully
+//  *       404:
+//  *         description: Song not found
+//  *       500:
+//  *         description: Server error
+//  */
+// router.get('/info', songInfoController.getSongInfo);
 //
-// // Song relationships routes
-// router.post('/:id/collaborators', songController.addCollaborator);
-// router.delete('/:id/collaborators/:artistId', songController.removeCollaborator);
-// router.post('/:id/genres', songController.addGenre);
-// router.delete('/:id/genres/:genreId', songController.removeGenre);
+// /**
+//  * @swagger
+//  * /api/songs/trending:
+//  *   get:
+//  *     summary: Get top trending songs
+//  *     tags: [Songs]
+//  *     responses:
+//  *       200:
+//  *         description: Trending songs retrieved successfully
+//  *       500:
+//  *         description: Server error
+//  */
+// router.get('/trending', songTrendingController.getTrendingSongs);
 //
 // export default router;

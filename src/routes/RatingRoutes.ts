@@ -1,17 +1,123 @@
 // import express from 'express';
-// import { RatingController } from '../controllers/RatingController';
+// import { RatingCreationController } from '../controllers/ratings/RatingCreationController';
+// import { RatingManagementController } from '../controllers/ratings/RatingManagementController';
+// // Importar middleware de autenticación cuando esté disponible
+// // import { authenticate } from '../middleware/AuthMiddleware';
 //
 // const router = express.Router();
-// const ratingController = new RatingController();
+// const ratingCreationController = new RatingCreationController();
+// const ratingManagementController = new RatingManagementController();
 //
-// // Rating routes
-// router.get('/product/:productId', ratingController.getRatingsByProduct);
-// router.get('/author/:authorId', ratingController.getRatingsByAuthor);
-// router.get('/average/:productId', ratingController.getAverageRating);
-// router.get('/', ratingController.getAllRatings);
-// router.get('/:id', ratingController.getRatingById);
-// router.post('/', ratingController.createRating);
-// router.put('/:id', ratingController.updateRating);
-// router.delete('/:id', ratingController.deleteRating);
+// /**
+//  * @swagger
+//  * /api/ratings/create:
+//  *   post:
+//  *     summary: Create a new rating for a product
+//  *     tags: [Ratings]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             required:
+//  *               - rating
+//  *               - title
+//  *               - description
+//  *               - author
+//  *               - product
+//  *             properties:
+//  *               rating:
+//  *                 type: number
+//  *                 minimum: 1
+//  *                 maximum: 5
+//  *               title:
+//  *                 type: string
+//  *               description:
+//  *                 type: string
+//  *               author:
+//  *                 type: string
+//  *               product:
+//  *                 type: string
+//  *     responses:
+//  *       201:
+//  *         description: Rating created successfully
+//  *       400:
+//  *         description: Invalid input
+//  *       409:
+//  *         description: User has already rated this product
+//  *       500:
+//  *         description: Server error
+//  */
+// // Añadir middleware de autenticación cuando esté disponible
+// // router.post('/create', authenticate, ratingCreationController.createRating);
+// router.post('/create', ratingCreationController.createRating);
+//
+// /**
+//  * @swagger
+//  * /api/ratings/{id}:
+//  *   put:
+//  *     summary: Update an existing rating
+//  *     tags: [Ratings]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     parameters:
+//  *       - in: path
+//  *         name: id
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               rating:
+//  *                 type: number
+//  *                 minimum: 1
+//  *                 maximum: 5
+//  *               title:
+//  *                 type: string
+//  *               description:
+//  *                 type: string
+//  *     responses:
+//  *       200:
+//  *         description: Rating updated successfully
+//  *       403:
+//  *         description: Not authorized to update this rating
+//  *       404:
+//  *         description: Rating not found
+//  *       500:
+//  *         description: Server error
+//  *   delete:
+//  *     summary: Delete a rating
+//  *     tags: [Ratings]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     parameters:
+//  *       - in: path
+//  *         name: id
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *     responses:
+//  *       200:
+//  *         description: Rating deleted successfully
+//  *       403:
+//  *         description: Not authorized to delete this rating
+//  *       404:
+//  *         description: Rating not found
+//  *       500:
+//  *         description: Server error
+//  */
+// // Añadir middleware de autenticación cuando esté disponible
+// // router.put('/:id', authenticate, ratingManagementController.updateRating);
+// // router.delete('/:id', authenticate, ratingManagementController.deleteRating);
+// router.put('/:id', ratingManagementController.updateRating);
+// router.delete('/:id', ratingManagementController.deleteRating);
 //
 // export default router;
