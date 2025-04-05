@@ -1,7 +1,7 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../../utils/ApiResponse';
-// import { ApiError } from '../../../utils/ApiError';
-// import { UpdateRatingDTO } from '../../../dto/RatingDTO';
+// import { ApiResponse } from '../../utils/ApiResponse';
+// import { ApiError } from '../../utils/ApiError';
+// import { UpdateRatingDTO } from '../../dto/RatingDTO';
 //
 // export class RatingManagementController {
 //     /**

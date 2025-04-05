@@ -1,7 +1,7 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../../utils/ApiResponse';
-// import { ApiError } from '../../../utils/ApiError';
-// import { PricingDTO } from '../../../dto/ProductDTO';
+// import { ApiResponse } from '../../utils/ApiResponse';
+// import { ApiError } from '../../utils/ApiError';
+// import { PricingDTO } from '../../dto/ProductDTO';
 //
 // export class PricingUpdateController {
 //     /**
