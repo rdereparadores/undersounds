@@ -1,184 +1,155 @@
-/* import { ISongDAO } from "../interfaces/ISongDAO";
-import { ISong } from "../../models/interfaces/ISong";
-import SongModel from "../../models/SongModel";
-import { ApiError } from "../../utils/ApiError";
-import mongoose from "mongoose";
-
-export class SongDAO implements ISongDAO {
-    async findAll(): Promise<ISong[]> {
-        return await SongModel.find()
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async findById(id: string): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid song ID format');
-        }
-
-        return await SongModel.findById(id)
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async findByTitle(title: string): Promise<ISong[]> {
-        return await SongModel.find({
-            title: { $regex: title, $options: 'i' }
-        })
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async findByPerformer(performerId: string): Promise<ISong[]> {
-        if (!mongoose.Types.ObjectId.isValid(performerId)) {
-            throw ApiError.badRequest('Invalid performer ID format');
-        }
-
-        return await SongModel.find({ performer: performerId })
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async findByCollaborator(collaboratorId: string): Promise<ISong[]> {
-        if (!mongoose.Types.ObjectId.isValid(collaboratorId)) {
-            throw ApiError.badRequest('Invalid collaborator ID format');
-        }
-
-        return await SongModel.find({ collaborators: collaboratorId })
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async findByGenre(genreId: string): Promise<ISong[]> {
-        if (!mongoose.Types.ObjectId.isValid(genreId)) {
-            throw ApiError.badRequest('Invalid genre ID format');
-        }
-
-        return await SongModel.find({ genres: genreId })
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async findMostPlayed(limit: number = 10): Promise<ISong[]> {
-        return await SongModel.find()
-            .sort({ plays: -1 })
-            .limit(limit)
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async create(songData: Partial<ISong>): Promise<ISong> {
-        const newSong = new SongModel(songData);
-        return await newSong.save();
-    }
-
-    async update(id: string, songData: Partial<ISong>): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid song ID format');
-        }
-
-        return await SongModel.findByIdAndUpdate(
-            id,
-            { $set: songData },
-            { new: true, runValidators: true }
-        )
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async delete(id: string): Promise<boolean> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid song ID format');
-        }
-
-        const result = await SongModel.deleteOne({ _id: id });
-        return result.deletedCount === 1;
-    }
-
-    async incrementPlays(id: string): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid song ID format');
-        }
-
-        return await SongModel.findByIdAndUpdate(
-            id,
-            { $inc: { plays: 1 } },
-            { new: true }
-        )
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async addCollaborator(songId: string, artistId: string): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(artistId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await SongModel.findByIdAndUpdate(
-            songId,
-            { $addToSet: { collaborators: artistId } },
-            { new: true, runValidators: true }
-        )
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async removeCollaborator(songId: string, artistId: string): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(artistId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await SongModel.findByIdAndUpdate(
-            songId,
-            { $pull: { collaborators: artistId } },
-            { new: true }
-        )
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async addGenre(songId: string, genreId: string): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(genreId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await SongModel.findByIdAndUpdate(
-            songId,
-            { $addToSet: { genres: genreId } },
-            { new: true, runValidators: true }
-        )
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-
-    async removeGenre(songId: string, genreId: string): Promise<ISong | null> {
-        if (!mongoose.Types.ObjectId.isValid(songId) || !mongoose.Types.ObjectId.isValid(genreId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await SongModel.findByIdAndUpdate(
-            songId,
-            { $pull: { genres: genreId } },
-            { new: true }
-        )
-            .populate('performer')
-            .populate('collaborators')
-            .populate('genres');
-    }
-}
-
- */
-
-// DESCOMENTAR CUANDO LA CARPETA MODELO ESTE IMPORTADA
+// import { ISongDAO } from '../interfaces/ISongDAO';
+// import { ISong } from '../../models/interfaces/ISong';
+// import SongModel from '../../models/SongModel';
+// import { ApiError } from '../../utils/ApiError';
+//
+// export class SongDAO implements ISongDAO {
+//     async findById(id: string): Promise<ISong | null> {
+//         try {
+//             return await SongModel.findById(id);
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving song');
+//         }
+//     }
+//
+//     async findByIdWithDetails(id: string): Promise<ISong | null> {
+//         try {
+//             return await SongModel.findById(id)
+//                 .populate('performer')
+//                 .populate('collaborators')
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving song with details');
+//         }
+//     }
+//
+//     async findMostPlayed(limit: number): Promise<ISong[]> {
+//         try {
+//             return await SongModel.find()
+//                 .sort({ plays: -1 })
+//                 .limit(limit)
+//                 .populate('performer')
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving most played songs');
+//         }
+//     }
+//
+//     async findRecommendations(songId: string, limit: number): Promise<ISong[]> {
+//         try {
+//             const song = await SongModel.findById(songId);
+//             if (!song) {
+//                 throw new ApiError(404, 'Song not found');
+//             }
+//
+//             // Obtener recomendaciones basadas en géneros y artistas similares
+//             return await SongModel.find({
+//                 _id: { $ne: songId },
+//                 $or: [
+//                     { genres: { $in: song.genres } },
+//                     { performer: song.performer },
+//                     { collaborators: { $in: song.collaborators } }
+//                 ]
+//             })
+//                 .limit(limit)
+//                 .populate('performer')
+//                 .populate('genres');
+//         } catch (error) {
+//             if (error instanceof ApiError) throw error;
+//             throw new ApiError(500, 'Error finding song recommendations');
+//         }
+//     }
+//
+//     async incrementPlays(id: string): Promise<ISong | null> {
+//         try {
+//             return await SongModel.findByIdAndUpdate(
+//                 id,
+//                 { $inc: { plays: 1 } },
+//                 { new: true }
+//             );
+//         } catch (error) {
+//             throw new ApiError(500, 'Error incrementing plays count');
+//         }
+//     }
+//
+//     async findByGenrePaginated(genreId: string, skip: number, limit: number): Promise<ISong[]> {
+//         try {
+//             return await SongModel.find({ genres: genreId })
+//                 .skip(skip)
+//                 .limit(limit)
+//                 .populate('performer')
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving songs by genre');
+//         }
+//     }
+//
+//     async countByGenre(genreId: string): Promise<number> {
+//         try {
+//             return await SongModel.countDocuments({ genres: genreId });
+//         } catch (error) {
+//             throw new ApiError(500, 'Error counting songs by genre');
+//         }
+//     }
+//
+//     // Métodos no utilizados por los controladores actuales pero posibles posteriormente
+//     async findAll(): Promise<ISong[]> {
+//         try {
+//             return await SongModel.find()
+//                 .populate('performer')
+//                 .populate('collaborators')
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving songs');
+//         }
+//     }
+//
+//     async findByPerformer(performerId: string): Promise<ISong[]> {
+//         try {
+//             return await SongModel.find({ performer: performerId })
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving songs by performer');
+//         }
+//     }
+//
+//     async findByCollaborator(collaboratorId: string): Promise<ISong[]> {
+//         try {
+//             return await SongModel.find({ collaborators: collaboratorId })
+//                 .populate('performer')
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving songs by collaborator');
+//         }
+//     }
+//
+//     async create(songData: Partial<ISong>): Promise<ISong> {
+//         try {
+//             const song = new SongModel(songData);
+//             return await song.save();
+//         } catch (error) {
+//             throw new ApiError(500, 'Error creating song');
+//         }
+//     }
+//
+//     async update(id: string, songData: Partial<ISong>): Promise<ISong | null> {
+//         try {
+//             return await SongModel.findByIdAndUpdate(
+//                 id,
+//                 { $set: songData },
+//                 { new: true }
+//             );
+//         } catch (error) {
+//             throw new ApiError(500, 'Error updating song');
+//         }
+//     }
+//
+//     async delete(id: string): Promise<boolean> {
+//         try {
+//             const result = await SongModel.findByIdAndDelete(id);
+//             return result !== null;
+//         } catch (error) {
+//             throw new ApiError(500, 'Error deleting song');
+//         }
+//     }
+// }

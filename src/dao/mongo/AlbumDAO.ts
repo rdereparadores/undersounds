@@ -1,143 +1,131 @@
-/*import { IAlbumDAO } from "../interfaces/IAlbumDAO";
-import { IAlbum } from "../../models/interfaces/IAlbum";
-import AlbumModel from "../../models/AlbumModel";
-import { ApiError } from "../../utils/ApiError";
-import mongoose from "mongoose";
-
-export class AlbumDAO implements IAlbumDAO {
-    async findAll(): Promise<IAlbum[]> {
-        return await AlbumModel.find()
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async findById(id: string): Promise<IAlbum | null> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid album ID format');
-        }
-
-        return await AlbumModel.findById(id)
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async findByTitle(title: string): Promise<IAlbum[]> {
-        return await AlbumModel.find({
-            title: { $regex: title, $options: 'i' }
-        })
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async findByGenre(genreId: string): Promise<IAlbum[]> {
-        if (!mongoose.Types.ObjectId.isValid(genreId)) {
-            throw ApiError.badRequest('Invalid genre ID format');
-        }
-
-        return await AlbumModel.find({
-            genres: genreId
-        })
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async findByDateRange(startDate: Date, endDate: Date): Promise<IAlbum[]> {
-        return await AlbumModel.find({
-            release_date: {
-                $gte: startDate,
-                $lte: endDate
-            }
-        })
-            .sort({ release_date: -1 })
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async create(albumData: Partial<IAlbum>): Promise<IAlbum> {
-        const newAlbum = new AlbumModel(albumData);
-        return await newAlbum.save();
-    }
-
-    async update(id: string, albumData: Partial<IAlbum>): Promise<IAlbum | null> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid album ID format');
-        }
-
-        return await AlbumModel.findByIdAndUpdate(
-            id,
-            { $set: albumData },
-            { new: true, runValidators: true }
-        )
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async delete(id: string): Promise<boolean> {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw ApiError.badRequest('Invalid album ID format');
-        }
-
-        const result = await AlbumModel.deleteOne({ _id: id });
-        return result.deletedCount === 1;
-    }
-
-    async addSongToAlbum(albumId: string, songId: string): Promise<IAlbum | null> {
-        if (!mongoose.Types.ObjectId.isValid(albumId) || !mongoose.Types.ObjectId.isValid(songId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await AlbumModel.findByIdAndUpdate(
-            albumId,
-            { $addToSet: { track_list: songId } },
-            { new: true, runValidators: true }
-        )
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async removeSongFromAlbum(albumId: string, songId: string): Promise<IAlbum | null> {
-        if (!mongoose.Types.ObjectId.isValid(albumId) || !mongoose.Types.ObjectId.isValid(songId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await AlbumModel.findByIdAndUpdate(
-            albumId,
-            { $pull: { track_list: songId } },
-            { new: true }
-        )
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async addGenreToAlbum(albumId: string, genreId: string): Promise<IAlbum | null> {
-        if (!mongoose.Types.ObjectId.isValid(albumId) || !mongoose.Types.ObjectId.isValid(genreId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await AlbumModel.findByIdAndUpdate(
-            albumId,
-            { $addToSet: { genres: genreId } },
-            { new: true, runValidators: true }
-        )
-            .populate('track_list')
-            .populate('genres');
-    }
-
-    async removeGenreFromAlbum(albumId: string, genreId: string): Promise<IAlbum | null> {
-        if (!mongoose.Types.ObjectId.isValid(albumId) || !mongoose.Types.ObjectId.isValid(genreId)) {
-            throw ApiError.badRequest('Invalid ID format');
-        }
-
-        return await AlbumModel.findByIdAndUpdate(
-            albumId,
-            { $pull: { genres: genreId } },
-            { new: true }
-        )
-            .populate('track_list')
-            .populate('genres');
-    }
-}
-
- */
-
-// DESCOMENTAR CUANDO LA CARPETA MODELO ESTE IMPORTADA
+// import { IAlbumDAO } from '../interfaces/IAlbumDAO';
+// import { IAlbum } from '../../models/interfaces/IAlbum';
+// import AlbumModel from '../../models/AlbumModel';
+// import { ApiError } from '../../utils/ApiError';
+//
+// export class AlbumDAO implements IAlbumDAO {
+//     async findById(id: string): Promise<IAlbum | null> {
+//         try {
+//             return await AlbumModel.findById(id);
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving album');
+//         }
+//     }
+//
+//     async findByIdWithDetails(id: string): Promise<IAlbum | null> {
+//         try {
+//             return await AlbumModel.findById(id)
+//                 .populate({
+//                     path: 'track_list',
+//                     populate: [
+//                         { path: 'performer' },
+//                         { path: 'collaborators' },
+//                         { path: 'genres' }
+//                     ]
+//                 })
+//                 .populate('genres');
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving album with details');
+//         }
+//     }
+//
+//     async findByGenrePaginated(genreId: string, skip: number, limit: number): Promise<IAlbum[]> {
+//         try {
+//             return await AlbumModel.find({ genres: genreId })
+//                 .skip(skip)
+//                 .limit(limit);
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving albums by genre');
+//         }
+//     }
+//
+//     async countByGenre(genreId: string): Promise<number> {
+//         try {
+//             return await AlbumModel.countDocuments({ genres: genreId });
+//         } catch (error) {
+//             throw new ApiError(500, 'Error counting albums by genre');
+//         }
+//     }
+//
+//     async findRecommendations(albumId: string, limit: number): Promise<IAlbum[]> {
+//         try {
+//             const album = await AlbumModel.findById(albumId);
+//             if (!album) {
+//                 throw new ApiError(404, 'Album not found');
+//             }
+//
+//             // Obtener recomendaciones basadas en géneros similares
+//             return await AlbumModel.find({
+//                 _id: { $ne: albumId },
+//                 genres: { $in: album.genres }
+//             })
+//                 .limit(limit);
+//         } catch (error) {
+//             if (error instanceof ApiError) throw error;
+//             throw new ApiError(500, 'Error finding album recommendations');
+//         }
+//     }
+//
+//     // Métodos no utilizados por los controladores actuales pero posibles posteriormente
+//     async findAll(): Promise<IAlbum[]> {
+//         try {
+//             return await AlbumModel.find();
+//         } catch (error) {
+//             throw new ApiError(500, 'Error retrieving albums');
+//         }
+//     }
+//
+//     async create(albumData: Partial<IAlbum>): Promise<IAlbum> {
+//         try {
+//             const album = new AlbumModel(albumData);
+//             return await album.save();
+//         } catch (error) {
+//             throw new ApiError(500, 'Error creating album');
+//         }
+//     }
+//
+//     async update(id: string, albumData: Partial<IAlbum>): Promise<IAlbum | null> {
+//         try {
+//             return await AlbumModel.findByIdAndUpdate(
+//                 id,
+//                 { $set: albumData },
+//                 { new: true }
+//             );
+//         } catch (error) {
+//             throw new ApiError(500, 'Error updating album');
+//         }
+//     }
+//
+//     async delete(id: string): Promise<boolean> {
+//         try {
+//             const result = await AlbumModel.findByIdAndDelete(id);
+//             return result !== null;
+//         } catch (error) {
+//             throw new ApiError(500, 'Error deleting album');
+//         }
+//     }
+//
+//     async addTrack(albumId: string, songId: string): Promise<IAlbum | null> {
+//         try {
+//             return await AlbumModel.findByIdAndUpdate(
+//                 albumId,
+//                 { $addToSet: { track_list: songId } },
+//                 { new: true }
+//             );
+//         } catch (error) {
+//             throw new ApiError(500, 'Error adding track to album');
+//         }
+//     }
+//
+//     async removeTrack(albumId: string, songId: string): Promise<IAlbum | null> {
+//         try {
+//             return await AlbumModel.findByIdAndUpdate(
+//                 albumId,
+//                 { $pull: { track_list: songId } },
+//                 { new: true }
+//             );
+//         } catch (error) {
+//             throw new ApiError(500, 'Error removing track from album');
+//         }
+//     }
+// }
