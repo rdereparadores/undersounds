@@ -1,21 +1,29 @@
 import mongoose, { Schema } from 'mongoose';
 import { IAlbum } from './interfaces/IAlbum';
-import ProductModel from './ProductModel';
+import ProductModel, { PricingSchema } from './ProductModel';
+import { IAlbumVersion } from './interfaces/IAlbumVersion';
 
-// Schema para Album (extiende Product)
-const AlbumSchema: Schema = new Schema<IAlbum>({
-    // Los campos base ya están definidos en ProductSchema
-    // Relaciones específicas de Album
+const AlbumVersionSchema: Schema = new Schema<IAlbumVersion>({
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    img_url: { type: String, required: true },
+    duration: { type: Number, required: true },
+    pricing: { type: PricingSchema, required: true },
     track_list: [{
         type: Schema.Types.ObjectId,
         ref: 'Song',
         required: true
     }],
-    genres: [{
+    createdAt: { type: Date, required: true }
+})
+
+const AlbumSchema: Schema = new Schema<IAlbum>({
+    track_list: [{
         type: Schema.Types.ObjectId,
-        ref: 'Genre',
+        ref: 'Song',
         required: true
-    }]
+    }],
+    version_history: [AlbumVersionSchema]
 });
 
 // Crear modelo Album como discriminador de Product

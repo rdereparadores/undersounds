@@ -1,8 +1,8 @@
 import { Document, Types } from 'mongoose';
 import { IProduct } from './IProduct';
+import { IAlbumVersion } from './IAlbumVersion';
 
 export interface IAlbum extends IProduct {
-    // Relaciones
-    track_list: Types.ObjectId[]; // Referencias a Song
-    genres: Types.ObjectId[]; // Referencias a Genre
+    track_list: Types.ObjectId[], // Referencias a Song
+    version_history: IAlbumVersion[]
 }

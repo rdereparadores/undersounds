@@ -1,7 +1,7 @@
-import { IUser } from './IUser';
+import { IBaseUser } from './IBaseUser'
 
-export interface IArtist extends IUser {
-    artist_name: string;
-    artist_user_name: string;
-    bank_account: string;
+export interface IArtist extends IBaseUser {
+    artist_name: string
+    artist_user_name: string
+    bank_account: string
 }

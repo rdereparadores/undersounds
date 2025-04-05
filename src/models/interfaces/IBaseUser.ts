@@ -14,7 +14,7 @@ export interface IAddress {
     observations?: string;
 }
 
-export interface IUser extends Document {
+export interface IBaseUser extends Document {
     name: string;
     sur_name: string;
     birth_date: Date;
@@ -22,7 +22,5 @@ export interface IUser extends Document {
     uid: string;
     img_url: string;
     address: IAddress[];
-    role: 'user' | 'artist';
-    createdAt: Date;
-    updatedAt: Date;
+    role: 'User' | 'Artist';
 }

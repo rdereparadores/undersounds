@@ -22,10 +22,7 @@ const RatingSchema: Schema = new Schema<IRating>({
         ref: 'Product',
         required: true
     }
-}, {
-    timestamps: true,
-    versionKey: false
-});
+}, { timestamps: true });
 
 // Índices para búsquedas eficientes
 RatingSchema.index({ author: 1 });
