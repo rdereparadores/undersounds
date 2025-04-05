@@ -16,9 +16,7 @@ export class App {
     }
 
     middlewares() {
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(cors());
+        this.app.use('/', express.static('src/views'))
         this.app.use((req, res, next) => {
             req.db = this.db;
             next();
