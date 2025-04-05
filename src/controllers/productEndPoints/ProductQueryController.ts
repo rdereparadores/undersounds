@@ -1,11 +1,12 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
 //
 // export class ProductQueryController {
 //     /**
 //      * @desc    Search for products (songs, albums) with various filters
-//      * @route   GET /api/shop/query
+//      * @route   GET /api/products/query
 //      * @access  Public
 //      */
 //     async queryProducts(req: Request, res: Response, next: NextFunction) {
@@ -104,8 +105,16 @@
 //             const totalProducts = await productDAO.countByFilter(filter);
 //             const totalPages = Math.ceil(totalProducts / limitNumber);
 //
+//             // Convert products to DTOs
+//             const productDTOs = products.map(product => {
+//                 if (product.product_type === 'Album') {
+//                     return MapperUtils.toAlbumDTO(product as unknown as IAlbum);
+//                 }
+//                 return MapperUtils.toProductDTO(product);
+//             });
+//
 //             const response = {
-//                 products,
+//                 products: productDTOs,
 //                 pagination: {
 //                     currentPage: pageNumber,
 //                     totalPages,

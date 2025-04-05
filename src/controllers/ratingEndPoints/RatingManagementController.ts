@@ -1,7 +1,7 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
-// import { UpdateRatingDTO } from '../../dto/RatingDTO';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
 //
 // export class RatingManagementController {
 //     /**
@@ -12,8 +12,12 @@
 //     async updateRating(req: Request, res: Response, next: NextFunction) {
 //         try {
 //             const { id } = req.params;
-//             const ratingData: UpdateRatingDTO = req.body;
-//             const userId = req.user?.id; // Assuming user info is attached to request by auth middleware
+//             const ratingData = req.body;
+//
+//             // Para simplificar el ejercicio, no implementamos autenticación
+//             // pero en un caso real deberíamos validar que el usuario actual
+//             // es el autor del rating o es un administrador
+//             // const userId = req.user?.id;
 //
 //             // Validate rating value if provided
 //             if (ratingData.rating !== undefined && (ratingData.rating < 1 || ratingData.rating > 5)) {
@@ -32,14 +36,20 @@
 //             }
 //
 //             // Authorize user (rating author or admin)
-//             if (userId !== existingRating.author.toString() && req.user?.role !== 'admin') {
-//                 throw ApiError.forbidden('Not authorized to update this rating');
-//             }
+//             // if (userId !== existingRating.author.toString() && req.user?.role !== 'admin') {
+//             //     throw ApiError.forbidden('Not authorized to update this rating');
+//             // }
 //
 //             const updatedRating = await ratingDAO.update(id, ratingData);
+//             if (!updatedRating) {
+//                 throw ApiError.notFound('Rating not found after update attempt');
+//             }
+//
+//             // Convert to DTO for response
+//             const ratingDTO = MapperUtils.toRatingDTO(updatedRating);
 //
 //             res.status(200).json(
-//                 ApiResponse.success(updatedRating, 'Rating updated successfully')
+//                 ApiResponse.success(ratingDTO, 'Rating updated successfully')
 //             );
 //         } catch (error) {
 //             next(error);
@@ -54,7 +64,11 @@
 //     async deleteRating(req: Request, res: Response, next: NextFunction) {
 //         try {
 //             const { id } = req.params;
-//             const userId = req.user?.id; // Assuming user info is attached to request by auth middleware
+//
+//             // Para simplificar el ejercicio, no implementamos autenticación
+//             // pero en un caso real deberíamos validar que el usuario actual
+//             // es el autor del rating o es un administrador
+//             // const userId = req.user?.id;
 //
 //             const ratingDAO = req.db?.getRatingDAO();
 //             if (!ratingDAO) {
@@ -68,9 +82,9 @@
 //             }
 //
 //             // Authorize user (rating author or admin)
-//             if (userId !== existingRating.author.toString() && req.user?.role !== 'admin') {
-//                 throw ApiError.forbidden('Not authorized to delete this rating');
-//             }
+//             // if (userId !== existingRating.author.toString() && req.user?.role !== 'admin') {
+//             //     throw ApiError.forbidden('Not authorized to delete this rating');
+//             // }
 //
 //             const deleted = await ratingDAO.delete(id);
 //

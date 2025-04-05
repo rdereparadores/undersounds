@@ -1,8 +1,10 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
+// import { IAlbum } from '../../../models/interfaces/IAlbum';
 //
-// export class GenreGetProductsController {
+// export class GetProductsByGenreController {
 //     /**
 //      * @desc    Get products by genre
 //      * @route   GET /api/genres/:id/products
@@ -46,16 +48,18 @@
 //                     throw ApiError.internal('Database access error');
 //                 }
 //
-//                 products = await songDAO.findByGenrePaginated(id, skip, limitNumber);
+//                 const songs = await songDAO.findByGenrePaginated(id, skip, limitNumber);
 //                 totalProducts = await songDAO.countByGenre(id);
+//                 products = songs.map(song => MapperUtils.toSongDTO(song));
 //             } else if (productType === 'album') {
 //                 const albumDAO = req.db?.getAlbumDAO();
 //                 if (!albumDAO) {
 //                     throw ApiError.internal('Database access error');
 //                 }
 //
-//                 products = await albumDAO.findByGenrePaginated(id, skip, limitNumber);
+//                 const albums = await albumDAO.findByGenrePaginated(id, skip, limitNumber);
 //                 totalProducts = await albumDAO.countByGenre(id);
+//                 products = albums.map(album => MapperUtils.toAlbumDTO(album));
 //             } else {
 //                 // If no specific product type, get all products with this genre
 //                 const productDAO = req.db?.getProductDAO();
@@ -63,14 +67,22 @@
 //                     throw ApiError.internal('Database access error');
 //                 }
 //
-//                 products = await productDAO.findByGenrePaginated(id, skip, limitNumber);
+//                 const productsData = await productDAO.findByGenrePaginated(id, skip, limitNumber);
 //                 totalProducts = await productDAO.countByGenre(id);
+//
+//                 // Mapear productos según su tipo
+//                 products = productsData.map(product => {
+//                     if (product.product_type === 'Album') {
+//                         return MapperUtils.toAlbumDTO(product as unknown as IAlbum);
+//                     }
+//                     return MapperUtils.toProductDTO(product);
+//                 });
 //             }
 //
 //             const totalPages = Math.ceil(totalProducts / limitNumber);
 //
 //             const response = {
-//                 genre,
+//                 genre: MapperUtils.toGenreDTO(genre),
 //                 products,
 //                 pagination: {
 //                     currentPage: pageNumber,

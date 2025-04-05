@@ -1,11 +1,12 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
 //
 // export class SongInfoController {
 //     /**
 //      * @desc    Get song information including title, artists, prices, recommendations
-//      * @route   GET /api/song/info
+//      * @route   GET /api/songs/info
 //      * @access  Public
 //      */
 //     async getSongInfo(req: Request, res: Response, next: NextFunction) {
@@ -27,16 +28,22 @@
 //                 throw ApiError.notFound('Song not found');
 //             }
 //
-//             // Get recommendations based on this song
-//             const recommendations = await songDAO.findRecommendations(id, 5); // Get 5 recommendations
+//             // Incrementar contador de reproducciones
+//             await songDAO.incrementPlays(id);
 //
-//             // Get pricing info if needed
-//             // This info is available from song object if pricing is stored there,
-//             // otherwise you might need to fetch it from ProductDAO if songs are products
+//             // Obtener detalles completos de la canción con relaciones populadas
+//             const songWithDetails = await songDAO.findByIdWithDetails(id);
+//
+//             // Get recommendations based on this song
+//             const recommendationsList = await songDAO.findRecommendations(id, 5); // Get 5 recommendations
+//             const recommendations = recommendationsList.map(rec => MapperUtils.toSongDTO(rec));
+//
+//             // Convert to DTO for response
+//             const songDTO = MapperUtils.toSongDTO(songWithDetails!);
 //
 //             // Construct response object with all the required info
 //             const response = {
-//                 song,
+//                 song: songDTO,
 //                 recommendations
 //             };
 //

@@ -1,18 +1,18 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
-// import { PricingDTO } from '../../dto/ProductDTO';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
 //
-// export class PricingUpdateController {
+// export class UpdateProductsPricingController {
 //     /**
 //      * @desc    Update product pricing (admin only)
-//      * @route   PUT /api/pricing/:productId
+//      * @route   PUT /api/products/pricing/:productId
 //      * @access  Private (Admin)
 //      */
 //     async updateProductPricing(req: Request, res: Response, next: NextFunction) {
 //         try {
 //             const { productId } = req.params;
-//             const pricingData: Partial<PricingDTO> = req.body;
+//             const pricingData = req.body;
 //
 //             // Validate pricing data
 //             this.validatePricingData(pricingData);
@@ -40,8 +40,10 @@
 //                 throw ApiError.notFound('Product not found');
 //             }
 //
+//             const productDTO = MapperUtils.toProductDTO(updatedProduct);
+//
 //             res.status(200).json(
-//                 ApiResponse.success(updatedProduct, 'Product pricing updated successfully')
+//                 ApiResponse.success(productDTO, 'Product pricing updated successfully')
 //             );
 //         } catch (error) {
 //             next(error);
@@ -51,7 +53,7 @@
 //     /**
 //      * Helper method to validate pricing data
 //      */
-//     private validatePricingData(pricing: Partial<PricingDTO>): void {
+//     private validatePricingData(pricing: any): void {
 //         // Check if at least one pricing value is provided
 //         if (!pricing || Object.keys(pricing).length === 0) {
 //             throw ApiError.badRequest('At least one pricing value is required');

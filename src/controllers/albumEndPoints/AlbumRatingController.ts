@@ -1,14 +1,15 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
 //
-// export class AlbumInfoController {
+// export class AlbumRatingController {
 //     /**
-//      * @desc    Get album information including title, artists, tracklist
-//      * @route   GET /api/album/info
+//      * @desc    Get album ratings and reviews
+//      * @route   GET /api/albums/ratings
 //      * @access  Public
 //      */
-//     async getAlbumInfo(req: Request, res: Response, next: NextFunction) {
+//     async getAlbumRatings(req: Request, res: Response, next: NextFunction) {
 //         try {
 //             const { id } = req.query;
 //
@@ -21,17 +22,38 @@
 //                 throw ApiError.internal('Database access error');
 //             }
 //
+//             // Verify album exists
 //             const album = await albumDAO.findById(id);
-//
 //             if (!album) {
 //                 throw ApiError.notFound('Album not found');
 //             }
 //
-//             // Ensure tracklist and artist info is populated
-//             const populatedAlbum = await albumDAO.findByIdWithDetails(id);
+//             const ratingDAO = req.db?.getRatingDAO();
+//             if (!ratingDAO) {
+//                 throw ApiError.internal('Database access error');
+//             }
+//
+//             // Get all ratings for this album
+//             const ratings = await ratingDAO.findByProduct(id);
+//
+//             // Get average rating
+//             const averageRating = await ratingDAO.getAverageRatingForProduct(id);
+//
+//             // Convert ratings to DTOs
+//             const ratingDTOs = ratings.map(rating => MapperUtils.toRatingDTO(rating));
+//
+//             const response = {
+//                 album: {
+//                     id: album._id.toString(),
+//                     title: album.title
+//                 },
+//                 ratings: ratingDTOs,
+//                 averageRating,
+//                 totalRatings: ratings.length
+//             };
 //
 //             res.status(200).json(
-//                 ApiResponse.success(populatedAlbum, 'Album information retrieved successfully')
+//                 ApiResponse.success(response, 'Album ratings retrieved successfully')
 //             );
 //         } catch (error) {
 //             next(error);

@@ -1,7 +1,7 @@
 // import { Request, Response, NextFunction } from 'express';
 // import { ApiResponse } from '../../utils/ApiResponse';
 // import { ApiError } from '../../utils/ApiError';
-// import { CreateRatingDTO } from '../../dto/RatingDTO';
+// import { MapperUtils } from '../../utils/MapperUtils';
 //
 // export class RatingCreationController {
 //     /**
@@ -11,7 +11,7 @@
 //      */
 //     async createRating(req: Request, res: Response, next: NextFunction) {
 //         try {
-//             const ratingData: CreateRatingDTO = req.body;
+//             const ratingData = req.body;
 //
 //             // Validate rating value
 //             if (ratingData.rating < 1 || ratingData.rating > 5) {
@@ -24,15 +24,16 @@
 //             }
 //
 //             // Verify user exists
-//             const userDAO = req.db?.getUserDAO();
-//             if (!userDAO) {
-//                 throw ApiError.internal('Database access error');
-//             }
-//
-//             const user = await userDAO.findById(ratingData.author);
-//             if (!user) {
-//                 throw ApiError.badRequest('Invalid author ID');
-//             }
+//             // Se asume que habrá un UserDAO pero no se implementa para este ejercicio
+//             // const userDAO = req.db?.getUserDAO();
+//             // if (!userDAO) {
+//             //     throw ApiError.internal('Database access error');
+//             // }
+//             //
+//             // const user = await userDAO.findById(ratingData.author);
+//             // if (!user) {
+//             //     throw ApiError.badRequest('Invalid author ID');
+//             // }
 //
 //             // Verify product exists
 //             const productDAO = req.db?.getProductDAO();
@@ -61,8 +62,11 @@
 //                 publish_date: new Date()
 //             });
 //
+//             // Convert to DTO for response
+//             const ratingDTO = MapperUtils.toRatingDTO(newRating);
+//
 //             res.status(201).json(
-//                 ApiResponse.created(newRating, 'Rating created successfully')
+//                 ApiResponse.created(ratingDTO, 'Rating created successfully')
 //             );
 //         } catch (error) {
 //             next(error);

@@ -1,14 +1,15 @@
 // import { Request, Response, NextFunction } from 'express';
-// import { ApiResponse } from '../../utils/ApiResponse';
-// import { ApiError } from '../../utils/ApiError';
+// import { ApiResponse } from '../../../utils/ApiResponse';
+// import { ApiError } from '../../../utils/ApiError';
+// import { MapperUtils } from '../../../utils/MapperUtils';
 //
-// export class SongInfoController {
+// export class SongRatingController {
 //     /**
-//      * @desc    Get song information including title, artists, prices, recommendations
-//      * @route   GET /api/song/info
+//      * @desc    Get song ratings and reviews
+//      * @route   GET /api/songs/ratings
 //      * @access  Public
 //      */
-//     async getSongInfo(req: Request, res: Response, next: NextFunction) {
+//     async getSongRatings(req: Request, res: Response, next: NextFunction) {
 //         try {
 //             const { id } = req.query;
 //
@@ -21,27 +22,38 @@
 //                 throw ApiError.internal('Database access error');
 //             }
 //
+//             // Verify song exists
 //             const song = await songDAO.findById(id);
-//
 //             if (!song) {
 //                 throw ApiError.notFound('Song not found');
 //             }
 //
-//             // Get recommendations based on this song
-//             const recommendations = await songDAO.findRecommendations(id, 5); // Get 5 recommendations
+//             const ratingDAO = req.db?.getRatingDAO();
+//             if (!ratingDAO) {
+//                 throw ApiError.internal('Database access error');
+//             }
 //
-//             // Get pricing info if needed
-//             // This info is available from song object if pricing is stored there,
-//             // otherwise you might need to fetch it from ProductDAO if songs are products
+//             // Get all ratings for this song
+//             const ratings = await ratingDAO.findByProduct(id);
 //
-//             // Construct response object with all the required info
+//             // Get average rating
+//             const averageRating = await ratingDAO.getAverageRatingForProduct(id);
+//
+//             // Convert ratings to DTOs
+//             const ratingDTOs = ratings.map(rating => MapperUtils.toRatingDTO(rating));
+//
 //             const response = {
-//                 song,
-//                 recommendations
+//                 song: {
+//                     id: song._id.toString(),
+//                     title: song.title
+//                 },
+//                 ratings: ratingDTOs,
+//                 averageRating,
+//                 totalRatings: ratings.length
 //             };
 //
 //             res.status(200).json(
-//                 ApiResponse.success(response, 'Song information retrieved successfully')
+//                 ApiResponse.success(response, 'Song ratings retrieved successfully')
 //             );
 //         } catch (error) {
 //             next(error);
