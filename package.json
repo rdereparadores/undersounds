@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx tsc && node dist/index.js",
+    "update-views": "node scripts/update-views.js",
     "dev": "nodemon index.ts"
   },
   "repository": {
@@ -30,6 +31,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fs-extra": "^11.3.0",
     "mongoose": "^8.13.0"
   }
 }

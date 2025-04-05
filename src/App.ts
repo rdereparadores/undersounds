@@ -15,6 +15,7 @@ export class App {
     }
 
     middlewares() {
+        this.app.use('/', express.static('src/views'))
         this.app.use((req, res, next) => {
             req.db = this.db
             next()
