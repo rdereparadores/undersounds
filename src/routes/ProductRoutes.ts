@@ -3,8 +3,6 @@
 // import { ComparePricingController } from '../controllers/products/pricing/ComparePricingController';
 // import { UpdateProductsPricingController } from '../controllers/products/pricing/UpdateProductsPricingController';
 // import { ProductQueryController } from '../controllers/shop/ProductQueryController';
-// // Importar middleware de autenticación y autorización cuando esté disponible
-// // import { authenticate, authorize } from '../middleware/AuthMiddleware';
 //
 // const router = express.Router();
 // const getProductsPricingController = new GetProductsPricingController();
@@ -102,6 +100,12 @@
 //  *         description: Product not found
 //  *       500:
 //  *         description: Server error
+//  */
+// router.get('/pricing/:productId', getProductsPricingController.getProductPricing);
+//
+// /**
+//  * @swagger
+//  * /api/products/pricing/{productId}:
 //  *   put:
 //  *     summary: Update product pricing (admin only)
 //  *     tags: [Products, Pricing]
@@ -144,9 +148,6 @@
 //  *       500:
 //  *         description: Server error
 //  */
-// router.get('/pricing/:productId', getProductsPricingController.getProductPricing);
-// // Añadir middleware de autenticación y autorización cuando esté disponible
-// // router.put('/pricing/:productId', authenticate, authorize('admin'), updateProductsPricingController.updateProductPricing);
 // router.put('/pricing/:productId', updateProductsPricingController.updateProductPricing);
 //
 // /**

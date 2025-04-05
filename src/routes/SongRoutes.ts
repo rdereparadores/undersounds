@@ -1,4 +1,3 @@
-// // Actualización para SongRoutes.ts
 // import express from 'express';
 // import { SongInfoController } from '../controllers/songs/SongInfoController';
 // import { SongRatingController } from '../controllers/songs/SongRatingController';
@@ -51,7 +50,7 @@
 //  *       500:
 //  *         description: Server error
 //  */
-// router.get('/ratings', songRatingController.getSongInfo);
+// router.get('/ratings', songRatingController.getSongRatings);
 //
 // /**
 //  * @swagger

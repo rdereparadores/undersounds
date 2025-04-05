@@ -1,8 +1,6 @@
 // import express from 'express';
 // import { RatingCreationController } from '../controllers/ratings/RatingCreationController';
 // import { RatingManagementController } from '../controllers/ratings/RatingManagementController';
-// // Importar middleware de autenticación cuando esté disponible
-// // import { authenticate } from '../middleware/AuthMiddleware';
 //
 // const router = express.Router();
 // const ratingCreationController = new RatingCreationController();
@@ -51,8 +49,6 @@
 //  *       500:
 //  *         description: Server error
 //  */
-// // Añadir middleware de autenticación cuando esté disponible
-// // router.post('/create', authenticate, ratingCreationController.createRating);
 // router.post('/create', ratingCreationController.createRating);
 //
 // /**
@@ -93,6 +89,12 @@
 //  *         description: Rating not found
 //  *       500:
 //  *         description: Server error
+//  */
+// router.put('/:id', ratingManagementController.updateRating);
+//
+// /**
+//  * @swagger
+//  * /api/ratings/{id}:
 //  *   delete:
 //  *     summary: Delete a rating
 //  *     tags: [Ratings]
@@ -114,10 +116,6 @@
 //  *       500:
 //  *         description: Server error
 //  */
-// // Añadir middleware de autenticación cuando esté disponible
-// // router.put('/:id', authenticate, ratingManagementController.updateRating);
-// // router.delete('/:id', authenticate, ratingManagementController.deleteRating);
-// router.put('/:id', ratingManagementController.updateRating);
 // router.delete('/:id', ratingManagementController.deleteRating);
 //
 // export default router;

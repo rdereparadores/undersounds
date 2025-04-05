@@ -4,11 +4,6 @@
 // import genreRoutes from './GenreRoutes';
 // import productRoutes from './ProductRoutes';
 // import ratingRoutes from './RatingRoutes';
-// import shopRoutes from './ShopRoutes';
-// // Descomenta cuando implementes las demás rutas
-// // import userRoutes from './UserRoutes';
-// // import artistRoutes from './ArtistRoutes';
-// // import orderRoutes from './OrderRoutes';
 //
 // const router = express.Router();
 //
@@ -27,10 +22,5 @@
 // router.use('/genres', genreRoutes);
 // router.use('/products', productRoutes);
 // router.use('/ratings', ratingRoutes);
-//
-// // Descomenta cuando implementes las demás rutas
-// // router.use('/users', userRoutes);
-// // router.use('/artists', artistRoutes);
-// // router.use('/orders', orderRoutes);
 //
 // export default router;

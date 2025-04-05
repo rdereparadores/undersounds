@@ -1,4 +1,3 @@
-// // Actualización para AlbumRoutes.ts
 // import express from 'express';
 // import { AlbumInfoController } from '../controllers/albums/AlbumInfoController';
 // import { AlbumRatingController } from '../controllers/albums/AlbumRatingController';
@@ -49,6 +48,6 @@
 //  *       500:
 //  *         description: Server error
 //  */
-// router.get('/ratings', albumRatingController.getAlbumInfo);
+// router.get('/ratings', albumRatingController.getAlbumRatings);
 //
 // export default router;
