@@ -1,10 +1,7 @@
 import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory";
 import express from 'express';
 import cors from 'cors';
-import { setupSwagger } from './swagger';
 import routes from './routes';
-import { errorHandler } from './middleware/ErrorMiddleware';
-
 export class App {
 
     db: MongoDBDAOFactory;
@@ -16,8 +13,6 @@ export class App {
 
         this.middlewares();
         this.routes();
-        this.setupSwagger();
-        this.errorHandling();
     }
 
     middlewares() {
@@ -32,14 +27,6 @@ export class App {
 
     routes() {
         this.app.use('/api', routes);
-    }
-
-    setupSwagger() {
-        setupSwagger(this.app);
-    }
-
-    errorHandling() {
-        this.app.use(errorHandler);
     }
 
     listen() {
