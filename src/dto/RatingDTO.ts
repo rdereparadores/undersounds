@@ -1,36 +1,27 @@
-/*import { UserResponseDTO } from './UserDTO';*/ // -- DESCOMENTAR CUANDO USERDTO ESTE IMPLEMENTADO
 import { ProductResponseDTO } from './ProductDTO';
 
-// DTO para crear una valoración
-export interface CreateRatingDTO {
-    rating: number;
-    title: string;
-    description: string;
-    author: string; // ID del usuario
-    product: string; // ID del producto
+// DTO para usuario básico (para mostrar autor de valoraciones)
+export interface UserBasicDTO {
+    id: string;
+    name: string;
+    sur_name: string;
+    img_url?: string;
 }
 
-// DTO para actualizar una valoración
-export interface UpdateRatingDTO {
-    rating?: number;
-    title?: string;
-    description?: string;
-}
-
-// DTO para respuesta de valoraciones
+// Respuesta completa para valoración
 export interface RatingResponseDTO {
     id: string;
     rating: number;
     title: string;
     description: string;
     publish_date: Date;
-    /*author: UserResponseDTO;*/
+    author: UserBasicDTO;
     product: ProductResponseDTO;
     createdAt: Date;
     updatedAt: Date;
 }
 
-// DTO simplificado para respuestas anidadas
+// Versión simplificada para listas
 export interface SimpleRatingResponseDTO {
     id: string;
     rating: number;
@@ -42,9 +33,16 @@ export interface SimpleRatingResponseDTO {
     };
 }
 
-// DTO para promedio de valoraciones
-export interface AverageRatingDTO {
-    productId: string;
-    averageRating: number;
-    totalRatings: number;
+export interface CreateRatingDTO {
+    rating: number;
+    title: string;
+    description: string;
+    author: string; // ID del usuario
+    product: string; // ID del producto
+}
+
+export interface UpdateRatingDTO {
+    rating?: number;
+    title?: string;
+    description?: string;
 }

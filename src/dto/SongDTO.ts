@@ -1,54 +1,49 @@
-/*import { ArtistResponseDTO } from './ArtistDTO';*/ // -- DESCOMENTAR CUANDO ARTISTDTO ESTE IMPLEMENTADO
 import { GenreResponseDTO } from './GenreDTO';
 
-// DTO para crear una canción
-export interface CreateSongDTO {
-    song_dir: string;
-    title: string;
-    duration: number;
-    performer: string; // ID del artista principal
-    collaborators?: string[]; // IDs de artistas colaboradores
-    genres: string[]; // IDs de géneros
+// Para cuando necesitamos solo datos básicos de un artista
+export interface ArtistBasicDTO {
+    id: string;
+    artist_name: string;
+    artist_user_name: string;
+    img_url: string;
 }
 
-// DTO para actualizar una canción
-export interface UpdateSongDTO {
-    song_dir?: string;
-    title?: string;
-    duration?: number;
-    performer?: string;
-    collaborators?: string[];
-    genres?: string[];
-}
-
-// DTO para agregar/quitar colaborador a la canción
-export interface SongCollaboratorDTO {
-    artistId: string;
-}
-
-// DTO para agregar/quitar género a la canción
-export interface SongGenreDTO {
-    genreId: string;
-}
-
-// DTO para respuesta de canciones
+// Respuesta completa para canción
 export interface SongResponseDTO {
     id: string;
     song_dir: string;
     title: string;
     duration: number;
     plays: number;
-    /*performer: ArtistResponseDTO;
-    collaborators: ArtistResponseDTO[];*/
+    performer: ArtistBasicDTO;
+    collaborators: ArtistBasicDTO[];
     genres: GenreResponseDTO[];
     createdAt: Date;
     updatedAt: Date;
 }
 
-// DTO simplificado para respuestas anidadas
+// Versión simplificada para usar en listas
 export interface SimpleSongResponseDTO {
     id: string;
     title: string;
     duration: number;
     plays: number;
+}
+
+export interface CreateSongDTO {
+    song_dir: string;
+    title: string;
+    duration: number;
+    performer: string; // ID del artista
+    collaborators?: string[]; // IDs de artistas colaboradores
+    genres: string[]; // IDs de géneros
+}
+
+export interface UpdateSongDTO {
+    song_dir?: string;
+    title?: string;
+    duration?: number;
+    performer?: string; // ID del artista
+    collaborators?: string[]; // IDs de artistas colaboradores
+    genres?: string[]; // IDs de géneros
 }
