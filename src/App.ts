@@ -1,6 +1,6 @@
-import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory";
+import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory"
 import express from 'express'
-
+import routes from './routes'
 export class App {
 
     db: MongoDBDAOFactory
@@ -19,16 +19,17 @@ export class App {
         this.app.use((req, res, next) => {
             req.db = this.db
             next()
-        })
+        });
     }
 
     routes() {
-
+        this.app.use('/api', routes)
     }
 
     listen() {
-        this.app.listen(process.env.PORT, () => {
-            console.log(`Backend running at port ${process.env.PORT}`)
-        })
+        const port = process.env.PORT || 3000
+        this.app.listen(port, () => {
+            console.log(`Backend running at port ${port}`)
+        });
     }
 }

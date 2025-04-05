@@ -1,6 +1,7 @@
 {
   "name": "undersounds",
   "version": "1.0.0",
+  "description": "Backend para la aplicación UnderSounds",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,15 +19,13 @@
     "url": "https://github.com/rdereparadores/undersounds/issues"
   },
   "homepage": "https://github.com/rdereparadores/undersounds#readme",
-  "description": "",
   "devDependencies": {
-    "@types/dotenv": "^6.1.1",
-    "@types/express": "^5.0.1",
-    "@types/node": "^22.13.14",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "@types/node": "^18.15.11",
     "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "tslib": "^2.8.1",
-    "typescript": "^5.8.2"
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
