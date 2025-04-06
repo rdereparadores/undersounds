@@ -1,3 +1,5 @@
+import { IRating } from "../models/Rating"
+
 export interface RatingDTOProps {
     _id: string,
     rating: number,
@@ -33,5 +35,16 @@ export class RatingDTO implements RatingDTOProps {
             publish_date: this.publish_date,
             author: this.author
         }
+    }
+
+    static fromDocument(doc: IRating) {
+        return new RatingDTO({
+            _id: doc._id.toString(),
+            rating: doc.rating,
+            title: doc.title,
+            description: doc.description,
+            publish_date: doc.publish_date,
+            author: doc.author.toString()
+        })
     }
 }
