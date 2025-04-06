@@ -51,4 +51,14 @@ export class UserDAO {
         );
         return updatedUser ? new UserDTO(updatedUser.toObject()) : null;
     }
+
+    //Permite añadir items a la librería
+    async addLibraryItem(userId: string, libraryItemId: string): Promise<UserDTO | null> {
+        const updatedUser = await this.model.findByIdAndUpdate(
+            userId,
+            { $push: { library: libraryItemId } },
+            { new: true }
+        );
+        return updatedUser ? new UserDTO(updatedUser.toObject()) : null;
+    }
 }
