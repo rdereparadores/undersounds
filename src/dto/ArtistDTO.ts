@@ -1,3 +1,4 @@
+import { IArtist } from "../models/Artist";
 import { BaseUserDTO, BaseUserDTOProps } from "./BaseUserDTO";
 
 export interface ArtistDTOProps extends BaseUserDTOProps {
@@ -26,5 +27,15 @@ export class ArtistDTO extends BaseUserDTO implements ArtistDTOProps{
             artist_user_name: this.artist_user_name,
             bank_account: this.bank_account
         }
+    }
+
+    static fromDocument(doc: IArtist): ArtistDTO {
+        const baseUserProps = BaseUserDTO.fromDocument(doc).toJson()
+        return new ArtistDTO({
+            ...baseUserProps,
+            artist_name: doc.artist_name,
+            artist_user_name: doc.artist_user_name,
+            bank_account: doc.bank_account
+        })
     }
 }

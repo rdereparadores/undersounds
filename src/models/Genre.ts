@@ -1,7 +1,7 @@
-import mongoose, { Document, model, Schema } from "mongoose"
+import { Document, model, Schema, Types } from "mongoose"
 
 export interface IGenre extends Document {
-    _id: mongoose.Types.ObjectId,
+    _id: Types.ObjectId,
     genre: string
 }
 

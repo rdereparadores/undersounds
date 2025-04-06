@@ -1,7 +1,7 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
 
 export interface IBaseUser extends Document {
-    _id: mongoose.Types.ObjectId,
+    _id: Types.ObjectId,
     name: string,
     sur_name: string,
     user_name: string,
