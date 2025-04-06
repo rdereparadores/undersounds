@@ -1,64 +1,78 @@
-import { Genre } from '../models/Genre';
-import { ApiError } from '../utils/ApiError';
+import { GenreDTO } from "../dto/GenreDTO";
+import { Genre, IGenre } from "../models/Genre";
 
-export class GenreDAO {
-    async findAll() {
-        try {
-            return await Genre.find().sort({ genre: 1 });
-        } catch (error) {
-            throw new ApiError(500, 'Error retrieving genres');
-        }
+export interface IGenreDAO {
+    create(dto: GenreDTO): Promise<GenreDTO>
+
+    findById(_id: string): Promise<GenreDTO | null>
+
+    findByGenre(genre: string): Promise<GenreDTO | null>
+
+    getAll(): Promise<GenreDTO[]>
+
+    update(dto: GenreDTO): Promise<GenreDTO | null>
+
+    delete(dto: GenreDTO): Promise<boolean>
+}
+
+export class GenreDAO implements IGenreDAO {
+    constructor() {
+
     }
 
-    async findById(id: string) {
-        try {
-            return await Genre.findById(id);
-        } catch (error) {
-            throw new ApiError(500, 'Error retrieving genre');
-        }
+    async create(dto: GenreDTO): Promise<GenreDTO> {
+        const newGenre = await Genre.create({ genre: dto.genre }) as IGenre
+        return new GenreDTO({
+            _id: newGenre._id.toString(),
+            genre: newGenre.genre
+        })
     }
 
-    async findByName(genre: string) {
-        try {
-            return await Genre.findOne({ genre: { $regex: new RegExp(`^${genre}$`, 'i') } });
-        } catch (error) {
-            throw new ApiError(500, 'Error retrieving genre by name');
-        }
+    async findById(_id: string): Promise<GenreDTO | null> {
+        const genre = await Genre.findById(_id)
+        if (!genre) return null
+
+        return new GenreDTO({
+            _id: genre._id.toString(),
+            genre: genre.genre
+        })
     }
 
-    async create(genreData: { genre: string }) {
-        try {
-            const genre = new Genre(genreData);
-            return await genre.save();
-        } catch (error: any) {
-            if (error.code === 11000) { // Duplicate key error
-                throw new ApiError(409, 'Genre already exists');
-            }
-            throw new ApiError(500, 'Error creating genre');
-        }
+    async findByGenre(genre: string): Promise<GenreDTO | null> {
+        const genreDoc = await Genre.findOne({ genre })
+        if (!genreDoc) return null
+
+        return new GenreDTO({
+            _id: genreDoc._id.toString(),
+            genre: genreDoc.genre
+        })
     }
 
-    async update(id: string, genreData: { genre: string }) {
-        try {
-            return await Genre.findByIdAndUpdate(
-                id,
-                { $set: genreData },
-                { new: true }
-            );
-        } catch (error: any) {
-            if (error.code === 11000) { // Duplicate key error
-                throw new ApiError(409, 'Genre name already exists');
-            }
-            throw new ApiError(500, 'Error updating genre');
-        }
+    async getAll(): Promise<GenreDTO[]> {
+        const genres = await Genre.find()
+        return genres.map(genre => new GenreDTO({
+            _id: genre._id.toString(),
+            genre: genre.genre
+        }))
     }
 
-    async delete(id: string): Promise<boolean> {
-        try {
-            const result = await Genre.findByIdAndDelete(id);
-            return result !== null;
-        } catch (error) {
-            throw new ApiError(500, 'Error deleting genre');
-        }
+    async update(dto: GenreDTO): Promise<GenreDTO | null> {
+        const updatedGenre = await Genre.findByIdAndUpdate(
+            dto._id,
+            { genre: dto.genre },
+            { new: true }
+        )
+
+        if (!updatedGenre) return null
+
+        return new GenreDTO({
+            _id: updatedGenre._id.toString(),
+            genre: updatedGenre.genre
+        })
+    }
+
+    async delete(dto: GenreDTO): Promise<boolean> {
+        const result = await Genre.findByIdAndDelete(dto._id)
+        return result !== null
     }
 }

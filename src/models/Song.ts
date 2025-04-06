@@ -1,7 +1,8 @@
-import { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 import { IProduct, Product } from "./Product";
 
 interface ISong extends IProduct {
+    _id: mongoose.Types.ObjectId,
     song_dir: string,
     duration: number,
     plays: number,

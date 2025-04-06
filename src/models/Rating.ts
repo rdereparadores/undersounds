@@ -1,6 +1,7 @@
-import { Document, model, Schema, Types } from "mongoose";
+import mongoose, { Document, model, Schema, Types } from "mongoose";
 
 interface IRating extends Document {
+    _id: mongoose.Types.ObjectId,
     rating: number,
     title: string,
     description: string,

@@ -1,7 +1,8 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import { BaseUser, IBaseUser } from "./BaseUser";
 
 interface IArtist extends IBaseUser {
+    _id: mongoose.Types.ObjectId,
     artist_name: string,
     artist_user_name: string,
     bank_account: string

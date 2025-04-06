@@ -1,6 +1,7 @@
-import { model, Schema, Types } from "mongoose"
+import mongoose, { model, Schema, Types } from "mongoose"
 
 interface IOrder extends Document {
+    _id: mongoose.Types.ObjectId,
     purchase_date: Date,
     status: 'processing' | 'shipped' | 'delivered',
     paid: boolean,
