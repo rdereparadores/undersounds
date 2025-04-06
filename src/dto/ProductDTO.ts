@@ -1,3 +1,5 @@
+import { IProduct, Product } from "../models/Product"
+
 export interface ProductDTOProps {
     _id: string,
     title: string,
@@ -59,5 +61,20 @@ export class ProductDTO implements ProductDTOProps {
             pricing: this.pricing,
             ratings: this.ratings
         }
+    }
+
+    static fromDocument(doc: IProduct): ProductDTO {
+        return new ProductDTO({
+            _id: doc._id.toString(),
+            title: doc.title,
+            release_date: doc.release_date,
+            description: doc.description,
+            img_url: doc.img_url,
+            version: doc.version,
+            product_type: doc.product_type,
+            author: doc.author.toString(),
+            pricing: doc.pricing,
+            ratings: doc.ratings.map(rating => rating.toString())
+        })
     }
 }

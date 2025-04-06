@@ -1,3 +1,4 @@
+import { IAlbum } from "../models/Album";
 import { ProductDTO, ProductDTOProps } from "./ProductDTO";
 
 export interface AlbumDTOProps extends ProductDTOProps {
@@ -21,5 +22,14 @@ export class AlbumDTO extends ProductDTO implements AlbumDTOProps {
             track_list: this.track_list,
             version_history: this.version_history
         }
+    }
+
+    static fromDocument(doc: IAlbum): AlbumDTO {
+        const productProps = ProductDTO.fromDocument(doc).toJson()
+        return new AlbumDTO({
+            ...productProps,
+            track_list: doc.track_list.map(track => track.toString()),
+            version_history: doc.version_history.map(version => version.toString())
+        })
     }
 }

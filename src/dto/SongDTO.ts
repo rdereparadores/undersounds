@@ -1,3 +1,4 @@
+import { ISong } from "../models/Song";
 import { ProductDTO, ProductDTOProps } from "./ProductDTO";
 
 export interface SongDTOProps extends ProductDTOProps {
@@ -43,5 +44,22 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
             collaborators: this.collaborators,
             version_history: this.version_history
         }
+    }
+
+    static fromDocument(doc: ISong): SongDTO {
+        const productProps = ProductDTO.fromDocument(doc).toJson()
+        return new SongDTO({
+            ...productProps,
+            song_dir: doc.song_dir,
+            duration: doc.duration,
+            plays: doc.plays,
+            genres: doc.genres.map(genre => genre.toString()),
+            collaborators: doc.collaborators.map(collaborator => (
+                { 
+                    artist: collaborator.artist.toString(),
+                    accepted: collaborator.accepted
+                })),
+            version_history: doc.version_history.map(version => version.toString())
+        })
     }
 }

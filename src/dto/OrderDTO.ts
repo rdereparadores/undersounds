@@ -1,3 +1,5 @@
+import { IOrder } from "../models/Order"
+
 export interface OrderDTOProps {
     purchase_date: Date,
     status?: 'processing' | 'shipped' | 'delivered',
@@ -47,5 +49,22 @@ export class OrderDTO implements OrderDTOProps {
             user: this.user,
             lines: this.lines
         }
+    }
+    
+    static fromDocument(doc: IOrder) {
+        return new OrderDTO({
+            purchase_date: doc.purchase_date,
+            status: doc.status,
+            paid: doc.paid,
+            tracking_number: doc.tracking_number,
+            stripe_checkout_id: doc.stripe_checkout_id,
+            user: doc.user.toString(),
+            lines: doc.lines.map(line => ({
+                quantity: line.quantity,
+                format: line.format,
+                product: line.product.toString(),
+                price: line.price
+            }))
+        })
     }
 }
