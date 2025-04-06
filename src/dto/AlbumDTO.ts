@@ -1,52 +1,25 @@
-import { ProductDTO, ProductDTOProps } from './ProductDTO';
-import { SongDTO, SongDTOProps } from './SongDTO';
-import { GenreDTO } from './GenreDTO';
-import { Types } from 'mongoose';
+import { ProductDTO, ProductDTOProps } from "./ProductDTO";
 
 export interface AlbumDTOProps extends ProductDTOProps {
-    track_list: Types.ObjectId[]
-    version_history: {
-        title: string,
-        description: string,
-        img_url: string,
-        duration: number,
-        pricing: {
-            cd: number,
-            digital: number,
-            cassette: number,
-            vinyl: number
-        },
-        createdAt: Date,
-        track_list: Types.ObjectId[]
-    }[]
-
+    track_list: string[],
+    version_history?: string[]
 }
 
-export class AlbumDTO extends ProductDTO{
-    track_list!: Types.ObjectId[]
-    version_history!: {
-        title: string,
-        description: string,
-        img_url: string,
-        duration: number,
-        pricing: {
-            cd: number,
-            digital: number,
-            cassette: number,
-            vinyl: number
-        },
-        createdAt: Date,
-        track_list: Types.ObjectId[]
-    }[]
+export class AlbumDTO extends ProductDTO implements AlbumDTOProps {
+    track_list: string[]
+    version_history?: string[]
 
     constructor(props: AlbumDTOProps) {
         super(props)
-        Object.assign(this, props)
+        this.track_list = props.track_list
+        this.version_history = props.version_history
     }
 
-    override toJson() {
+    override toJson(): AlbumDTOProps {
         return {
-            ...this
+            ...super.toJson(),
+            track_list: this.track_list,
+            version_history: this.version_history
         }
     }
 }
