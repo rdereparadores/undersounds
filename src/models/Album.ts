@@ -1,7 +1,7 @@
 import mongoose, { Schema, Types } from "mongoose";
 import { IProduct, Product } from "./Product";
 
-interface IAlbum extends IProduct {
+export interface IAlbum extends IProduct {
     _id: mongoose.Types.ObjectId,
     track_list: Types.ObjectId[],
     version_history: Types.ObjectId[]
