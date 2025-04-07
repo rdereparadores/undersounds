@@ -2,7 +2,7 @@ import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory"
 import express from 'express'
 import { songRouter } from "./routes/songRouter"
 import { authRouter } from "./routes/authRouter"
-import { authTokenController } from "./controlers/auth/authTokenController"
+import { authTokenController } from "./controllers/auth/authTokenController"
 
 export class App {
 

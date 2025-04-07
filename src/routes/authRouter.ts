@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, request, Response, response } from 'express'
 import 'dotenv/config'
-import { authTokenController } from '../controlers/auth/authTokenController'
-import { authSignUpController } from '../controlers/auth/authSignUpController'
-import { authSignInController } from '../controlers/auth/authSignInController'
+import { authTokenController } from '../controllers/auth/authTokenController'
+import { authSignUpController } from '../controllers/auth/authSignUpController'
+import { authSignInController } from '../controllers/auth/authSignInController'
 
 export const authRouter = express.Router()
 
