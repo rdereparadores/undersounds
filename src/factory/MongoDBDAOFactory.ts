@@ -2,82 +2,68 @@ import mongoose from 'mongoose';
 import { AlbumDAO } from '../dao/AlbumDAO';
 import { GenreDAO } from '../dao/GenreDAO';
 import { ProductDAO } from '../dao/ProductDAO';
-import { RatingDAO } from '../dao/RatingDAO';
 import { SongDAO } from '../dao/SongDAO';
+import { InterfaceDAOFactory } from './InterfaceDAOFactory';
+import { BaseUserDAO } from '../dao/BaseUserDAO';
+import { UserDAO } from '../dao/UserDAO';
+import { ArtistDAO } from '../dao/ArtistDAO';
+import { OrderDAO } from '../dao/OrderDAO';
 
-export class MongoDBDAOFactory {
-    private connection: mongoose.Connection | null = null;
-    private albumDAO: AlbumDAO | null = null;
-    private genreDAO: GenreDAO | null = null;
-    private productDAO: ProductDAO | null = null;
-    private ratingDAO: RatingDAO | null = null;
-    private songDAO: SongDAO | null = null;
-
+export class MongoDBDAOFactory implements InterfaceDAOFactory {
     constructor() {
-        this.connect();
+        this.connect()
     }
 
     private async connect(): Promise<void> {
         try {
-            // Utilizar variable de entorno para la URL de conexión
-            const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/undersounds';
-
-            await mongoose.connect(mongoURI);
-
-            this.connection = mongoose.connection;
-
-            this.connection.on('error', (err) => {
-                console.error('MongoDB connection error:', err);
-            });
-
-            this.connection.once('open', () => {
+            mongoose.connect(process.env.DB_URI!)
+            mongoose.connection.once('open', () => {
                 console.log('MongoDB connected successfully');
-            });
+            })
         } catch (error) {
             console.error('Error connecting to MongoDB:', error);
             throw error;
         }
     }
 
-    getAlbumDAO(): AlbumDAO {
-        if (!this.albumDAO) {
-            this.albumDAO = new AlbumDAO();
-        }
-        return this.albumDAO;
+    createBaseUserDAO() {
+        return new BaseUserDAO()
     }
 
-    getGenreDAO(): GenreDAO {
-        if (!this.genreDAO) {
-            this.genreDAO = new GenreDAO();
-        }
-        return this.genreDAO;
+    createUserDAO() {
+        return new UserDAO()
     }
 
-    getProductDAO(): ProductDAO {
-        if (!this.productDAO) {
-            this.productDAO = new ProductDAO();
-        }
-        return this.productDAO;
+    createArtistDAO() {
+        return new ArtistDAO()
     }
 
-    getRatingDAO(): RatingDAO {
-        if (!this.ratingDAO) {
-            this.ratingDAO = new RatingDAO();
-        }
-        return this.ratingDAO;
+    createProductDAO() {
+        return new ProductDAO()
     }
 
-    getSongDAO(): SongDAO {
-        if (!this.songDAO) {
-            this.songDAO = new SongDAO();
-        }
-        return this.songDAO;
+    createSongDAO() {
+        return new SongDAO()
     }
 
-    async disconnect(): Promise<void> {
-        if (this.connection) {
-            await mongoose.disconnect();
-            console.log('MongoDB disconnected');
+    createAlbumDAO() {
+        return new AlbumDAO()
+    }
+
+    createGenreDAO() {
+        return new GenreDAO()
+    }
+
+    createOrderDAO() {
+        return new OrderDAO()
+    }
+
+    async closeConnection() {
+        try {
+            await mongoose.disconnect()
+            return true
+        } catch (_err) {
+            return false
         }
     }
 }
