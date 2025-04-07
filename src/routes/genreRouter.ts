@@ -1,5 +1,6 @@
 import express from 'express'
+import { genreAllController } from '../controllers/genre/getAllGenresController'
 
-const genreRouter = express.Router()
+export const genreRouter = express.Router()
 
-genreRouter.get('all', genreAllController)
+genreRouter.get('/all', genreAllController)
