@@ -1,11 +1,9 @@
 import { ArtistDTO } from "../dto/ArtistDTO";
-import { AddressDTO, BaseUserDTO } from "../dto/BaseUserDTO";
+import { AddressDTO } from "../dto/BaseUserDTO";
 import { ProductDTO } from "../dto/ProductDTO";
 import { UserDTO } from "../dto/UserDTO";
 import { User } from "../models/User"
 import { BaseUserDAO, IBaseUserDAO } from "./BaseUserDAO";
-import {Artist} from "../models/Artist";
-import {BaseUser} from "../models/BaseUser";
 
 export interface IUserDAO extends IBaseUserDAO {
     create(dto: UserDTO): Promise<UserDTO>
@@ -22,7 +20,7 @@ export interface IUserDAO extends IBaseUserDAO {
     delete(dto: UserDTO): Promise<boolean>
 
     addToFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
-    removeFromFollowing(baseUser: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
+    removeFromFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
 
     addToLibrary(user: UserDTO, product: ProductDTO): Promise<UserDTO | null>
     removeFromLibrary(user: UserDTO, product: ProductDTO): Promise<UserDTO | null>
@@ -90,7 +88,7 @@ export class UserDAO extends BaseUserDAO implements IUserDAO{
             { new: true }
         );
         if (!follow) return null;
-        return BaseUserDTO.fromDocument(follow);
+        return UserDTO.fromDocument(follow);
     }
 
     async removeFromFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null> {
@@ -155,11 +153,11 @@ export class UserDAO extends BaseUserDAO implements IUserDAO{
     }
 
     async removeAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null> {
-        const updatedAddress = await BaseUser.findByIdAndUpdate(user._id,
+        const updatedAddress = await User.findByIdAndUpdate(user._id,
             { $pull: {addresses: { alias: address.alias } } },
             { new: true }
         );
         if (!updatedAddress) return null;
-        return BaseUserDTO.fromDocument(updatedAddress);
+        return UserDTO.fromDocument(updatedAddress);
     }
 }
