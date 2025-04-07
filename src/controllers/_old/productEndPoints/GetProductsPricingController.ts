@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import { MongoDBDAOFactory } from '../../../factory/MongoDBDAOFactory';
 
 /**
  * @desc    Get product pricing

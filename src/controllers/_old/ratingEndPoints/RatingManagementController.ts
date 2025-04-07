@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiResponse } from '../../utils/ApiResponse';
-import { ApiError } from '../../utils/ApiError';
+import { ApiResponse } from '../../../utils/ApiResponse';
+import { ApiError } from '../../../utils/ApiError';
 import { MapperUtils } from '../../utils/MapperUtils';
 
 export class RatingManagementController {
