@@ -1,46 +1,22 @@
+import { IBaseUser } from "../models/BaseUser";
+import { BaseUserDTO, BaseUserDTOProps } from "./BaseUserDTO";
 
-export interface AddressProps {
-    alias: string,
-    name: string,
-    sur_name: string,
-    phone: number,
-    address: string,
-    address_2?: string,
-    province: string,
-    city: string,
-    zip_code: number,
-    country: string,
-    observations?: string
+export interface UserDTOProps extends BaseUserDTOProps{
+
 }
 
-export interface UserDTOProps {
-    _id: string,
-    name: string,
-    sur_name: string,
-    birth_date: Date,
-    email: string,
-    uid: string,
-    img_url: string,
-    addresses: AddressProps[]
-}
-
-export class UserDTO {
-    _id!: string
-    name!: string
-    sur_name!: string
-    birth_date!: Date
-    email!: string
-    uid!: string
-    img_url!: string
-    addresses!: AddressProps[]
-
+export class UserDTO extends BaseUserDTO implements UserDTOProps{
     constructor(props: UserDTOProps) {
-        Object.assign(this, props)
+        super(props)
     }
 
-    toJson() {
+    override toJson(): UserDTOProps {
         return {
-            ...this
+            ...super.toJson()
         }
+    }
+
+    static fromDocument(doc: IBaseUser) {
+        return BaseUserDTO.fromDocument(doc)
     }
 }

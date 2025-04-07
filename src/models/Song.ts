@@ -1,7 +1,7 @@
 import { Schema, Types } from "mongoose";
 import { IProduct, Product } from "./Product";
 
-interface ISong extends IProduct {
+export interface ISong extends IProduct {
     song_dir: string,
     duration: number,
     plays: number,

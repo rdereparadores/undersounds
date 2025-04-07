@@ -1,6 +1,7 @@
 import { Document, model, Schema, Types } from "mongoose";
 
-interface IRating extends Document {
+export interface IRating extends Document {
+    _id: Types.ObjectId,
     rating: number,
     title: string,
     description: string,
