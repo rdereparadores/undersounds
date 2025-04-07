@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../../utils/ApiResponse';
-import { ApiError } from '../../utils/ApiError';
+import { GenreDAO } from '../../dao/GenreDAO';
 
 export class GenreGetAllController {
     /**
@@ -10,12 +10,9 @@ export class GenreGetAllController {
      */
     async getAllGenres(req: Request, res: Response, next: NextFunction) {
         try {
-            const genreDAO = req.db?.getGenreDAO();
-            if (!genreDAO) {
-                throw ApiError.internal('Database access error');
-            }
+            const genreDAO = new GenreDAO();
 
-            const genres = await genreDAO.findAll();
+            const genres = await genreDAO.getAll();
 
             res.status(200).json(
                 ApiResponse.success(genres, 'Genres retrieved successfully')

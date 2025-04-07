@@ -12,10 +12,7 @@ export class GenreGetByIdController {
         try {
             const { id } = req.params;
 
-            const genreDAO = req.db?.getGenreDAO();
-            if (!genreDAO) {
-                throw ApiError.internal('Database access error');
-            }
+            const genreDAO = new GenreDAO();
 
             const genre = await genreDAO.findById(id);
 
@@ -31,3 +28,4 @@ export class GenreGetByIdController {
         }
     }
 }
+
