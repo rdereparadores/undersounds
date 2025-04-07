@@ -1,62 +1,70 @@
-import { Request, Response, NextFunction } from 'express';
-import { ApiResponse } from '../../utils/ApiResponse';
-import { ApiError } from '../../utils/ApiError';
-import { MapperUtils } from '../../utils/MapperUtils';
+import { Request, Response } from 'express';
+import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
 
-export class AlbumRatingController {
-    /**
-     * @desc    Get album ratings and reviews
-     * @route   GET /api/albums/ratings
-     * @access  Public
-     */
-    async getAlbumRatings(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { id } = req.query;
+/**
+ * @desc    Get album ratings and reviews
+ * @route   GET /api/albums/ratings
+ * @access  Public
+ */
+export const getAlbumRatings = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.query;
 
-            if (!id || typeof id !== 'string') {
-                throw ApiError.badRequest('Album ID is required');
-            }
-
-            const albumDAO = req.db?.getAlbumDAO();
-            if (!albumDAO) {
-                throw ApiError.internal('Database access error');
-            }
-
-            // Verify album exists
-            const album = await albumDAO.findById(id);
-            if (!album) {
-                throw ApiError.notFound('Album not found');
-            }
-
-            const ratingDAO = req.db?.getRatingDAO();
-            if (!ratingDAO) {
-                throw ApiError.internal('Database access error');
-            }
-
-            // Get all ratings for this album
-            const ratings = await ratingDAO.findByProduct(id);
-
-            // Get average rating
-            const averageRating = await ratingDAO.getAverageRatingForProduct(id);
-
-            // Convert ratings to DTOs
-            const ratingDTOs = ratings.map(rating => MapperUtils.toRatingDTO(rating));
-
-            const response = {
-                album: {
-                    id: album._id.toString(),
-                    title: album.title
-                },
-                ratings: ratingDTOs,
-                averageRating,
-                totalRatings: ratings.length
-            };
-
-            res.status(200).json(
-                ApiResponse.success(response, 'Album ratings retrieved successfully')
-            );
-        } catch (error) {
-            next(error);
+        if (!id || typeof id !== 'string') {
+            return res.status(400).json({
+                success: false,
+                error: {
+                    message: 'Album ID is required',
+                    code: 'ALBUM_ID_REQUIRED'
+                }
+            });
         }
+
+        const factory = new MongoDBDAOFactory();
+        const albumDAO = factory.createAlbumDAO();
+
+        const album = await albumDAO.findById(id);
+        if (!album) {
+            return res.status(404).json({
+                success: false,
+                error: {
+                    message: 'Album not found',
+                    code: 'ALBUM_NOT_FOUND'
+                }
+            });
+        }
+
+        const ratingDAO = factory.createRatingDAO();
+
+        const ratings = await ratingDAO.findByProduct(id);
+
+        const averageRating = await ratingDAO.getAverageRatingForProduct(id);
+
+
+        const response = {
+            album: {
+                id: album._id.toString(),
+                title: album.title
+            },
+            ratings: ratings, // Ya son DTOs
+            averageRating,
+            totalRatings: ratings.length
+        };
+
+        res.status(200).json({
+            success: true,
+            msg: 'Album ratings retrieved successfully',
+            data: response
+        });
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+        res.status(500).json({
+            success: false,
+            error: {
+                message: errorMessage,
+                code: 'RATINGS_FETCH_ERROR'
+            }
+        });
     }
-}
+};
