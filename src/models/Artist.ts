@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import { BaseUser, IBaseUser } from "./BaseUser";
 
 export interface IArtist extends IBaseUser {
