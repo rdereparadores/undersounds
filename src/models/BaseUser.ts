@@ -37,7 +37,6 @@ export const BaseUserSchema = new Schema<IBaseUser>({
     email: { type: String, required: true, unique: true },
     uid: { type: String, required: true, unique: true },
     img_url: { type: String, required: true, default: '/assets/img/profile/user/default.jpg' },
-    user_type: { type: String, enum: ['user', 'artist'], required: true },
     following: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
     listening_history: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
