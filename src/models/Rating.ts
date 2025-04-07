@@ -1,4 +1,4 @@
-import { Document, model, Schema, Types } from "mongoose";
+import mongoose, { Document, model, Schema, Types } from "mongoose";
 
 export interface IRating extends Document {
     _id: Types.ObjectId,
