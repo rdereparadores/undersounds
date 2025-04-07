@@ -3,21 +3,21 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
 
 /**
  * @desc    Query store products with optional filters and load genres
- * @route   GET /api/store/query
+ * @route   POST /api/store/query
  * @access  Public
  */
-export const shopQuery = async (req: Request, res: Response) => {
+export const queryStore = async (req: Request, res: Response) => {
     try {
         const {
             genre,
             date,
             sort = 'releaseDate',
-            page = '1',
-            limit = '10'
-        } = req.query;
+            page = 1,
+            limit = 10
+        } = req.body;
 
-        const pageNumber = parseInt(page as string);
-        const limitNumber = parseInt(limit as string);
+        const pageNumber = page;
+        const limitNumber = limit;
 
         if (isNaN(pageNumber) || pageNumber < 1) {
             return res.status(400).json({
@@ -49,7 +49,7 @@ export const shopQuery = async (req: Request, res: Response) => {
         const genreName = typeof genre === 'string' ? genre : undefined;
 
         let dateFilter: 'today' | 'week' | 'month' | '3months' | '6months' | 'year' | undefined;
-        if (date && ['today', 'week', 'month', '3months', '6months', 'year'].includes(date as string)) {
+        if (date && ['today', 'week', 'month', '3months', '6months', 'year'].includes(date)) {
             dateFilter = date as 'today' | 'week' | 'month' | '3months' | '6months' | 'year';
         }
 
