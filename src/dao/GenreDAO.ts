@@ -22,38 +22,26 @@ export class GenreDAO implements IGenreDAO {
 
     async create(dto: GenreDTO): Promise<GenreDTO> {
         const newGenre = await Genre.create({ genre: dto.genre }) as IGenre
-        return new GenreDTO({
-            _id: newGenre._id.toString(),
-            genre: newGenre.genre
-        })
+        return GenreDTO.fromDocument(newGenre)
     }
 
     async findById(_id: string): Promise<GenreDTO | null> {
         const genre = await Genre.findById(_id)
         if (!genre) return null
 
-        return new GenreDTO({
-            _id: genre._id.toString(),
-            genre: genre.genre
-        })
+        return GenreDTO.fromDocument(genre)
     }
 
     async findByGenre(genre: string): Promise<GenreDTO | null> {
         const genreDoc = await Genre.findOne({ genre })
         if (!genreDoc) return null
 
-        return new GenreDTO({
-            _id: genreDoc._id.toString(),
-            genre: genreDoc.genre
-        })
+        return GenreDTO.fromDocument(genreDoc)
     }
 
     async getAll(): Promise<GenreDTO[]> {
         const genres = await Genre.find()
-        return genres.map(genre => new GenreDTO({
-            _id: genre._id.toString(),
-            genre: genre.genre
-        }))
+        return genres.map(genre => GenreDTO.fromDocument(genre))
     }
 
     async update(dto: GenreDTO): Promise<GenreDTO | null> {
@@ -65,10 +53,7 @@ export class GenreDAO implements IGenreDAO {
 
         if (!updatedGenre) return null
 
-        return new GenreDTO({
-            _id: updatedGenre._id.toString(),
-            genre: updatedGenre.genre
-        })
+        return GenreDTO.fromDocument(updatedGenre)
     }
 
     async delete(dto: GenreDTO): Promise<boolean> {

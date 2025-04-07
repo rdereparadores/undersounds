@@ -1,64 +1,31 @@
-import { Model, Document } from "mongoose";
-import { UserDTO, UserDTOProps } from "../dto/UserDTO";
+import { ArtistDTO } from "../dto/ArtistDTO";
+import { AddressDTO, BaseUserDTO } from "../dto/BaseUserDTO";
+import { ProductDTO } from "../dto/ProductDTO";
+import { UserDTO } from "../dto/UserDTO";
+import { BaseUserDAO, IBaseUserDAO } from "./BaseUserDAO";
 
-export class UserDAO {
-    private model: Model<Document>;
+export interface IUserDAO extends IBaseUserDAO {
+    create(dto: UserDTO): Promise<UserDTO>
 
-    constructor(model: Model<Document>) {
-        this.model = model;
-    }
+    findById(_id: string): Promise<UserDTO | null>
+    findByUsername(username: string): Promise<UserDTO | null>
+    findByEmail(email: string): Promise<UserDTO | null>
+    findByUid(uid: string): Promise<UserDTO | null>
 
-    // Crea un usuario nuevo
-    async create(userProps: UserDTOProps): Promise<UserDTO> {
-        const createdUser = await this.model.create(userProps);
-        return new UserDTO(createdUser.toObject());
-    }
+    getAll(): Promise<UserDTO[]>
 
-    // Busca un usuario por su ID
-    async findById(id: string): Promise<UserDTO | null> {
-        const user = await this.model.findById(id);
-        return user ? new UserDTO(user.toObject()) : null;
-    }
+    update(dto: UserDTO): Promise<UserDTO | null>
 
-    // Actualiza un usuario parcialmente
-    async update(id: string, userProps: Partial<UserDTOProps>): Promise<UserDTO | null> {
-        const updatedUser = await this.model.findByIdAndUpdate(id, userProps, { new: true });
-        return updatedUser ? new UserDTO(updatedUser.toObject()) : null;
-    }
+    delete(dto: UserDTO): Promise<boolean>
 
-    // Elimina un usuario por su ID
-    async delete(id: string): Promise<boolean> {
-        const result = await this.model.findByIdAndDelete(id);
-        return result !== null;
-    }
+    addToFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
+    removeFromFollowing(baseUser: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
 
-    // Permite a un usuario seguir a un artista
-    async followArtist(userId: string, artistId: string): Promise<UserDTO | null> {
-        const updatedUser = await this.model.findByIdAndUpdate(
-            userId,
-            { $addToSet: { following: artistId } },
-            { new: true }
-        );
-        return updatedUser ? new UserDTO(updatedUser.toObject()) : null;
-    }
+    addToLibrary(user: UserDTO, product: ProductDTO): Promise<UserDTO | null>
+    removeFromLibrary(user: UserDTO, product: ProductDTO): Promise<UserDTO | null>
 
-    // Permite a un usuario dejar de seguir a un artista
-    async unfollowArtist(userId: string, artistId: string): Promise<UserDTO | null> {
-        const updatedUser = await this.model.findByIdAndUpdate(
-            userId,
-            { $pull: { following: artistId } },
-            { new: true }
-        );
-        return updatedUser ? new UserDTO(updatedUser.toObject()) : null;
-    }
+    addToListeningHistory(user: UserDTO, product: ProductDTO): Promise<UserDTO | null>
 
-    //Permite añadir items a la librería
-    async addLibraryItem(userId: string, libraryItemId: string): Promise<UserDTO | null> {
-        const updatedUser = await this.model.findByIdAndUpdate(
-            userId,
-            { $push: { library: libraryItemId } },
-            { new: true }
-        );
-        return updatedUser ? new UserDTO(updatedUser.toObject()) : null;
-    }
+    addAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null>
+    removeAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null>
 }

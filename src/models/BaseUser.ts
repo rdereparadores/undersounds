@@ -1,4 +1,4 @@
-import mongoose, { Document, model, Schema, Types } from "mongoose";
+import { Document, model, Schema, Types } from "mongoose";
 
 export interface IBaseUser extends Document {
     _id: Types.ObjectId,
@@ -42,7 +42,7 @@ export const BaseUserSchema = new Schema<IBaseUser>({
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
     listening_history: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
     addresses: [{
-        alias: { type: String, required: true },
+        alias: { type: String, required: true, unique: true },
         name: { type: String, required: true },
         sur_name: { type: String, required: true },
         phone: { type: Number, required: true },

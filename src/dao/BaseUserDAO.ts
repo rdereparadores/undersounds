@@ -1,5 +1,5 @@
 import { ArtistDTO } from "../dto/ArtistDTO";
-import { BaseUserDTO } from "../dto/BaseUserDTO";
+import { AddressDTO, BaseUserDTO } from "../dto/BaseUserDTO";
 import { ProductDTO } from "../dto/ProductDTO";
 
 export interface IBaseUserDAO {
@@ -17,9 +17,14 @@ export interface IBaseUserDAO {
 
     delete(dto: BaseUserDTO): Promise<boolean>
 
-    addToFollowing(baseUser: BaseUserDTO, artist: ArtistDTO): Promise<boolean>
-    removeFromFollowing(baseUser: BaseUserDTO, artist: ArtistDTO): Promise<boolean>
+    addToFollowing(baseUser: BaseUserDTO, artist: ArtistDTO): Promise<BaseUserDTO | null>
+    removeFromFollowing(baseUser: BaseUserDTO, artist: ArtistDTO): Promise<BaseUserDTO | null>
 
-    addToLibrary(baseUser: BaseUserDTO, product: ProductDTO): Promise<boolean>
+    addToLibrary(baseUser: BaseUserDTO, product: ProductDTO): Promise<BaseUserDTO | null>
+    removeFromLibrary(baseUser: BaseUserDTO, product: ProductDTO): Promise<BaseUserDTO | null>
 
+    addToListeningHistory(baseUser: BaseUserDTO, product: ProductDTO): Promise<BaseUserDTO | null>
+
+    addAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null>
+    removeAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null>
 }

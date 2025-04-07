@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 import { IProduct, Product } from "./Product";
 
 export interface ISong extends IProduct {
