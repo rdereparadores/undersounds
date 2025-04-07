@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../../utils/ApiResponse';
 import { ApiError } from '../../utils/ApiError';
-import { MapperUtils } from '../../utils/MapperUtils';
-import { IAlbum } from '../../models/interfaces/IAlbum';
+import {Types} from "mongoose";
 
 export class GetProductsByGenreController {
     /**
@@ -13,83 +12,85 @@ export class GetProductsByGenreController {
     async getProductsByGenre(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params;
-            const { page = '1', limit = '10', productType } = req.query;
+            const { productType } = req.query;
+            const page = parseInt(req.query.page as string || '1');
+            const limit = parseInt(req.query.limit as string || '10');
 
-            const pageNumber = parseInt(page as string);
-            const limitNumber = parseInt(limit as string);
-
-            if (isNaN(pageNumber) || pageNumber < 1) {
+            if (isNaN(page) || page < 1) {
                 throw ApiError.badRequest('Page must be a positive number');
             }
 
-            if (isNaN(limitNumber) || limitNumber < 1) {
+            if (isNaN(limit) || limit < 1) {
                 throw ApiError.badRequest('Limit must be a positive number');
             }
 
-            // Verify genre exists
-            const genreDAO = req.db?.getGenreDAO();
-            if (!genreDAO) {
-                throw ApiError.internal('Database access error');
-            }
-
+            const genreDAO = new GenreDAO();
             const genre = await genreDAO.findById(id);
+
             if (!genre) {
                 throw ApiError.notFound('Genre not found');
             }
 
-            // Get products by genre
             let products;
-            let totalProducts;
-            const skip = (pageNumber - 1) * limitNumber;
+            let totalProducts = 0;
 
             if (productType === 'song') {
-                const songDAO = req.db?.getSongDAO();
-                if (!songDAO) {
-                    throw ApiError.internal('Database access error');
-                }
-
-                const songs = await songDAO.findByGenrePaginated(id, skip, limitNumber);
-                totalProducts = await songDAO.countByGenre(id);
-                products = songs.map(song => MapperUtils.toSongDTO(song));
+                const songDAO = new SongDAO();
+                const genreDTO = new GenreDTO({ _id: id, genre: genre.genre });
+                products = await songDAO.findByGenre(genreDTO);
+                // Aplicar paginación manualmente
+                totalProducts = products.length;
+                products = products.slice((page - 1) * limit, page * limit);
             } else if (productType === 'album') {
-                const albumDAO = req.db?.getAlbumDAO();
-                if (!albumDAO) {
-                    throw ApiError.internal('Database access error');
-                }
+                const albumDAO = new AlbumDAO();
+                const songDAO = new SongDAO();
+                const genreDTO = new GenreDTO({ _id: id, genre: genre.genre });
 
-                const albums = await albumDAO.findByGenrePaginated(id, skip, limitNumber);
-                totalProducts = await albumDAO.countByGenre(id);
-                products = albums.map(album => MapperUtils.toAlbumDTO(album));
-            } else {
-                // If no specific product type, get all products with this genre
-                const productDAO = req.db?.getProductDAO();
-                if (!productDAO) {
-                    throw ApiError.internal('Database access error');
-                }
+                const allAlbums = await albumDAO.getAll();
+                const albumsWithTracks = [];
 
-                const productsData = await productDAO.findByGenrePaginated(id, skip, limitNumber);
-                totalProducts = await productDAO.countByGenre(id);
+                for (const album of allAlbums) {
+                    const trackList = await albumDAO.getTrackList(album);
 
-                // Mapear productos según su tipo
-                products = productsData.map(product => {
-                    if (product.product_type === 'Album') {
-                        return MapperUtils.toAlbumDTO(product as unknown as IAlbum);
+                    if (trackList && trackList.length > 0) {
+                        let hasGenre = false;
+
+                        for (const track of trackList) {
+                            if (track.genres && Array.isArray(track.genres)) {
+                                if (track.genres.some((g: { _id: Types.ObjectId | string }) =>
+                                    g._id && g._id.toString() === id)) {
+                                    hasGenre = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (hasGenre) {
+                            albumsWithTracks.push(album);
+                        }
                     }
-                    return MapperUtils.toProductDTO(product);
-                });
+                }
+
+                totalProducts = albumsWithTracks.length;
+                products = albumsWithTracks.slice((page - 1) * limit, page * limit);
+            } else {
+                const productDAO = new ProductDAO();
+                products = await productDAO.getAll();
+                totalProducts = products.length;
+                products = products.slice((page - 1) * limit, page * limit);
             }
 
-            const totalPages = Math.ceil(totalProducts / limitNumber);
+            const totalPages = Math.ceil(totalProducts / limit);
 
             const response = {
-                genre: MapperUtils.toGenreDTO(genre),
+                genre,
                 products,
                 pagination: {
-                    currentPage: pageNumber,
+                    currentPage: page,
                     totalPages,
                     totalItems: totalProducts,
-                    hasNextPage: pageNumber < totalPages,
-                    hasPrevPage: pageNumber > 1
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
                 }
             };
 
