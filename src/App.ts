@@ -1,6 +1,7 @@
 import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory"
 import express from 'express'
-import routes from './routes'
+import { songRouter } from "./routes/songRouter"
+
 export class App {
 
     db: MongoDBDAOFactory
@@ -23,7 +24,7 @@ export class App {
     }
 
     routes() {
-        this.app.use('/api', routes)
+        this.app.use('/api/song/', songRouter)
     }
 
     listen() {
