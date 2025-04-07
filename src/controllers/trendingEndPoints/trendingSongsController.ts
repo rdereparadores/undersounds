@@ -6,7 +6,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  * @route   GET /api/trending/top10
  * @access  Public
  */
-export const trendingSongs = async (req: Request, res: Response) => {
+export const getTrendingSongs = async (req: Request, res: Response) => {
     try {
         const factory = new MongoDBDAOFactory();
         const songDAO = factory.createSongDAO();
