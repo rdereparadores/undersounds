@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import { RatingDTO } from "../../dto/RatingDTO";
 
 /**
  * @desc    Get album ratings and reviews
- * @route   GET /api/albums/ratings
+ * @route   GET /api/album/ratings
  * @access  Public
  */
 export const getAlbumRatings = async (req: Request, res: Response) => {
@@ -34,21 +35,21 @@ export const getAlbumRatings = async (req: Request, res: Response) => {
             });
         }
 
-        const ratingDAO = factory.createRatingDAO();
+        const ratings = await albumDAO.getRatings(album);
 
-        const ratings = await ratingDAO.findByProduct(id);
-
-        const averageRating = await ratingDAO.getAverageRatingForProduct(id);
-
+        let averageRating = 0;
+        if (ratings && ratings.length > 0) {
+            averageRating = ratings.reduce((sum: number, rating: RatingDTO) => sum + rating.rating, 0) / ratings.length;
+        }
 
         const response = {
             album: {
                 id: album._id.toString(),
                 title: album.title
             },
-            ratings: ratings, // Ya son DTOs
+            ratings: ratings || [],
             averageRating,
-            totalRatings: ratings.length
+            totalRatings: ratings ? ratings.length : 0
         };
 
         res.status(200).json({

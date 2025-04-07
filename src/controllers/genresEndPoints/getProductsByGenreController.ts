@@ -4,7 +4,7 @@ import { Types } from "mongoose";
 
 /**
  * @desc    Get products by genre
- * @route   GET /api/genres/:id/products
+ * @route   GET /api/genres/gerProductByGenre
  * @access  Public
  */
 export const getProductsByGenre = async (req: Request, res: Response) => {

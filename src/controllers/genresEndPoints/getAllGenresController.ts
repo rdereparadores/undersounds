@@ -3,7 +3,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
 
 /**
  * @desc    Get all genres
- * @route   GET /api/getAllGenres
+ * @route   GET /api/genres/getAllGenres
  * @access  Public
  */
 export const getAllGenres = async (req: Request, res: Response) => {
