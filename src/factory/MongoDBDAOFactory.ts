@@ -3,14 +3,56 @@ import { InterfaceDAOFactory } from "./InterfaceDAOFactory";
 
 export class MongoDBDAOFactory implements InterfaceDAOFactory {
     constructor() {
-        if (process.env.DB_URI) {
-            mongoose.connect(process.env.DB_URI)
-        } else {
-            throw new Error('ERROR: DB_URI not defined')
+        try {
+            mongoose.connect(process.env.DB_URI!)
+        } catch (err) {
+            console.log('Connection to DB failed:')
+            console.log(err)
         }
     }
 
-    async closeConnection() {
-        await mongoose.connection.close()
+    createBaseUserDAO(): BaseUserDAO {
+        
+    }
+
+    createUserDAO(): UserDAO {
+        
+    }
+
+    createArtistDAO(): ArtistDAO {
+        
+    }
+
+    createProductDAO(): ProductDAO {
+        
+    }
+
+    createSongDAO(): SongDAO {
+        
+    }
+
+    createAlbumDAO(): AlbumDAO {
+        
+    }
+
+    createGenreDAO(): GenreDAO {
+        
+    }
+
+    createRatingDAO(): RatingDAO {
+        
+    }
+
+    createOrderDAO(): OrderDAO {
+        
+    }
+
+    async closeConnection(): Promise<boolean> {
+        try {
+            await mongoose.disconnect()
+            return true
+        } catch (_err) {
+            return false
+        }
     }
 }

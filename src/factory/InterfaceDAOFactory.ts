@@ -1,4 +1,12 @@
 export interface InterfaceDAOFactory {
-    // TODO create de cada modelo de BD
-    closeConnection: () => Promise<void>
+    createBaseUserDAO(): BaseUserDAO
+    createUserDAO(): UserDAO
+    createArtistDAO(): ArtistDAO
+    createProductDAO(): ProductDAO
+    createSongDAO(): SongDAO
+    createAlbumDAO(): AlbumDAO
+    createGenreDAO(): GenreDAO
+    createRatingDAO(): RatingDAO
+    createOrderDAO(): OrderDAO
+    closeConnection(): Promise<boolean>
 }
