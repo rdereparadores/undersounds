@@ -28,7 +28,8 @@ export class App {
     }
 
     routes() {
-        this.app.use('/api/song/', songRouter)
+        this.app.use('/api/ai/', aiRouter)
+        this.app.use('/api/auth/',authTokenController,authRouter)
     }
 
     listen() {
