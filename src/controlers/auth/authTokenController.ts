@@ -14,7 +14,6 @@ export const authTokenController = async(request:express.Request,response:expres
         const decodedToken = await appFireBase.auth().verifyIdToken(token)
         console.log(decodedToken.uid)
         request.body.uid = decodedToken.uid
-        request.body = request.body
         next()
     }catch(error){
         response.status(401).send('Token no valido')
