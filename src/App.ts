@@ -3,7 +3,7 @@ import express from 'express'
 import { songRouter } from "./routes/songRouter"
 import { aiRouter } from "./routes/aiRouter"
 import { authRouter } from "./routes/authRouter"
-import { authTokenController } from "./controllers/auth/authTokenController"
+import { authTokenMiddleware } from "./middleware/authTokenMiddleware"
 
 export class App {
 
@@ -29,7 +29,7 @@ export class App {
 
     routes() {
         this.app.use('/api/ai/', aiRouter)
-        this.app.use('/api/auth/',authTokenController,authRouter)
+        this.app.use('/api/auth/', authTokenMiddleware, authRouter)
     }
 
     listen() {

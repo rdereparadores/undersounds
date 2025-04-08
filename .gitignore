@@ -2,3 +2,4 @@ node_modules/
 dist/
 src/views/
 .env
+src/utils/admin.json
