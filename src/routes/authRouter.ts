@@ -2,9 +2,10 @@ import express, { NextFunction, Request, request, Response, response } from 'exp
 import 'dotenv/config'
 import { authSignUpController } from '../controllers/auth/authSignUpController'
 import { authSignInController } from '../controllers/auth/authSignInController'
+import { authTokenMiddleware } from '../middleware/authTokenMiddleware'
 
 export const authRouter = express.Router()
 
 authRouter.post('/signup', authSignUpController)
-authRouter.post('/signin', authSignInController)
+authRouter.post('/signin',authTokenMiddleware, authSignInController)
 //authRouter.post('token', authTokenController)

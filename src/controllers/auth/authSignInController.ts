@@ -2,6 +2,6 @@ import express, { NextFunction, Request, request, Response, response } from 'exp
 import 'dotenv/config'
 
 export const authSignInController = async(request:express.Request,response:express.Response)=>{
-    const user = await request.db?.createUserDAO().findByUid(request.body.decodedToken.uid)
-    response.send({adressToken: user?.uid})
+    const user = await request.db?.createBaseUserDAO().findByUid(request.body.uid)
+    response.send({msg:user?.user_type})   
 };
