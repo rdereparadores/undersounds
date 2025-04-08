@@ -5,6 +5,6 @@ import { authSignInController } from '../controllers/auth/authSignInController'
 
 export const authRouter = express.Router()
 
-authRouter.post('signup', authSignUpController)
-authRouter.post('signin', authSignInController)
+authRouter.post('/signup', authSignUpController)
+authRouter.post('/signin', authSignInController)
 //authRouter.post('token', authTokenController)

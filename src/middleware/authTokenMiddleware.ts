@@ -12,7 +12,9 @@ export const authTokenMiddleware = async(request:express.Request,response:expres
 
     try{
         const decodedToken = await appFireBase.auth().verifyIdToken(token)
-        console.log(decodedToken.uid)
+        console.log(`Token: ${token}`)
+        console.log(`Uid del token desencriptado: ${decodedToken.uid}`)
+        request.body.token = token
         request.body.uid = decodedToken.uid
         next()
     }catch(error){
