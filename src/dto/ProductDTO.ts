@@ -1,7 +1,7 @@
 import { IProduct, Product } from "../models/Product"
 
 export interface ProductDTOProps {
-    _id: string,
+    _id?: string,
     title: string,
     release_date: Date,
     description: string,
@@ -19,7 +19,7 @@ export interface ProductDTOProps {
 }
 
 export class ProductDTO implements ProductDTOProps {
-    _id: string
+    _id?: string
     title: string
     release_date: Date
     description: string

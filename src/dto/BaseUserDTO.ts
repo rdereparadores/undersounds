@@ -17,7 +17,7 @@ export interface AddressDTO {
 }
 
 export interface BaseUserDTOProps {
-    _id: string,
+    _id?: string,
     name: string,
     sur_name: string,
     user_name: string,
@@ -33,7 +33,7 @@ export interface BaseUserDTOProps {
 }
 
 export class BaseUserDTO implements BaseUserDTOProps {
-    _id: string
+    _id?: string
     name: string
     sur_name: string
     user_name: string
