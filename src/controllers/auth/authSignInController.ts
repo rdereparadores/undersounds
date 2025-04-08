@@ -3,5 +3,15 @@ import 'dotenv/config'
 
 export const authSignInController = async(request:express.Request,response:express.Response)=>{
     const user = await request.db?.createBaseUserDAO().findByUid(request.body.uid)
-    response.send({msg:user?.user_type})   
+    if (!user) {
+        response.send({
+            err: 'USER_NOT_FOUND'
+        })
+        return
+    }  
+    response.send({
+        msg: {
+            userRole: user?.user_type
+        }
+    }) 
 };
