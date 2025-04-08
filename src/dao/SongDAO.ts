@@ -13,6 +13,7 @@ export interface ISongDAO extends IProductDAO {
     findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]>
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: GenreDTO): Promise<SongDTO[]>
+    findRecommendations(id: string, limit: number): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
 
@@ -69,6 +70,37 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
+    async findRecommendations(id: string, limit: number): Promise<SongDTO[]> {
+        const originalSong = await Song.findById(id);
+        if (!originalSong || !originalSong.genres || originalSong.genres.length === 0) {
+            return [];
+        }
+
+        const recommendations = await Song.aggregate([
+            {
+                $match: {
+                    _id: { $ne: originalSong._id },
+                    genres: { $in: originalSong.genres }
+                }
+            },
+            { $sample: { size: limit } }
+        ]);
+
+        if (recommendations.length < limit) {
+            const remainingCount = limit - recommendations.length;
+            const existingIds = recommendations.map(song => song._id);
+            existingIds.push(originalSong._id);
+
+            const popularSongs = await Song.find({
+                _id: { $nin: existingIds }
+            }).sort({ plays: -1 }).limit(remainingCount);
+
+            recommendations.push(...popularSongs);
+        }
+
+        return recommendations.map(song => SongDTO.fromDocument(song));
+    }
+
     async getAll(): Promise<SongDTO[]> {
         const songs = await Song.find()
         return songs.map(song => SongDTO.fromDocument(song))
@@ -90,9 +122,9 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         const songDoc = await Song.findById(song._id).populate('version_history')
         if (!songDoc) return null
 
-        return Array.isArray(songDoc.version_history) 
-        ? songDoc.version_history.map((version: any) => SongDTO.fromDocument(version))
-        : null;
+        return Array.isArray(songDoc.version_history)
+            ? songDoc.version_history.map((version: any) => SongDTO.fromDocument(version))
+            : null;
     }
 
     async addToVersionHistory(song: SongDTO, version: SongDTO): Promise<SongDTO | null> {
@@ -110,5 +142,4 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         if (!songDoc) return null
         return SongDTO.fromDocument(songDoc)
     }
-
 }
