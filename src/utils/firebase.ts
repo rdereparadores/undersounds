@@ -1,4 +1,4 @@
-import * as serviceAccount from '../admin.json';
+import * as serviceAccount from './admin.json'
 import admin from 'firebase-admin';
 
 //Inicializa firebase

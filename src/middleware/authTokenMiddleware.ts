@@ -1,12 +1,12 @@
 import express, { NextFunction, Request, request, Response, response } from 'express'
 import 'dotenv/config'
-import { appFireBase } from '../../utils/firebase';
+import { appFireBase } from '../utils/firebase';
 
-export const authTokenController = async(request:express.Request,response:express.Response,next:express.NextFunction)=>{
+export const authTokenMiddleware = async(request:express.Request,response:express.Response,next:express.NextFunction)=>{
     const token = request.headers.authorization?.split('Bearer ')[1]
 
     if(!token){
-        response.status(401).send('No se ha encontrado token')
+        response.status(401).send({err: 'MISSING_TOKEN'})
         return 
     }
 
@@ -16,6 +16,6 @@ export const authTokenController = async(request:express.Request,response:expres
         request.body.uid = decodedToken.uid
         next()
     }catch(error){
-        response.status(401).send('Token no valido')
+        response.status(401).send({err: 'INVALID_TOKEN'})
     }
 };
