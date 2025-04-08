@@ -4,6 +4,7 @@ import { aiRouter } from "./routes/aiRouter"
 import { authRouter } from "./routes/authRouter"
 import { authTokenMiddleware } from "./middleware/authTokenMiddleware"
 import { genreRouter } from "./routes/genreRouter"
+import { userRouter } from "./routes/userRouter"
 
 export class App {
 
@@ -31,6 +32,7 @@ export class App {
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/ai/', aiRouter)
         this.app.use('/api/auth/', authRouter)
+        this.app.use('/api/user/', authTokenMiddleware, userRouter)
     }
 
     listen() {
