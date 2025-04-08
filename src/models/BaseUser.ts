@@ -42,7 +42,7 @@ export const BaseUserSchema = new Schema<IBaseUser>({
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
     listening_history: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
     addresses: [{
-        alias: { type: String, required: true, unique: true },
+        alias: { type: String, required: true, sparse: true },
         name: { type: String, required: true },
         sur_name: { type: String, required: true },
         phone: { type: Number, required: true },

@@ -30,7 +30,7 @@ export class App {
     routes() {
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/ai/', aiRouter)
-        this.app.use('/api/auth/', authTokenMiddleware, authRouter)
+        this.app.use('/api/auth/', authRouter)
     }
 
     listen() {
