@@ -2,6 +2,7 @@ import { Types } from "mongoose"
 import { IBaseUser } from "../models/BaseUser"
 
 export interface AddressDTO {
+    _id?: string,
     alias: string,
     name: string,
     sur_name: string,
@@ -95,8 +96,21 @@ export class BaseUserDTO implements BaseUserDTOProps {
             following: doc.following.map(artist => artist.toString()),
             library: doc.library.map(product => product.toString()),
             listening_history: doc.listening_history.map(song => song.toString()),
-            addresses: doc.addresses
-        })
+            addresses: doc.addresses.map(address => ({
+                _id: address._id.toString(),
+                alias: address.alias,
+                name: address.name,
+                sur_name: address.sur_name,
+                phone: address.phone,
+                address: address.address,
+                address_2: address.address_2,
+                province: address.province,
+                city: address.city,
+                zip_code: address.zip_code,
+                country: address.country,
+                observations: address.observations,
+                default: address.default
+            }))
+        });
     }
-
 }

@@ -14,6 +14,7 @@ export interface IBaseUser extends Document {
     library: Types.ObjectId[],
     listening_history: Types.ObjectId[],
     addresses: {
+        _id: Types.ObjectId,
         alias: string,
         name: string,
         sur_name: string,
