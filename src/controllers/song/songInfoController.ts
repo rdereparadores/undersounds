@@ -23,9 +23,9 @@ export const getSongInfo = async (req: Request, res: Response) => {
         const factory = new MongoDBDAOFactory();
         const songDAO = factory.createSongDAO();
 
-        const songWithDetails = await songDAO.findByIdWithDetails(id);
+        const song = await songDAO.findById(id);
 
-        if (!songWithDetails) {
+        if (!song) {
             return res.status(404).json({
                 success: false,
                 error: {
@@ -35,12 +35,10 @@ export const getSongInfo = async (req: Request, res: Response) => {
             });
         }
 
-        await songDAO.incrementPlays(id);
-
         const recommendationsList = await songDAO.findRecommendations(id, 5);
 
         const response = {
-            song: songWithDetails,
+            song: song,
             recommendations: recommendationsList
         };
 

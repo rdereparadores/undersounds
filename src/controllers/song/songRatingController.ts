@@ -23,7 +23,6 @@ export const getSongRatings = async (req: Request, res: Response) => {
         const factory = new MongoDBDAOFactory();
         const songDAO = factory.createSongDAO();
 
-        // Verify song exists
         const song = await songDAO.findById(id);
         if (!song) {
             return res.status(404).json({
@@ -35,20 +34,22 @@ export const getSongRatings = async (req: Request, res: Response) => {
             });
         }
 
-        const ratingDAO = factory.createRatingDAO();
+        const ratings = await songDAO.getRatings(song);
 
-        const ratings = await ratingDAO.findByProduct(id);
-
-        const averageRating = await ratingDAO.getAverageRatingForProduct(id);
+        let averageRating = 0;
+        if (ratings && ratings.length > 0) {
+            const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
+            averageRating = sum / ratings.length;
+        }
 
         const response = {
             song: {
                 id: song._id,
                 title: song.title
             },
-            ratings: ratings,
+            ratings: ratings || [],
             averageRating,
-            totalRatings: ratings.length
+            totalRatings: ratings ? ratings.length : 0
         };
 
         res.status(200).json({
