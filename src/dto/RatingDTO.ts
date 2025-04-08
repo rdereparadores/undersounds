@@ -1,7 +1,7 @@
 import { IRating } from "../models/Rating"
 
 export interface RatingDTOProps {
-    _id: string,
+    _id?: string,
     rating: number,
     title: string,
     description: string,
@@ -10,7 +10,7 @@ export interface RatingDTOProps {
 }
 
 export class RatingDTO implements RatingDTOProps {
-    _id: string
+    _id?: string
     rating: number
     title: string
     description: string
