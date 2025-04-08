@@ -1,6 +1,7 @@
 import { IOrder } from "../models/Order"
 
 export interface OrderDTOProps {
+    _id?: string,
     purchase_date: Date,
     status?: 'processing' | 'shipped' | 'delivered',
     paid: boolean,
@@ -16,6 +17,7 @@ export interface OrderDTOProps {
 }
 
 export class OrderDTO implements OrderDTOProps {
+    _id?: string
     purchase_date: Date
     status?: 'processing' | 'shipped' | 'delivered'
     paid: boolean
@@ -30,6 +32,7 @@ export class OrderDTO implements OrderDTOProps {
     }[]
 
     constructor(props: OrderDTOProps) {
+        this._id = props._id
         this.purchase_date = props.purchase_date
         this.status = props.status
         this.paid = props.paid
