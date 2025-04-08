@@ -3,4 +3,4 @@ import { aiCoverController } from '../controllers/ai/aiCoverController'
 
 export const aiRouter = express.Router()
 
-aiRouter.get('/cover', aiCoverController)
+aiRouter.post('/cover', aiCoverController)
