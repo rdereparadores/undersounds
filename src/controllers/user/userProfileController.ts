@@ -1,41 +1,28 @@
-import express from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
 
+// REVISADO
 export const userProfileController = async (req: express.Request, res: express.Response) => {
     try {
-        const { id } = req.query
-        if ((!id || typeof id !== 'string')) {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'UserID is required',
-                    code: 'USER_ID_REQUIRED'
-                }
-            });
-        }
+        const userDAO = req.db!.createUserDAO()
+        const user = await userDAO.findByUid(req.body.uid)
 
-        const factory = new MongoDBDAOFactory();
-        const userDAO = factory.createUserDAO();
-        const user = await userDAO.findById(id);
+        return res.json({
+            data: {
+                name: user?.name,
+                surName: user?.sur_name,
+                birthDate: user?.birth_date,
+                userName: user?.user_name,
+                email: user?.email,
+                imgUrl: user?.img_url
+            }
+        })
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'User not found',
-                    code: 'USER_NOT_FOUND'
-                }
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            msg: 'User info retrieved successfully',
-            data: user
-        });
     } catch (error) {
         return res.status(500).json({
-            err: 'USER_PROFILE_FETCH_ERROR'
+            error: {
+                code: 3000,
+                message: 'Error obteniendo la información'
+            }
         });
     }
 };

@@ -21,6 +21,8 @@ export class App {
 
     middlewares() {
         this.app.use('/', express.static('src/views'))
+        this.app.use('/public', express.static('public/'))
+
         this.app.use((req, res, next) => {
             req.db = this.db
             next()
@@ -33,6 +35,15 @@ export class App {
         this.app.use('/api/ai/', aiRouter)
         this.app.use('/api/auth/', authRouter)
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
+
+
+        this.app.get('*', async (req, res) => {
+            await res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {
+                if (err) {
+                    res.status(500).send(err)
+                }
+            })
+        })
     }
 
     listen() {

@@ -13,8 +13,17 @@ export const authTokenMiddleware = async(request:express.Request,response:expres
     try{
         const decodedToken = await appFireBase.auth().verifyIdToken(token)
         const user = await request.db?.createUserDAO().findByUid(decodedToken.uid)
+        if (user === null) {
+            response.status(404).send({
+                error: {
+                    code: 1000,
+                    message: 'Usuario no encontrado'
+                }
+            })
+        }
         request.body.token = token
         request.body.uid = decodedToken.uid
+        request.uid = decodedToken.uid
         request.body.user_type = user?.user_type
         next()
     }catch(error){

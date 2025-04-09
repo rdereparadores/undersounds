@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
 
-export const userProfileController = async (req: Request, res: Response): Promise<Response> => {
+export const userProfileAddressController = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { id } = req.query;
         if (!id || typeof id !== 'string') {
