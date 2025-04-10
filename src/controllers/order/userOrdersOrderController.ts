@@ -8,7 +8,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  */
 export const userOrdersOrderController = async (req: Request, res: Response) => {
     try {
-        const { orderId, userId } = req.query;
+        const { orderId, userId } = req.body;
 
         if (!orderId || typeof orderId !== 'string') {
             return res.status(400).json({

@@ -3,7 +3,7 @@ import express from 'express'
 // CREADO Y REVISADO
 export const userProfileUpdateController = async (req: express.Request, res: express.Response) => {
     try {
-        const userDAO = req.db!.createUserDAO()
+        const userDAO = req.db!.createBaseUserDAO()
         const user = await userDAO.findByUid(req.body.uid)
         if (req.body.name) {
             user!.name = req.body.name
