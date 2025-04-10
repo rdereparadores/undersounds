@@ -1,64 +1,63 @@
 import { Request, Response } from 'express';
 import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import { AddressDTO } from '../../dto/BaseUserDTO';
 
+// CORREGIDO Y REVISADO
 export const userProfileAddressAddController = async (req: Request, res: Response): Promise<Response> => {
     try {
 
-        const { id, address } = req.body;
-
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'UserID is required',
-                    code: 'USER_ID_REQUIRED'
-                }
-            });
-        }
+        const { uid, address } = req.body
         if (!address) {
             return res.status(400).json({
-                success: false,
                 error: {
                     message: 'Address is required',
-                    code: 'ADDRESS_REQUIRED'
+                    code: 1000
                 }
             });
         }
 
-        const factory = new MongoDBDAOFactory();
-        const userDAO = factory.createUserDAO();
-        const user = await userDAO.findById(id);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'User not found',
-                    code: 'USER_NOT_FOUND'
-                }
-            });
+        const factory = new MongoDBDAOFactory()
+        const userDAO = factory.createBaseUserDAO()
+        const user = await userDAO.findByUid(uid)
+
+        const newAddress: AddressDTO = {
+            alias: address.alias,
+            name: address.name,
+            sur_name: address.surName,
+            phone: address.phone,
+            address: address.address,
+            address_2: address.address2,
+            province: address.province,
+            city: address.city,
+            zip_code: address.zipCode,
+            country: address.country,
+            observations: address.observations,
+            default: false
         }
 
-        const updatedUser = await userDAO.addAddress(user, address);
-        if (!updatedUser) {
+        const updatedUser = await userDAO.addAddress(user!, newAddress)
+
+        if (updatedUser === null) {
             return res.status(500).json({
-                success: false,
                 error: {
                     message: 'Could not update user',
-                    code: 'USER_UPDATE_ERROR'
+                    code: 1000
                 }
             });
         }
 
         return res.status(200).json({
-            success: true,
-            msg: 'User address added successfully',
-            data: updatedUser.addresses
-        });
+            data: {
+                message: 'OK'
+            }
+        })
+
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return res.status(500).json({
-            success: false,
-            error: `USER_ADDRESS_ADD_ERROR: ${errorMessage}`
+            error: {
+                message: 'Could not update user address',
+                code: 1000
+            }
         });
     }
 };

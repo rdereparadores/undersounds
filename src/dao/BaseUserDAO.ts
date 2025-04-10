@@ -28,6 +28,7 @@ export interface IBaseUserDAO {
 
     addAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null>
     removeAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null>
+    getAddresses(user: BaseUserDTO): Promise<AddressDTO[] | null>
 }
 
 export class BaseUserDAO implements IBaseUserDAO {
@@ -152,13 +153,34 @@ export class BaseUserDAO implements IBaseUserDAO {
         return BaseUserDTO.fromDocument(updatedUser);
     }
 
-    async removeAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null> {
+    async removeAddress(baseUser: BaseUserDTO, address: Partial<AddressDTO>): Promise<BaseUserDTO | null> {
         const updatedAddress = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $pull: {addresses: { alias: address.alias } } },
+            { $pull: {addresses: { _id: address._id } } },
             { new: true }
         );
         if (!updatedAddress) return null;
         return BaseUserDTO.fromDocument(updatedAddress);
+    }
+
+    async getAddresses(user: BaseUserDTO) {
+        const userDoc = await BaseUser.findById(user._id).populate('addresses')
+        const addresses: AddressDTO[] = userDoc!.addresses.map((address: any) => ({
+            _id: address._id.toString(),
+            alias: address.alias,
+            name: address.name,
+            sur_name: address.sur_name,
+            phone: address.phone,
+            address: address.address,
+            address_2: address.address_2,
+            province: address.province,
+            city: address.city,
+            zip_code: address.zip_code,
+            country: address.country,
+            observations: address.observations,
+            default: address.default,
+        }))
+    
+        return addresses
     }
 
 }
