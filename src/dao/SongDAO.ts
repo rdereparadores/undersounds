@@ -76,7 +76,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
 
     async getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null> {
         try {
-            const song = await Song.findById(songId).populate('collaborators.artist');
+            const song = await Song.findById(songId);
             if (!song) return null;
 
             if (!song.collaborators || song.collaborators.length === 0) {
