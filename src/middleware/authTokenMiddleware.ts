@@ -20,6 +20,7 @@ export const authTokenMiddleware = async(request:express.Request,response:expres
                     message: 'Usuario no encontrado'
                 }
             })
+            return
         }
         request.body.token = token
         request.body.uid = decodedToken.uid

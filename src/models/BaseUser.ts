@@ -20,12 +20,12 @@ export interface IBaseUser extends Document {
         sur_name: string,
         phone: number,
         address: string,
-        address_2: string,
+        address_2?: string,
         province: string,
         city: string,
         zip_code: number,
         country: string,
-        observations: string,
+        observations?: string,
         default: boolean
     }[]
 }
