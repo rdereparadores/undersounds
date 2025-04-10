@@ -1,42 +1,29 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import { Request, Response } from 'express'
 
 export const artistProfileController = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { id } = req.query;
+        const artistDAO = req.db!.createArtistDAO()
+        const artist = await artistDAO.findByUid(req.body.uid)
 
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'ArtistID is required',
-                    code: 'ARTIST_ID_REQUIRED'
-                }
-            });
-        }
+        return res.json({
+            data: {
+                name: artist?.name,
+                surName: artist?.sur_name,
+                birthDate: artist?.birth_date,
+                userName: artist?.user_name,
+                email: artist?.email,
+                imgUrl: artist?.img_url,
+                artistName: artist?.artist_name,
+                artistUserName: artist?.artist_user_name
+            }
+        })
 
-        const factory = new MongoDBDAOFactory();
-        const artistDAO = factory.createArtistDAO();
-        const artist = await artistDAO.findById(id);
-
-        if (!artist) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'Artist not found',
-                    code: 'ARTIST_NOT_FOUND'
-                }
-            });
-        }
-
-        return res.status(200).json({
-            success: true,
-            msg: 'Artist info retrieved successfully',
-            data: artist
-        });
-    } catch (_error) {
+    } catch (error) {
         return res.status(500).json({
-            err: 'ARTIST_PROFILE_FETCH_ERROR'
+            error: {
+                code: 3000,
+                message: 'Error obteniendo la información'
+            }
         });
     }
 };
