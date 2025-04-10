@@ -174,24 +174,24 @@ export const userStatsController = async (req: Request, res: Response) => {
         const sortedArtists = Object.entries(artistPlays)
             .sort((a, b) => b[1] - a[1]);
 
-        const topArtistId = sortedArtists[0]?.[0];
-        const topArtistPlayCount = sortedArtists[0]?.[1] || 0;
-        const topArtist = topArtistId ? await artistDAO.findByUid(topArtistId) : null;
-
-        const totalPlays = listeningHistory.length;
-        const topArtistPercentage = totalPlays > 0
-            ? Math.round((topArtistPlayCount / totalPlays) * 100)
-            : 0;
-
-        const topArtistListeningTime = artistListeningTime[topArtistId] || 0;
-        const topArtistBadge = topArtistId
-            ? await calculateArtistBadge(factory, topArtistId, uid, topArtistListeningTime / 60)
-            : null;
-
         const topArtistsData = [];
         const topArtistIds = sortedArtists.slice(0, 5).map(entry => entry[0]);
         const topArtistsPromises = topArtistIds.map(artistId => artistDAO.findById(artistId));
         const topArtistsResults = await Promise.all(topArtistsPromises);
+
+        const totalPlays = listeningHistory.length;
+        const topArtistPlayCount = sortedArtists[0][1] || 0;
+
+        const topArtist = topArtistsResults[0];
+        const topArtistPercentage = totalPlays > 0
+            ? Math.round((topArtistPlayCount / totalPlays) * 100)
+            : 0;
+        const topArtistUid = topArtist?.uid
+
+        const topArtistListeningTime = artistListeningTime[topArtistUid!] || 0;
+        const topArtistBadge = topArtistUid
+            ? await calculateArtistBadge(factory, topArtistUid, uid, topArtistListeningTime / 60)
+            : null;
 
         for (let i = 0; i < topArtistsResults.length; i++) {
             const artist = topArtistsResults[i];
