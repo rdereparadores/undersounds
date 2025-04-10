@@ -64,7 +64,7 @@ export const userStatsController = async (req: Request, res: Response) => {
         const songsPromises = allSongIds.map(songId => songDAO.findById(songId));
         const allUniqueSongs = (await Promise.all(songsPromises)).filter(Boolean);
 
-        const collaboratorsPromises = allSongIds.map(songId => songDAO.findCollaborators(songId));
+        const collaboratorsPromises = allSongIds.map(songId => songDAO.getCollaborators(songId));
         const allCollaborators = await Promise.all(collaboratorsPromises);
 
         for (let i = 0; i < allSongIds.length; i++) {

@@ -13,11 +13,11 @@ export interface ISongDAO extends IProductDAO {
     findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]>
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: GenreDTO): Promise<SongDTO[]>
-    findCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null>
-    findMostPlayed(limit: number): Promise<SongDTO[]>
-    findRecommendations(songId: string, limit: number): Promise<SongDTO[]>
-    findByCollaborator(artistId: string): Promise<SongDTO[]>
-    findAllByArtistParticipation(artistId: string): Promise<SongDTO[]>
+    getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null>
+    getMostPlayed(limit: number): Promise<SongDTO[]>
+    getRecommendations(songId: string, limit: number): Promise<SongDTO[]>
+    getByCollaborator(artistId: string): Promise<SongDTO[]>
+    getAllByArtistParticipation(artistId: string): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
 
@@ -74,7 +74,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async findCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null> {
+    async getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null> {
         try {
             const song = await Song.findById(songId).populate('collaborators.artist');
             if (!song) return null;
@@ -93,7 +93,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         }
     }
 
-    async findByCollaborator(artistId: string): Promise<SongDTO[]> {
+    async getByCollaborator(artistId: string): Promise<SongDTO[]> {
         try {
             const songs = await Song.find({
                 'collaborators.artist': artistId,
@@ -107,7 +107,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         }
     }
 
-    async findAllByArtistParticipation(artistId: string): Promise<SongDTO[]> {
+    async getAllByArtistParticipation(artistId: string): Promise<SongDTO[]> {
         try {
             const authoredSongs = await Song.find({ author: artistId });
 
@@ -134,7 +134,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         }
     }
 
-    async findMostPlayed(limit: number): Promise<SongDTO[]> {
+    async getMostPlayed(limit: number): Promise<SongDTO[]> {
         try {
             const songs = await Song.find()
                 .sort({ plays: -1 })
@@ -148,7 +148,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         }
     }
 
-    async findRecommendations(songId: string, limit: number): Promise<SongDTO[]> {
+    async getRecommendations(songId: string, limit: number): Promise<SongDTO[]> {
         try {
             const song = await Song.findById(songId);
             if (!song) return [];
