@@ -39,6 +39,7 @@ export class App {
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
         this.app.use('/api/artist', authTokenMiddleware, artistRouter)
         this.app.use('/api/store', shopRouter)
+        this.app.use('/api/user', userRouter)
 
 
         this.app.get('*', async (req, res) => {

@@ -8,9 +8,9 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  */
 export const userStatsController = async (req: Request, res: Response) => {
     try {
-        const id = req.body.uid;
+        const uid = req.body.uid;
 
-        if (!id || typeof id !== 'string') {
+        if (!uid || typeof uid !== 'string') {
             return res.status(400).json({
                 success: false,
                 error: {
@@ -22,7 +22,7 @@ export const userStatsController = async (req: Request, res: Response) => {
 
         const factory = new MongoDBDAOFactory();
         const userDAO = factory.createBaseUserDAO();
-        const user = await userDAO.findById(id);
+        const user = await userDAO.findByUid(uid);
 
         if (!user) {
             return res.status(404).json({
@@ -176,7 +176,7 @@ export const userStatsController = async (req: Request, res: Response) => {
 
         const topArtistId = sortedArtists[0]?.[0];
         const topArtistPlayCount = sortedArtists[0]?.[1] || 0;
-        const topArtist = topArtistId ? await artistDAO.findById(topArtistId) : null;
+        const topArtist = topArtistId ? await artistDAO.findByUid(topArtistId) : null;
 
         const totalPlays = listeningHistory.length;
         const topArtistPercentage = totalPlays > 0
@@ -185,7 +185,7 @@ export const userStatsController = async (req: Request, res: Response) => {
 
         const topArtistListeningTime = artistListeningTime[topArtistId] || 0;
         const topArtistBadge = topArtistId
-            ? await calculateArtistBadge(factory, topArtistId, id, topArtistListeningTime / 60)
+            ? await calculateArtistBadge(factory, topArtistId, uid, topArtistListeningTime / 60)
             : null;
 
         const topArtistsData = [];
@@ -266,7 +266,7 @@ async function calculateArtistBadge(
 
     try {
         const artistDAO = factory.createArtistDAO();
-        const artist = await artistDAO.findById(artistId);
+        const artist = await artistDAO.findByUid(artistId);
         if (!artist) {
             return {
                 artist: 'Artista desconocido',

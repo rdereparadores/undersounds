@@ -11,6 +11,7 @@ import { userProfileUpdateController } from '../controllers/user/userProfileUpda
 import { userProfileUpdateImageController } from '../controllers/user/userProfileUpdateImageController'
 import { userProfileAddressController } from '../controllers/user/userProfileAddressController'
 import { userProfileAddressRemoveController } from '../controllers/user/userProfileAddressRemoveController'
+import {userStatsController} from "../controllers/user/userStatsController";
 
 export const userRouter = express.Router()
 
@@ -23,7 +24,7 @@ userRouter.get('/library/songs', userLibrarySongsController)
 userRouter.get('/library/albums', userLibraryAlbumsController)
 userRouter.get('/orders', userOrdersController)
 userRouter.get('/orders/order', userOrdersOrderController)
-//userRouter.get('/stats', userStatsController)
+userRouter.get('/stats', userStatsController)
 
 userRouter.post('/profile/address/add', userProfileAddressAddController)
 userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
