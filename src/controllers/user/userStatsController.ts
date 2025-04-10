@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import {UserDAO} from "../../dao/UserDAO";
 
 /**
  * @desc    Get user dashboard statistics
@@ -84,23 +85,10 @@ export const userStatsController = async (req: Request, res: Response) => {
             }
         });
 
-        const currentMonthListening = Math.round(
-            currentMonthHistory.reduce((total, entry) => {
-                const duration = songDurations.get(entry.song) || 0;
-                return total + (duration / 60);
-            }, 0)
-        );
-
-        const previousMonthListening = Math.round(
-            previousMonthHistory.reduce((total, entry) => {
-                const duration = songDurations.get(entry.song) || 0;
-                return total + (duration / 60);
-            }, 0)
-        );
-
-        const listeningTimeChangePercentage = previousMonthListening > 0
-            ? Math.round(((currentMonthListening - previousMonthListening) / previousMonthListening) * 100)
-            : 100;
+        const monthListening = await calculateListeningTime(
+            currentMonthHistory,
+            previousMonthHistory,
+            songDurations)
 
         const orderDAO = factory.createOrderDAO();
         const orders = await orderDAO.getOrdersFromUser(user) || [];
@@ -206,8 +194,8 @@ export const userStatsController = async (req: Request, res: Response) => {
         const response = {
             listeningTime: {
                 currentMonth: {
-                    minutes: currentMonthListening,
-                    changePercentage: listeningTimeChangePercentage
+                    minutes: monthListening.current,
+                    changePercentage: monthListening.listeningPercentage
                 }
             },
             preferredFormat: {
@@ -247,6 +235,47 @@ export const userStatsController = async (req: Request, res: Response) => {
         });
     }
 };
+
+interface calculateListeningTimeOut {
+    current: number;
+    previous: number;
+    listeningPercentage: number;
+}
+
+async function calculateListeningTime(
+    currentMonthHistory : {
+        song: string,
+        played_at: Date
+    }[],
+    previousMonthHistory : {
+        song: string,
+        played_at: Date
+    }[],
+    songDurations : Map<string, number>
+    ) : Promise<calculateListeningTimeOut> {
+    const current = Math.round(
+        currentMonthHistory.reduce((total, entry) => {
+            const duration = songDurations.get(entry.song) || 0;
+            return total + (duration / 60);
+        }, 0)
+    );
+
+    const previous = Math.round(
+        previousMonthHistory.reduce((total, entry) => {
+            const duration = songDurations.get(entry.song) || 0;
+            return total + (duration / 60);
+        }, 0)
+    );
+
+    const listeningPercentage = previous > 0
+        ? Math.round(((current - previous) / previous) * 100)
+        : 100;
+    return {
+        current,
+        previous,
+        listeningPercentage
+    };
+}
 
 async function calculateArtistBadge(
     factory: MongoDBDAOFactory,

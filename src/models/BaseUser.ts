@@ -45,7 +45,7 @@ export const BaseUserSchema = new Schema<IBaseUser>({
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
     listening_history: [{
         song: { type: Schema.Types.ObjectId, ref: 'Song', required: true },
-        played_at: { type: Date, required: true }
+        played_at: { type: Date, default: Date.now() }
     }],
     addresses: [{
         alias: { type: String, required: true, sparse: true },
