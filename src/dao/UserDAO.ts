@@ -1,9 +1,12 @@
-import { ArtistDTO } from "../dto/ArtistDTO";
-import { AddressDTO } from "../dto/BaseUserDTO";
-import { ProductDTO } from "../dto/ProductDTO";
-import { UserDTO } from "../dto/UserDTO";
-import { User } from "../models/User"
-import { BaseUserDAO, IBaseUserDAO } from "./BaseUserDAO";
+import {ArtistDTO} from "../dto/ArtistDTO";
+import {AddressDTO} from "../dto/BaseUserDTO";
+import {ProductDTO} from "../dto/ProductDTO";
+import {UserDTO} from "../dto/UserDTO";
+import {User} from "../models/User"
+import {BaseUserDAO, IBaseUserDAO} from "./BaseUserDAO";
+import {BaseUser} from "../models/BaseUser";
+import {Types} from "mongoose";
+import {Song} from "../models/Song";
 
 export interface IUserDAO extends IBaseUserDAO {
     create(dto: UserDTO): Promise<UserDTO>
@@ -30,6 +33,10 @@ export interface IUserDAO extends IBaseUserDAO {
 
     addAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null>
     removeAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null>
+
+    getTotalListeningTime(songIds: string[], since: Date): Promise<number>
+    getUserListeningTime(userId: string, songIds: string[], since: Date): Promise<number>
+    getUserRankForArtist(artistId: string, userId: string, since: Date): Promise<{rank: number, totalFans: number, userListeningTime: number, artistTotalListeningTime: number}>
 }
 
 export class UserDAO extends BaseUserDAO implements IUserDAO{
@@ -167,5 +174,173 @@ export class UserDAO extends BaseUserDAO implements IUserDAO{
         );
         if (!updatedAddress) return null;
         return UserDTO.fromDocument(updatedAddress);
+    }
+
+    async getTotalListeningTime(songIds: string[], since: Date): Promise<number> {
+        try {
+            const objectIds = songIds.map(id => new Types.ObjectId(id));
+
+            const listeningAggregation = await BaseUser.aggregate([
+                { $unwind: "$listening_history" },
+                {
+                    $match: {
+                        "listening_history.played_at": { $gte: since },
+                        "listening_history.song": { $in: objectIds }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "songs",
+                        localField: "listening_history.song",
+                        foreignField: "_id",
+                        as: "songDetails"
+                    }
+                },
+                { $unwind: "$songDetails" },
+                {
+                    $group: {
+                        _id: null,
+                        totalDuration: { $sum: "$songDetails.duration" }
+                    }
+                }
+            ]);
+
+            return listeningAggregation.length > 0
+                ? listeningAggregation[0].totalDuration / 60
+                : 0;
+        } catch (error) {
+            console.error('Error al obtener tiempo total de escucha:', error);
+            return 0;
+        }
+    }
+
+    async getUserListeningTime(userId: string, songIds: string[], since: Date): Promise<number> {
+        try {
+            const objectIds = songIds.map(id => new Types.ObjectId(id));
+            const userObjectId = new Types.ObjectId(userId);
+
+            const userListeningAggregation = await BaseUser.aggregate([
+                {
+                    $match: {
+                        _id: userObjectId
+                    }
+                },
+                { $unwind: "$listening_history" },
+                {
+                    $match: {
+                        "listening_history.played_at": { $gte: since },
+                        "listening_history.song": { $in: objectIds }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "songs",
+                        localField: "listening_history.song",
+                        foreignField: "_id",
+                        as: "songDetails"
+                    }
+                },
+                { $unwind: "$songDetails" },
+                {
+                    $group: {
+                        _id: "$_id",
+                        totalDuration: { $sum: "$songDetails.duration" }
+                    }
+                }
+            ]);
+
+            return userListeningAggregation.length > 0
+                ? userListeningAggregation[0].totalDuration / 60
+                : 0;
+        } catch (error) {
+            console.error('Error al obtener tiempo de escucha del usuario:', error);
+            return 0;
+        }
+    }
+
+    async getUserRankForArtist(artistId: string, userId: string, since: Date): Promise<{
+        rank: number,
+        totalFans: number,
+        userListeningTime: number,
+        artistTotalListeningTime: number
+    }> {
+        try {
+            const artistObjectId = new Types.ObjectId(artistId);
+
+            const artistSongs = await Song.find({
+                $or: [
+                    { author: artistObjectId },
+                    { 'collaborators.artist': artistObjectId, 'collaborators.accepted': true }
+                ]
+            });
+
+            const artistSongIds = artistSongs.map(song => song._id);
+
+            if (artistSongIds.length === 0) {
+                return {
+                    rank: 0,
+                    totalFans: 0,
+                    userListeningTime: 0,
+                    artistTotalListeningTime: 0
+                };
+            }
+
+            const userRankings = await BaseUser.aggregate([
+                { $unwind: "$listening_history" },
+                {
+                    $match: {
+                        "listening_history.played_at": { $gte: since },
+                        "listening_history.song": { $in: artistSongIds }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "songs",
+                        localField: "listening_history.song",
+                        foreignField: "_id",
+                        as: "songDetails"
+                    }
+                },
+                { $unwind: "$songDetails" },
+                {
+                    $group: {
+                        _id: "$_id",
+                        totalListeningTime: { $sum: "$songDetails.duration" }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        totalListeningTime: { $divide: ["$totalListeningTime", 60] }
+                    }
+                },
+                { $sort: { totalListeningTime: -1 } }
+            ]);
+
+            const artistTotalListeningTime = userRankings.reduce(
+                (total, user) => total + user.totalListeningTime,
+                0
+            );
+
+            const userIndex = userRankings.findIndex(item => item._id.toString() === userId);
+            const userRank = userIndex !== -1 ? userIndex + 1 : 0;
+            const userListeningTime = userIndex !== -1 ? userRankings[userIndex].totalListeningTime : 0;
+            const totalFans = userRankings.length;
+
+            return {
+                rank: userRank,
+                totalFans: totalFans,
+                userListeningTime: userListeningTime,
+                artistTotalListeningTime: artistTotalListeningTime
+            };
+        } catch (error) {
+            console.error('Error al obtener ranking del usuario:', error);
+            return {
+                rank: 0,
+                totalFans: 0,
+                userListeningTime: 0,
+                artistTotalListeningTime: 0
+            };
+        }
     }
 }
