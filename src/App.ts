@@ -6,6 +6,7 @@ import { authTokenMiddleware } from "./middleware/authTokenMiddleware"
 import { genreRouter } from "./routes/genreRouter"
 import { userRouter } from "./routes/userRouter"
 import { artistRouter } from "./routes/artistRouter"
+import {shopRouter} from "./routes/shopRouter";
 
 export class App {
 
@@ -37,6 +38,7 @@ export class App {
         this.app.use('/api/auth/', authRouter)
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
         this.app.use('/api/artist', authTokenMiddleware, artistRouter)
+        this.app.use('/api/store', shopRouter)
 
 
         this.app.get('*', async (req, res) => {

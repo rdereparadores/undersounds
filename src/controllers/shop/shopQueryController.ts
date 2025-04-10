@@ -6,7 +6,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  * @route   POST /api/store/query
  * @access  Public
  */
-export const queryStore = async (req: Request, res: Response) => {
+export const shopQueryController = async (req: Request, res: Response) => {
     try {
         const {
             genre,
