@@ -1,9 +1,12 @@
-import { ArtistDTO } from "../dto/ArtistDTO";
-import { AddressDTO } from "../dto/BaseUserDTO";
-import { ProductDTO } from "../dto/ProductDTO";
-import { UserDTO } from "../dto/UserDTO";
-import { User } from "../models/User"
-import { BaseUserDAO, IBaseUserDAO } from "./BaseUserDAO";
+import {ArtistDTO} from "../dto/ArtistDTO";
+import {AddressDTO} from "../dto/BaseUserDTO";
+import {ProductDTO} from "../dto/ProductDTO";
+import {UserDTO} from "../dto/UserDTO";
+import {User} from "../models/User"
+import {BaseUserDAO, IBaseUserDAO} from "./BaseUserDAO";
+import {BaseUser} from "../models/BaseUser";
+import {Types} from "mongoose";
+import {Song} from "../models/Song";
 
 export interface IUserDAO extends IBaseUserDAO {
     create(dto: UserDTO): Promise<UserDTO>
@@ -30,6 +33,8 @@ export interface IUserDAO extends IBaseUserDAO {
 
     addAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null>
     removeAddress(user: UserDTO, address: AddressDTO): Promise<UserDTO | null>
+
+
 }
 
 export class UserDAO extends BaseUserDAO implements IUserDAO{
@@ -168,4 +173,6 @@ export class UserDAO extends BaseUserDAO implements IUserDAO{
         if (!updatedAddress) return null;
         return UserDTO.fromDocument(updatedAddress);
     }
+
+
 }

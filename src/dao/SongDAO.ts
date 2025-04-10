@@ -13,7 +13,11 @@ export interface ISongDAO extends IProductDAO {
     findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]>
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: GenreDTO): Promise<SongDTO[]>
-    findRecommendations(id: string, limit: number): Promise<SongDTO[]>
+    getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null>
+    getMostPlayed(limit: number): Promise<SongDTO[]>
+    getRecommendations(songId: string, limit: number): Promise<SongDTO[]>
+    getByCollaborator(artistId: string): Promise<SongDTO[]>
+    getAllByArtistParticipation(artistId: string): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
 
@@ -70,35 +74,100 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async findRecommendations(id: string, limit: number): Promise<SongDTO[]> {
-        const originalSong = await Song.findById(id);
-        if (!originalSong || !originalSong.genres || originalSong.genres.length === 0) {
+    async getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null> {
+        try {
+            const song = await Song.findById(songId).populate('collaborators.artist');
+            if (!song) return null;
+
+            if (!song.collaborators || song.collaborators.length === 0) {
+                return [];
+            }
+
+            return song.collaborators.map(collab => ({
+                artist: collab.artist.toString(),
+                accepted: collab.accepted
+            }));
+        } catch (error) {
+            console.error('Error al obtener colaboradores:', error);
+            return null;
+        }
+    }
+
+    async getByCollaborator(artistId: string): Promise<SongDTO[]> {
+        try {
+            const songs = await Song.find({
+                'collaborators.artist': artistId,
+                'collaborators.accepted': true
+            });
+
+            return songs.map(song => SongDTO.fromDocument(song));
+        } catch (error) {
+            console.error('Error al buscar colaboraciones:', error);
             return [];
         }
+    }
 
-        const recommendations = await Song.aggregate([
-            {
-                $match: {
-                    _id: { $ne: originalSong._id },
-                    genres: { $in: originalSong.genres }
+    async getAllByArtistParticipation(artistId: string): Promise<SongDTO[]> {
+        try {
+            const authoredSongs = await Song.find({ author: artistId });
+
+            const collaborationSongs = await Song.find({
+                'collaborators.artist': artistId,
+                'collaborators.accepted': true
+            });
+
+            const allSongs = [...authoredSongs, ...collaborationSongs];
+            const uniqueSongIds = new Set();
+            const uniqueSongs = [];
+
+            for (const song of allSongs) {
+                if (!uniqueSongIds.has(song._id.toString())) {
+                    uniqueSongIds.add(song._id.toString());
+                    uniqueSongs.push(song);
                 }
-            },
-            { $sample: { size: limit } }
-        ]);
+            }
 
-        if (recommendations.length < limit) {
-            const remainingCount = limit - recommendations.length;
-            const existingIds = recommendations.map(song => song._id);
-            existingIds.push(originalSong._id);
-
-            const popularSongs = await Song.find({
-                _id: { $nin: existingIds }
-            }).sort({ plays: -1 }).limit(remainingCount);
-
-            recommendations.push(...popularSongs);
+            return uniqueSongs.map(song => SongDTO.fromDocument(song));
+        } catch (error) {
+            console.error('Error al buscar canciones por participación:', error);
+            return [];
         }
+    }
 
-        return recommendations.map(song => SongDTO.fromDocument(song));
+    async getMostPlayed(limit: number): Promise<SongDTO[]> {
+        try {
+            const songs = await Song.find()
+                .sort({ plays: -1 })
+                .limit(limit)
+                .populate('author');
+
+            return songs.map(song => SongDTO.fromDocument(song));
+        } catch (error) {
+            console.error('Error al obtener canciones más reproducidas:', error);
+            return [];
+        }
+    }
+
+    async getRecommendations(songId: string, limit: number): Promise<SongDTO[]> {
+        try {
+            const song = await Song.findById(songId);
+            if (!song) return [];
+
+            const recommendations = await Song.find({
+                $or: [
+                    { genres: { $in: song.genres } },
+                    { author: song.author }
+                ],
+                _id: { $ne: song._id }
+            })
+                .limit(limit)
+                .sort({ plays: -1 });
+
+            return recommendations.map(song => SongDTO.fromDocument(song));
+        } catch (error) {
+            console.error('Error al obtener recomendaciones:', error);
+            return [];
+        }
     }
 
     async getAll(): Promise<SongDTO[]> {
