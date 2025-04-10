@@ -29,6 +29,7 @@ export interface IBaseUserDAO {
     addAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null>
     removeAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<BaseUserDTO | null>
     getAddresses(user: BaseUserDTO): Promise<AddressDTO[] | null>
+    setAddressAsDefault(user: BaseUserDTO, address: Partial<AddressDTO>): Promise<boolean>
 }
 
 export class BaseUserDAO implements IBaseUserDAO {
@@ -181,6 +182,19 @@ export class BaseUserDAO implements IBaseUserDAO {
         }))
     
         return addresses
+    }
+
+    async setAddressAsDefault(user: BaseUserDTO, address: Partial<AddressDTO>): Promise<boolean> {
+        try {
+            await BaseUser.updateMany({}, {$set: { 'addresses.$[].default': false }})
+            await BaseUser.updateOne(
+                { _id: user._id, 'addresses._id': address._id },
+                { $set: { 'addresses.$.default': true } }
+            )
+            return true
+        } catch {
+            return false
+        }
     }
 
 }

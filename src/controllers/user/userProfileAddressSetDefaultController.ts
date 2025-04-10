@@ -1,19 +1,9 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import { Request, Response } from 'express'
 
 export const userProfileAddressSetDefaultController = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { id, addressId } = req.body;
+        const { uid, addressId } = req.body;
 
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'UserID is required',
-                    code: 'USER_ID_REQUIRED'
-                }
-            });
-        }
         if (!addressId || typeof addressId !== 'string') {
             return res.status(400).json({
                 success: false,
@@ -23,10 +13,8 @@ export const userProfileAddressSetDefaultController = async (req: Request, res: 
                 }
             });
         }
-
-        const factory = new MongoDBDAOFactory();
-        const userDAO = factory.createUserDAO();
-        const user = await userDAO.findById(id);
+        const baseUserDAO = req.db!.createBaseUserDAO()
+        const user = await baseUserDAO.findByUid(uid)
 
         if (!user) {
             return res.status(404).json({
@@ -38,7 +26,7 @@ export const userProfileAddressSetDefaultController = async (req: Request, res: 
             });
         }
 
-        const addressExists = user.addresses.some(address => address._id === addressId);
+        const addressExists = user.addresses.some(address => address._id === addressId)
         if (!addressExists) {
             return res.status(404).json({
                 success: false,
@@ -49,32 +37,16 @@ export const userProfileAddressSetDefaultController = async (req: Request, res: 
             });
         }
 
-        user.addresses = user.addresses.map(address => ({
-            ...address,
-            default: address._id === addressId
-        }));
-
-        const updatedUser = await userDAO.update(user);
-        if (!updatedUser) {
-            return res.status(500).json({
-                success: false,
-                error: {
-                    message: 'Could not update user',
-                    code: 'USER_UPDATE_ERROR'
-                }
-            });
-        }
+        const setDefault = await baseUserDAO.setAddressAsDefault(user, { _id: addressId })
 
         return res.status(200).json({
-            success: true,
-            msg: 'User address set as default successfully',
-            data: updatedUser.addresses
+            data: {
+                message: 'OK'
+            }
         });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    } catch {
         return res.status(500).json({
-            success: false,
-            error: `USER_ADDRESS_SET_DEFAULT_ERROR: ${errorMessage}`
+            error: `USER_ADDRESS_SET_DEFAULT_ERROR`
         });
     }
 };
