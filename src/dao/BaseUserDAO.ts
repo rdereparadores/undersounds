@@ -301,9 +301,7 @@ export class BaseUserDAO implements IBaseUserDAO {
                 ]
             });
 
-            const artistSongIds = artistSongs.map(song => song._id);
-
-            if (artistSongIds.length === 0) {
+            if (artistSongs.length === 0) {
                 return {
                     rank: 0,
                     totalFans: 0,
@@ -312,56 +310,70 @@ export class BaseUserDAO implements IBaseUserDAO {
                 };
             }
 
-            const userRankings = await BaseUser.aggregate([
-                { $unwind: "$listening_history" },
-                {
-                    $match: {
-                        "listening_history.played_at": { $gte: since },
-                        "listening_history.song": { $in: artistSongIds }
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "songs",
-                        localField: "listening_history.song",
-                        foreignField: "_id",
-                        as: "songDetails"
-                    }
-                },
-                { $unwind: "$songDetails" },
-                {
-                    $group: {
-                        _id: "$_id",
-                        totalListeningTime: { $sum: "$songDetails.duration" }
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        totalListeningTime: { $divide: ["$totalListeningTime", 60] }
-                    }
-                },
-                { $sort: { totalListeningTime: -1 } }
-            ]);
+            const artistSongIds = artistSongs.map(song => song._id);
 
-            const artistTotalListeningTime = userRankings.reduce(
-                (total, user) => total + user.totalListeningTime,
-                0
-            );
+            const users = await BaseUser.find({
+                'listening_history': {
+                    $elemMatch: {
+                        'song': { $in: artistSongIds },
+                        'played_at': { $gte: since }
+                    }
+                }
+            });
 
-            const userIndex = userRankings.findIndex(item => item._id.toString() === userId);
-            const userRank = userIndex !== -1 ? userIndex + 1 : 0;
-            const userListeningTime = userIndex !== -1 ? userRankings[userIndex].totalListeningTime : 0;
-            const totalFans = userRankings.length;
+            const userListeningTimes = [];
+            let totalListeningTime = 0;
+
+            for (const user of users) {
+                let userTime = 0;
+
+                const relevantHistory = user.listening_history.filter(entry => {
+                    const songIdStr = entry.song.toString();
+                    const entryDate = new Date(entry.played_at);
+                    return artistSongIds.some(id => id.toString() === songIdStr) && entryDate >= since;
+                });
+
+                for (const entry of relevantHistory) {
+                    const songId = entry.song;
+                    const song = artistSongs.find(s => s._id.toString() === songId.toString());
+                    if (song) {
+                        userTime += song.duration / 60;
+                    }
+                }
+
+                userListeningTimes.push({
+                    userId: user._id.toString(),
+                    time: userTime
+                });
+
+                totalListeningTime += userTime;
+            }
+
+            userListeningTimes.sort((a, b) => b.time - a.time);
+
+            const userIndex = userListeningTimes.findIndex(item => item.userId === userId);
+            const totalFans = userListeningTimes.length;
+
+            if (userIndex === -1) {
+                return {
+                    rank: 0,
+                    totalFans,
+                    userListeningTime: 0,
+                    artistTotalListeningTime: totalListeningTime
+                };
+            }
+
+            const userRank = userIndex + 1;
+
+            const userListeningTime = userListeningTimes[userIndex].time;
 
             return {
                 rank: userRank,
-                totalFans: totalFans,
-                userListeningTime: userListeningTime,
-                artistTotalListeningTime: artistTotalListeningTime
+                totalFans,
+                userListeningTime,
+                artistTotalListeningTime: totalListeningTime
             };
         } catch (error) {
-            console.error('Error al obtener ranking del usuario:', error);
             return {
                 rank: 0,
                 totalFans: 0,
