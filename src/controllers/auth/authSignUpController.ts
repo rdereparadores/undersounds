@@ -15,6 +15,7 @@ export const authSignUpController = async (request: express.Request, response: e
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, request.body.email, request.body.password)
         const idToken = await userCredential.user.getIdToken()
+
         const decodedToken = await appFireBase.auth().verifyIdToken(idToken)
 
         const exist = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
@@ -52,7 +53,9 @@ export const authSignUpController = async (request: express.Request, response: e
                     following: [],
                     library: [],
                     listening_history: [],
-                    addresses: []
+                    addresses: [],
+                    artist_banner_img_url: '',
+                    artist_img_url: ''
                 }));
                 response.send({ msg: { token: decodedToken } })
 

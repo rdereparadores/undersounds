@@ -1,7 +1,7 @@
-import { Types } from "mongoose"
 import { IBaseUser } from "../models/BaseUser"
 
 export interface AddressDTO {
+    _id?: string,
     alias: string,
     name: string,
     sur_name: string,
@@ -28,7 +28,10 @@ export interface BaseUserDTOProps {
     user_type: 'user' | 'artist',
     following: string[],
     library: string[],
-    listening_history: string[],
+    listening_history: {
+        song: string,
+        played_at: Date
+    }[]
     addresses: AddressDTO[]
 }
 
@@ -44,7 +47,10 @@ export class BaseUserDTO implements BaseUserDTOProps {
     user_type: 'user' | 'artist'
     following: string[]
     library: string[]
-    listening_history: string[]
+    listening_history: {
+        song: string,
+        played_at: Date
+    }[]
     addresses: AddressDTO[]
 
     constructor(props: BaseUserDTOProps) {
@@ -94,9 +100,25 @@ export class BaseUserDTO implements BaseUserDTOProps {
             user_type: doc.user_type,
             following: doc.following.map(artist => artist.toString()),
             library: doc.library.map(product => product.toString()),
-            listening_history: doc.listening_history.map(song => song.toString()),
-            addresses: doc.addresses
-        })
+            listening_history: doc.listening_history.map(entry => ({
+                song: entry.song.toString(),
+                played_at: entry.played_at
+            })),
+            addresses: doc.addresses.map(address => ({
+                _id: address._id.toString(),
+                alias: address.alias,
+                name: address.name,
+                sur_name: address.sur_name,
+                phone: address.phone,
+                address: address.address,
+                address_2: address.address_2,
+                province: address.province,
+                city: address.city,
+                zip_code: address.zip_code,
+                country: address.country,
+                observations: address.observations,
+                default: address.default
+            }))
+        });
     }
-
 }

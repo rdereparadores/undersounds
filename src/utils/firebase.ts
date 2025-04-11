@@ -1,7 +1,7 @@
 import * as serviceAccount from './admin.json'
 import admin from 'firebase-admin';
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, } from "firebase/auth";
 
 //Inicializa firebase
 export const appFireBase = admin.initializeApp({

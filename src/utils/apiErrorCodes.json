@@ -1,0 +1,28 @@
+{
+    "1000": {
+        "httpCode": "401",
+        "message": "Token de usuario no proporcionado"
+    },
+    "1001": {
+        "httpCode": "401",
+        "message": "Rol de artista requerido"
+    },
+    "1002": {
+        "httpCode": "401",
+        "message": "Token de usuario no válido o expirado"
+    },
+    
+    "2000": {
+        "httpCode": "500",
+        "message": "Error obteniendo la información de la base de datos"
+    },
+
+    "3000": {
+        "httpCode": "400",
+        "message": "Datos necesarios no proporcionados"
+    },
+    "3001": {
+        "httpCode": "400",
+        "message": "Datos proporcionados no válidos"
+    }
+}

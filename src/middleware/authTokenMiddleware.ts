@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, request, Response, response } from 'express'
+import express from 'express'
 import 'dotenv/config'
 import { appFireBase } from '../utils/firebase';
 
@@ -12,9 +12,19 @@ export const authTokenMiddleware = async(request:express.Request,response:expres
 
     try{
         const decodedToken = await appFireBase.auth().verifyIdToken(token)
-        const user = await request.db?.createUserDAO().findByUid(decodedToken.uid)
+        const user = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
+        if (user === null) {
+            response.status(404).send({
+                error: {
+                    code: 1000,
+                    message: 'Usuario no encontrado'
+                }
+            })
+            return
+        }
         request.body.token = token
         request.body.uid = decodedToken.uid
+        request.uid = decodedToken.uid
         request.body.user_type = user?.user_type
         next()
     }catch(error){

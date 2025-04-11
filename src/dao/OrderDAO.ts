@@ -68,16 +68,7 @@ export class OrderDAO implements IOrderDAO {
     }
 
     async getAll(): Promise<OrderDTO[]> {
-        const orders = await Order.find()
-            .populate({
-                path: 'user',
-                select: 'name sur_name email img_url'
-            })
-            .populate({
-                path: 'lines.product',
-                select: 'title img_url product_type pricing'
-            });
-
+        const orders = await Order.find();
         return orders.map(order => OrderDTO.fromDocument(order));
     }
 
