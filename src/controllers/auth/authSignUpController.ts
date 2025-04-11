@@ -15,6 +15,7 @@ export const authSignUpController = async (request: express.Request, response: e
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, request.body.email, request.body.password)
         const idToken = await userCredential.user.getIdToken()
+
         const decodedToken = await appFireBase.auth().verifyIdToken(idToken)
 
         const exist = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
