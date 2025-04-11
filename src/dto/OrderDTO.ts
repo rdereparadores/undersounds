@@ -44,6 +44,7 @@ export class OrderDTO implements OrderDTOProps {
 
     toJson(): OrderDTOProps {
         return {
+            _id: this._id,
             purchase_date: this.purchase_date,
             status: this.status,
             paid: this.paid,
@@ -56,6 +57,7 @@ export class OrderDTO implements OrderDTOProps {
     
     static fromDocument(doc: IOrder) {
         return new OrderDTO({
+            _id: doc._id.toString(),
             purchase_date: doc.purchase_date,
             status: doc.status,
             paid: doc.paid,
