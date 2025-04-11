@@ -6,7 +6,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  * @route   GET /api/album/info
  * @access  Public
  */
-export const getAlbumInfo = async (req: Request, res: Response) => {
+export const albumInfoController = async (req: Request, res: Response) => {
     try {
         const { id } = req.query;
 
@@ -34,7 +34,7 @@ export const getAlbumInfo = async (req: Request, res: Response) => {
             });
         }
 
-        const populatedAlbum = await albumDAO.findByIdWithDetails(id);
+        const populatedAlbum = await albumDAO.findById(id);
 
         res.status(200).json({
             success: true,

@@ -7,7 +7,7 @@ import { RatingDTO } from "../../dto/RatingDTO";
  * @route   GET /api/album/ratings
  * @access  Public
  */
-export const getAlbumRatings = async (req: Request, res: Response) => {
+export const albumRatingsController = async (req: Request, res: Response) => {
     try {
         const { id } = req.query;
 
@@ -44,7 +44,7 @@ export const getAlbumRatings = async (req: Request, res: Response) => {
 
         const response = {
             album: {
-                id: album._id.toString(),
+                id: album._id,
                 title: album.title
             },
             ratings: ratings || [],
