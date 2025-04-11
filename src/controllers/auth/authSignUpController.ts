@@ -52,7 +52,9 @@ export const authSignUpController = async (request: express.Request, response: e
                     following: [],
                     library: [],
                     listening_history: [],
-                    addresses: []
+                    addresses: [],
+                    artist_banner_img_url: '',
+                    artist_img_url: ''
                 }));
                 response.send({ msg: { token: decodedToken } })
 
