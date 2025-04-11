@@ -6,12 +6,12 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  * @route   GET /api/trending/top10
  * @access  Public
  */
-export const getTrendingSongs = async (req: Request, res: Response) => {
+export const trendingSongsController = async (req: Request, res: Response) => {
     try {
         const factory = new MongoDBDAOFactory();
         const songDAO = factory.createSongDAO();
 
-        const trendingSongs = await songDAO.findMostPlayed(10);
+        const trendingSongs = await songDAO.getMostPlayed(10);
 
         res.status(200).json({
             success: true,

@@ -6,7 +6,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  * @route   GET /api/songs/ratings
  * @access  Public
  */
-export const getSongRatings = async (req: Request, res: Response) => {
+export const songRatingController = async (req: Request, res: Response) => {
     try {
         const { id } = req.query;
 
