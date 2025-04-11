@@ -16,7 +16,7 @@ interface ListeningTimeStats {
 interface FormatStats {
     preferredFormat: string;
     ratio: string;
-    formatDistribution: { format: string; quantity: number; fill: string }[];
+    formatDistribution: { format: string; quantity: number}[];
 }
 
 interface ArtistBadge {
@@ -24,7 +24,6 @@ interface ArtistBadge {
     userListeningTime: number;
     totalListeningTime: number;
     percentile: number;
-    badge: string;
 }
 
 export const userStatsController = async (req: Request, res: Response) => {
@@ -254,8 +253,8 @@ async function calculateGenreStats(
         await genreDAO.findById(previousMonthTopGenreId) : null;
 
     return {
-        currentMonth: currentMonthGenre?.genre || 'Rock',
-        previousMonth: previousMonthGenre?.genre || 'Pop'
+        currentMonth: currentMonthGenre?.genre || 'N/A',
+        previousMonth: previousMonthGenre?.genre || 'N/A'
     };
 }
 
@@ -383,7 +382,6 @@ async function calculateArtistBadge(
             userListeningTime: 0,
             totalListeningTime: 0,
             percentile: 0,
-            badge: 'Sin datos suficientes'
         };
     }
 
@@ -396,7 +394,6 @@ async function calculateArtistBadge(
                 userListeningTime: userListeningTimeMinutes || 0,
                 totalListeningTime: 0,
                 percentile: 0,
-                badge: 'Sin datos suficientes'
             };
         }
 
@@ -427,7 +424,6 @@ async function calculateArtistBadge(
             userListeningTime: Math.round(userTime),
             totalListeningTime: Math.round(userRankInfo.artistTotalListeningTime),
             percentile: percentile,
-            badge: badge
         };
     } catch (error) {
         console.error('Error calculando la insignia del artista:', error);
@@ -436,7 +432,6 @@ async function calculateArtistBadge(
             userListeningTime: 0,
             totalListeningTime: 0,
             percentile: 0,
-            badge: 'Error al calcular'
         };
     }
 }
@@ -471,8 +466,7 @@ function calculatePreferredFormat(orders: OrderDTO[]): FormatStats {
 
     const formatDistribution = Object.entries(formatCounts).map(([format, quantity]) => ({
         format,
-        quantity,
-        fill: `var(--color-${format})`
+        quantity
     }));
 
     const ratio = totalPurchases > 0
