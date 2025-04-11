@@ -106,11 +106,11 @@ export class ProductDAO implements IProductDAO {
         }
 
         if (genres) {
-            let genreArray: string[] = [];
+            let genreArray: string[];
 
             if (Array.isArray(genres)) {
                 genreArray = genres;
-            } else if (typeof genres === 'string') {
+            } else {
                 genreArray = [genres];
             }
 
