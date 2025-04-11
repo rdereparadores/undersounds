@@ -1,5 +1,5 @@
 import express from 'express'
-import { uploadUserProfileImage } from '../../utils/uploadStorage'
+import { uploadUserProfileImage } from '../../utils/uploadUserProfileImage'
 
 // CREADO Y REVISADO
 export const userProfileUpdateImageController = async (req: express.Request, res: express.Response) => {

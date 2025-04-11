@@ -2,10 +2,11 @@ import multer from "multer"
 import path from "path"
 import fs from 'fs'
 import express from 'express'
+import { imageFileFilter } from "./uploadUserProfileImage"
 
-const userProfileImageStorage = multer.diskStorage({
+const artistProfileImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'user', 'profile')
+        const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'artist', 'profile')
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true })
         }
@@ -15,7 +16,7 @@ const userProfileImageStorage = multer.diskStorage({
     filename: (req: express.Request, file, cb) => {
         const extension = path.extname(file.originalname)
         const fileName = `${req.uid!}${extension}`
-        const fullPath = path.join(process.cwd(), 'public', 'uploads', 'user', 'profile', fileName)
+        const fullPath = path.join(process.cwd(), 'public', 'uploads', 'artist', 'profile', fileName)
 
         if (fs.existsSync(fullPath)) {
             try {
@@ -30,18 +31,8 @@ const userProfileImageStorage = multer.diskStorage({
     }
 })
 
-const imageFileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg']
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true)
-    } else {
-        cb(new Error('Invalid format. Must be JPEG/PNG/JPG.'))
-    }
-}
-
-export const uploadUserProfileImage = multer({
-    storage: userProfileImageStorage,
+export const uploadArtistProfileImage = multer({
+    storage: artistProfileImageStorage,
     fileFilter: imageFileFilter,
     limits: { fileSize: 5 * 1024 * 1024 }
-}).single('profileImage')
-
+}).single('artistProfileImg')

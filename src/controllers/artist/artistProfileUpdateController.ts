@@ -18,11 +18,12 @@ export const artistProfileUpdateController = async (req: express.Request, res: e
                 message: 'Perfil actualizado con éxito'
             }
         });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    } catch {
         return res.status(500).json({
-            success: false,
-            error: errorMessage
+            error: {
+                code: 1000,
+                message: 'UPDATE_ARTIST_ERROR'
+            }
         });
     }
 };

@@ -64,6 +64,8 @@ export const authSignUpGoogleController = async (request: express.Request, respo
                     uid: decodedToken.uid,
                     img_url: request.body.img_url,
                     user_type: "artist",
+                    artist_banner_img_url: ' ',
+                    artist_img_url: ' ',
                     following: [],
                     library: [],
                     listening_history: [],
