@@ -35,7 +35,7 @@ export const getSongInfo = async (req: Request, res: Response) => {
             });
         }
 
-        const recommendationsList = await songDAO.findRecommendations(id, 5);
+        const recommendationsList = await songDAO.getRecommendations(id, 5);
 
         const response = {
             song: song,
