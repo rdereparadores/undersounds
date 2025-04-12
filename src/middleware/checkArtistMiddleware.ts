@@ -1,13 +1,14 @@
 import express from 'express'
+import apiErrorCodes from '../utils/apiErrorCodes.json'
 
 export const checkArtistMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const artistDAO = req.db?.createArtistDAO()
     const checkArtist = artistDAO?.findByUid(req.uid!)
     if (!checkArtist) {
-        res.status(401).send({
+        return res.status(Number(apiErrorCodes[1001].httpCode)).json({
             error: {
-                code: 1000,
-                message: 'USER_IS_NOT_ARTIST'
+                code: 1001,
+                message: apiErrorCodes[1001].message
             }
         })
     }

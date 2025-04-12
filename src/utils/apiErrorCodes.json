@@ -28,5 +28,10 @@
     "3002": {
         "httpCode": "400",
         "message": "Error en la subida del archivo"
+    },
+
+    "4000": {
+        "httpCode": "400",
+        "message": "El usuario ya existe"
     }
 }

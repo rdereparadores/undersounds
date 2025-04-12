@@ -7,8 +7,13 @@ import { artistProfileUpdateBannerImageController } from '../controllers/artist/
 
 export const artistRouter = express.Router()
 
+// REVISADAS
 artistRouter.get('/profile', artistProfileController)
 artistRouter.post('/profile/update', artistProfileUpdateController)
 artistRouter.post('/profile/update/profileImage', artistProfileUpdateProfileImageController)
 artistRouter.post('/profile/update/bannerImage', artistProfileUpdateBannerImageController)
+
+
+
+
 artistRouter.get('/stats', artistStatsController)

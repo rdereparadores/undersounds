@@ -1,29 +1,30 @@
 import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 export const artistProfileUpdateController = async (req: express.Request, res: express.Response): Promise<express.Response> => {
     try {
 
-        const { uid, artistUserName, artistName } = req.body
+        const { artistUsername, artistName } = req.body
 
         const artistDAO = req.db!.createArtistDAO()
-        const artist = await artistDAO.findByUid(uid)
+        const artist = await artistDAO.findByUid(req.uid!)
 
         if (artistName) artist!.artist_name = artistName
-        if (artistUserName) artist!.artist_user_name = artistUserName
+        if (artistUsername) artist!.artist_user_name = artistUsername
 
-        const updatedArtist = await artistDAO.update(artist!)
+        await artistDAO.update(artist!)
 
-        return res.status(200).json({
+        return res.json({
             data: {
-                message: 'Perfil actualizado con éxito'
+                message: 'OK'
             }
         });
     } catch {
-        return res.status(500).json({
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                code: 1000,
-                message: 'UPDATE_ARTIST_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };
