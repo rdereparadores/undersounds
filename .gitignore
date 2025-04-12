@@ -4,3 +4,4 @@ src/views/
 .env
 src/utils/admin.json
 public/
+src/utils/redis.ts
