@@ -24,5 +24,9 @@
     "3001": {
         "httpCode": "400",
         "message": "Datos proporcionados no válidos"
+    },
+    "3002": {
+        "httpCode": "400",
+        "message": "Error en la subida del archivo"
     }
 }

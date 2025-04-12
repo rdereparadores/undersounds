@@ -1,29 +1,27 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
-import { AddressDTO } from '../../dto/BaseUserDTO';
+import { Request, Response } from 'express'
+import { AddressDTO } from '../../dto/BaseUserDTO'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-// CORREGIDO Y REVISADO
 export const userProfileAddressAddController = async (req: Request, res: Response): Promise<Response> => {
     try {
 
-        const { uid, address } = req.body
+        const { address } = req.body
         if (!address) {
-            return res.status(400).json({
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
-                    message: 'Address is required',
-                    code: 1000
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
                 }
-            });
+            })
         }
 
-        const factory = new MongoDBDAOFactory()
-        const userDAO = factory.createBaseUserDAO()
-        const user = await userDAO.findByUid(uid)
+        const userDAO = req.db!.createBaseUserDAO()
+        const user = await userDAO.findByUid(req.uid!)
 
         const newAddress: AddressDTO = {
             alias: address.alias,
             name: address.name,
-            sur_name: address.surName,
+            sur_name: address.surname,
             phone: address.phone,
             address: address.address,
             address_2: address.address2,
@@ -35,29 +33,20 @@ export const userProfileAddressAddController = async (req: Request, res: Respons
             default: false
         }
 
-        const updatedUser = await userDAO.addAddress(user!, newAddress)
+        await userDAO.addAddress(user!, newAddress)
 
-        if (updatedUser === null) {
-            return res.status(500).json({
-                error: {
-                    message: 'Could not update user',
-                    code: 1000
-                }
-            });
-        }
-
-        return res.status(200).json({
+        return res.json({
             data: {
                 message: 'OK'
             }
         })
 
     } catch (error) {
-        return res.status(500).json({
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: 'Could not update user address',
-                code: 1000
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

@@ -1,14 +1,14 @@
 import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-// CREADO Y REVISADO
 export const userProfileUpdateController = async (req: express.Request, res: express.Response) => {
     try {
         const userDAO = req.db!.createBaseUserDAO()
-        const user = await userDAO.findByUid(req.body.uid)
+        const user = await userDAO.findByUid(req.uid!)
         if (req.body.name) {
             user!.name = req.body.name
         }
-        if (req.body.surName) {
+        if (req.body.surname) {
             user!.sur_name = req.body.surName
         }
         if (req.body.birthDate) {
@@ -23,10 +23,10 @@ export const userProfileUpdateController = async (req: express.Request, res: exp
             }
         })
     } catch (error) {
-        return res.status(500).json({
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                code: 3000,
-                message: 'Error obteniendo la información'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
         })
     }

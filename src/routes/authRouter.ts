@@ -8,8 +8,8 @@ import { authConfirmOtpController, authSetOtpController } from '../controllers/a
 
 export const authRouter = express.Router()
 
-authRouter.post('/setotp', authSetOtpController)
-authRouter.post('/confirmotp', authConfirmOtpController)
+//authRouter.post('/setotp', authSetOtpController)
+//authRouter.post('/confirmotp', authConfirmOtpController)
 authRouter.post('/signup', authSignUpController)
 authRouter.post('/signupgoogle', authSignUpGoogleController)
 authRouter.post('/signin',authTokenMiddleware, authSignInController)

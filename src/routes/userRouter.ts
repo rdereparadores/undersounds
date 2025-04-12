@@ -15,10 +15,19 @@ import {userStatsController} from "../controllers/user/userStatsController";
 
 export const userRouter = express.Router()
 
-userRouter.get('/is-following', userIsFollowingController)
-// REVISADA
+// REVISADAS
 userRouter.get('/profile', userProfileController)
+userRouter.post('/profile/update', userProfileUpdateController)
+userRouter.post('/profile/update/image', userProfileUpdateImageController)
+userRouter.post('/profile/address/add', userProfileAddressAddController)
+userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
 userRouter.get('/profile/address', userProfileAddressController)
+userRouter.post('/is-following', userIsFollowingController)
+
+// PENDIENTES
+
+
+
 //userRouter.get('/dashboard/featured/content', userDashboardFeaturedContentController)
 //userRouter.get('/dashboard/featured/artists', userDashbordFeaturedArtistsController)
 userRouter.get('/library/songs', userLibrarySongsController)
@@ -27,10 +36,7 @@ userRouter.get('/orders', userOrdersController)
 userRouter.get('/orders/order', userOrdersOrderController)
 userRouter.get('/stats', userStatsController)
 
-userRouter.post('/profile/address/add', userProfileAddressAddController)
-userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
-userRouter.post('/profile/update', userProfileUpdateController)
-userRouter.post('/profile/update/image', userProfileUpdateImageController)
+
 //userRouter.post('/profile/update/email', userProfileUpdateEmailController)
 //userRouter.post('/profile/update/password', userProfileUpdatePasswordController)
 //userRouter.post('/library/query', userLibraryQueryController)
