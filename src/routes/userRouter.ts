@@ -23,10 +23,9 @@ userRouter.post('/profile/address/add', userProfileAddressAddController)
 userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
 userRouter.get('/profile/address', userProfileAddressController)
 userRouter.post('/is-following', userIsFollowingController)
+userRouter.patch('/profile/address/set-default', userProfileAddressSetDefaultController)
 
 // PENDIENTES
-
-
 
 //userRouter.get('/dashboard/featured/content', userDashboardFeaturedContentController)
 //userRouter.get('/dashboard/featured/artists', userDashbordFeaturedArtistsController)
@@ -40,5 +39,3 @@ userRouter.get('/stats', userStatsController)
 //userRouter.post('/profile/update/email', userProfileUpdateEmailController)
 //userRouter.post('/profile/update/password', userProfileUpdatePasswordController)
 //userRouter.post('/library/query', userLibraryQueryController)
-
-userRouter.patch('/profile/address/set-default', userProfileAddressSetDefaultController)
