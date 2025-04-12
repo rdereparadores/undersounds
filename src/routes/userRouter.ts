@@ -12,6 +12,8 @@ import { userProfileUpdateImageController } from '../controllers/user/userProfil
 import { userProfileAddressController } from '../controllers/user/userProfileAddressController'
 import { userProfileAddressRemoveController } from '../controllers/user/userProfileAddressRemoveController'
 import {userStatsController} from "../controllers/user/userStatsController";
+import { recommendedArtistsController } from "../controllers/user/userDashboardFeaturedArtistController"
+import { userDashboardContentController } from "../controllers/user/userDashboardFeaturedContentController"
 
 export const userRouter = express.Router()
 
@@ -27,8 +29,8 @@ userRouter.patch('/profile/address/set-default', userProfileAddressSetDefaultCon
 
 // PENDIENTES
 
-//userRouter.get('/dashboard/featured/content', userDashboardFeaturedContentController)
-//userRouter.get('/dashboard/featured/artists', userDashbordFeaturedArtistsController)
+userRouter.get('/dashboard/featured/content', userDashboardContentController)
+userRouter.get('/dashboard/featured/artists', recommendedArtistsController)
 userRouter.get('/library/songs', userLibrarySongsController)
 userRouter.get('/library/albums', userLibraryAlbumsController)
 userRouter.get('/orders', userOrdersController)

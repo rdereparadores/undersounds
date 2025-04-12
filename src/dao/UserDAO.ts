@@ -23,7 +23,7 @@ export interface IUserDAO extends IBaseUserDAO {
     delete(dto: UserDTO): Promise<boolean>
 
     addToFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
-    isFollowing(user: UserDTO, artist: ArtistDTO): Promise<boolean>
+    isFollowing(user: UserDTO, artist: ArtistDTO | null): Promise<boolean>
     removeFromFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null>
 
     addToLibrary(user: UserDTO, product: ProductDTO): Promise<UserDTO | null>
@@ -97,11 +97,15 @@ export class UserDAO extends BaseUserDAO implements IUserDAO{
         return UserDTO.fromDocument(follow);
     }
 
-    async isFollowing(user: UserDTO, artist: ArtistDTO): Promise<boolean>{
+    async isFollowing(user: UserDTO, artist: ArtistDTO | null): Promise<boolean> {
+        if (!artist) return false;
+
         const isFollow = await User.findById(user._id);
         if (!isFollow) return false;
 
-        return  isFollow.following.some(follow => follow.toString() === artist._id);
+        return isFollow.following.some(follow =>
+            follow.toString() === artist._id
+        );
     }
 
     async removeFromFollowing(user: UserDTO, artist: ArtistDTO): Promise<UserDTO | null> {

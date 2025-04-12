@@ -5,3 +5,4 @@ src/views/
 src/utils/admin.json
 public/
 src/utils/redis.ts
+.idea
