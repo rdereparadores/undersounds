@@ -16,6 +16,7 @@ import {userStatsController} from "../controllers/user/userStatsController";
 export const userRouter = express.Router()
 
 userRouter.get('/is-following', userIsFollowingController)
+// REVISADA
 userRouter.get('/profile', userProfileController)
 userRouter.get('/profile/address', userProfileAddressController)
 //userRouter.get('/dashboard/featured/content', userDashboardFeaturedContentController)

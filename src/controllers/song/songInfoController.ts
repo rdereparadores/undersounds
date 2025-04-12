@@ -6,7 +6,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
  * @route   GET /api/songs/info
  * @access  Public
  */
-export const getSongInfo = async (req: Request, res: Response) => {
+export const songInfoController = async (req: Request, res: Response) => {
     try {
         const { id } = req.query;
 
@@ -35,7 +35,7 @@ export const getSongInfo = async (req: Request, res: Response) => {
             });
         }
 
-        const recommendationsList = await songDAO.findRecommendations(id, 5);
+        const recommendationsList = await songDAO.getRecommendations(id, 5);
 
         const response = {
             song: song,

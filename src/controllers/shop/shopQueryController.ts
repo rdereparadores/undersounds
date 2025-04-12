@@ -46,8 +46,6 @@ export const shopQueryController = async (req: Request, res: Response) => {
         const genreDAO = factory.createGenreDAO();
         const productDAO = factory.createProductDAO();
 
-        const genreName = typeof genre === 'string' ? genre : undefined;
-
         let dateFilter: 'today' | 'week' | 'month' | '3months' | '6months' | 'year' | undefined;
         if (date && ['today', 'week', 'month', '3months', '6months', 'year'].includes(date)) {
             dateFilter = date as 'today' | 'week' | 'month' | '3months' | '6months' | 'year';
@@ -61,7 +59,7 @@ export const shopQueryController = async (req: Request, res: Response) => {
         const [allGenres, productsResult] = await Promise.all([
             genreDAO.getAll(),
             productDAO.findWithFilters(
-                genreName,
+                genre,
                 dateFilter,
                 sortOption,
                 skip,
@@ -75,7 +73,7 @@ export const shopQueryController = async (req: Request, res: Response) => {
             genres: allGenres,
             products: productsResult.products,
             filters: {
-                genre: genreName,
+                genre: genre,
                 date: dateFilter
             },
             sorting: {

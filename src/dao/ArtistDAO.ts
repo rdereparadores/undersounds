@@ -172,7 +172,7 @@ export class ArtistDAO extends BaseUserDAO implements IArtistDAO {
             const userDAO = factory.createUserDAO();
             const productDAO = factory.createProductDAO();
 
-            const products = await productDAO.findByArtist({ uid: artistId } as any);
+            const products = await productDAO.findByArtist({ _id: artistId } as any);
             const artistProductIds = products ? products.map(product => product._id) : [];
 
             if (artistProductIds.length === 0) {

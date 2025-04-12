@@ -1,6 +1,6 @@
 import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-// REVISADO
 export const userProfileController = async (req: express.Request, res: express.Response) => {
     try {
         const userDAO = req.db!.createBaseUserDAO()
@@ -18,11 +18,11 @@ export const userProfileController = async (req: express.Request, res: express.R
         })
 
     } catch (error) {
-        return res.status(500).json({
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                code: 3000,
-                message: 'Error obteniendo la información'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, request, Response, response } from 'express'
+import express from 'express'
 import 'dotenv/config'
 import { appFireBase } from '../utils/firebase';
 

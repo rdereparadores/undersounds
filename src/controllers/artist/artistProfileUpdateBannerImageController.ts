@@ -1,9 +1,8 @@
 import express from 'express'
-import { uploadUserProfileImage } from '../../utils/uploadUserProfileImage'
+import { uploadArtistBannerImage } from '../../utils/uploadArtistBannerImage'
 
-// CREADO Y REVISADO
-export const userProfileUpdateImageController = async (req: express.Request, res: express.Response) => {
-    uploadUserProfileImage(req, res, async (err) => {
+export const artistProfileUpdateBannerImageController = async (req: express.Request, res: express.Response) => {
+    uploadArtistBannerImage(req, res, async (err) => {
         if (err) {
             return res.status(400).json({
                 error: {
@@ -12,7 +11,7 @@ export const userProfileUpdateImageController = async (req: express.Request, res
                 }
             })
         }
-
+        
         try {
             if (!req.file) {
                 return res.status(400).json({
@@ -22,12 +21,12 @@ export const userProfileUpdateImageController = async (req: express.Request, res
                     }
                 })
             }
-            
-            const imgUrl = '/public/uploads/user/profile/' + req.file.filename
-            const userDAO = req.db!.createBaseUserDAO()
-            const user = await userDAO.findByUid(req.uid!)
-            user!.img_url = imgUrl
-            await userDAO.update(user!)
+
+            const imgUrl = '/public/uploads/artist/banner/' + req.file.filename
+            const artistDAO = req.db!.createArtistDAO()
+            const artist = await artistDAO.findByUid(req.uid!)
+            artist!.artist_banner_img_url = imgUrl
+            await artistDAO.update(artist!)
 
             return res.json({
                 data: {
@@ -40,7 +39,7 @@ export const userProfileUpdateImageController = async (req: express.Request, res
                     code: 3000,
                     message: 'Error obteniendo la información'
                 }
-            });
+            })
         }
     })
 }

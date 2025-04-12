@@ -7,6 +7,7 @@ import { genreRouter } from "./routes/genreRouter"
 import { userRouter } from "./routes/userRouter"
 import { artistRouter } from "./routes/artistRouter"
 import {shopRouter} from "./routes/shopRouter";
+import { checkArtistMiddleware } from "./middleware/checkArtistMiddleware"
 
 export class App {
 
@@ -39,10 +40,11 @@ export class App {
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
         this.app.use('/api/artist', authTokenMiddleware, artistRouter)
         this.app.use('/api/store', shopRouter)
+        this.app.use('/api/artist', authTokenMiddleware, checkArtistMiddleware, artistRouter)
 
 
         this.app.get('*', async (req, res) => {
-            await res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {
+            res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {
                 if (err) {
                     res.status(500).send(err)
                 }

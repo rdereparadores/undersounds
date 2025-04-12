@@ -14,7 +14,9 @@ export const artistProfileController = async (req: Request, res: Response): Prom
                 email: artist?.email,
                 imgUrl: artist?.img_url,
                 artistName: artist?.artist_name,
-                artistUserName: artist?.artist_user_name
+                artistUserName: artist?.artist_user_name,
+                artistImgUrl: artist?.artist_img_url,
+                artistBannerImgUrl: artist?.artist_banner_img_url
             }
         })
 
