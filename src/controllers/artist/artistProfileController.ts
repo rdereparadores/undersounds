@@ -26,6 +26,6 @@ export const artistProfileController = async (req: Request, res: Response): Prom
                 code: 3000,
                 message: 'Error obteniendo la información'
             }
-        });
+        })
     }
 };

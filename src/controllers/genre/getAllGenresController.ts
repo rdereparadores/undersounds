@@ -1,24 +1,24 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get all genres
- * @route   GET /api/genres/getAllGenres
- * @access  Public
- */
-export const genreAllController = async (req: Request, res: Response) => {
+export const genreAllController = async (req: express.Request, res: express.Response) => {
     try {
-        const genreDAO = new MongoDBDAOFactory().createGenreDAO()
+        const genreDAO = req.db!.createGenreDAO()
 
         const genres = await genreDAO.getAll()
 
-        res.status(200).json({
-            msg: genres.map(genre => genre.genre)
-        });
+        res.json({
+            data: {
+                genres: genres.map(genre => genre.genre)
+            }
+        })
 
-    } catch (_error) {
-        res.status(500).json({
-            err: 'GENRE_FETCH_ERROR'
-        });
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            error: {
+                code: 2000,
+                message: apiErrorCodes[2000].message
+            }
+        })
     }
 };
