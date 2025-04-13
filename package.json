@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "@types/multer": "^1.4.12",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "firebase": "^11.6.0",
@@ -39,6 +41,8 @@
     "multer": "^1.4.5-lts.2",
     "openai": "^4.92.1",
     "redis": "^4.7.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "unique-names-generator": "^4.7.1",
     "uuid": "^11.1.0"
   }

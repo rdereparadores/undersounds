@@ -8,6 +8,8 @@ import { userRouter } from "./routes/userRouter"
 import { artistRouter } from "./routes/artistRouter"
 import {shopRouter} from "./routes/shopRouter";
 import { checkArtistMiddleware } from "./middleware/checkArtistMiddleware"
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from "./utils/swaggerOptions"
 
 export class App {
 
@@ -34,6 +36,8 @@ export class App {
     }
 
     routes() {
+        this.app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+        
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/ai/', aiRouter)
         this.app.use('/api/auth/', authRouter)

@@ -28,5 +28,20 @@
     "3002": {
         "httpCode": "400",
         "message": "Error en la subida del archivo"
+    },
+
+    "4000": {
+        "httpCode": "400",
+        "message": "El nombre de usuario ya existe"
+    },
+    "4001": {
+        "httpCode": "400",
+        "message": "El correo electrónico ya está registrado"
+    },
+    "4002": {
+        "httpCode": "400",
+        "message": "El correo electrónico proporcionado no es válido"
     }
+
+
 }

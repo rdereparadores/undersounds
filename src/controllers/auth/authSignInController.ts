@@ -1,17 +1,22 @@
-import express, { NextFunction, Request, request, Response, response } from 'express'
-import 'dotenv/config'
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-export const authSignInController = async(request:express.Request,response:express.Response)=>{
-    const user = await request.db?.createBaseUserDAO().findByUid(request.body.uid)
-    if (!user) {
-        response.send({
-            err: 'USER_NOT_FOUND'
+export const authSignInController = async(req:express.Request, res:express.Response) => {
+    try {
+        const userDAO = req.db!.createBaseUserDAO()
+        const user = await userDAO.findByUid(req.uid!)
+        res.json({
+            data: {
+                userRole: user?.user_type
+            }
+        }) 
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            error: {
+                code: 2000,
+                message: apiErrorCodes[2000].message
+            }
         })
-        return
-    }  
-    response.send({
-        data: {
-            userRole: user?.user_type
-        }
-    }) 
+    }
+    
 };

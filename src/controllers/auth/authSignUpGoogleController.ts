@@ -1,94 +1,99 @@
-import express, { NextFunction, Request, request, Response, response } from 'express'
-import 'dotenv/config'
+import express from 'express'
 import { UserDTO } from '../../dto/UserDTO';
 import { ArtistDTO } from '../../dto/ArtistDTO';
 import { appFireBase, auth } from '../../utils/firebase';
 import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
 import { FirebaseError } from 'firebase/app';
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 const customConfig: Config = {
-    dictionaries: [adjectives, colors,animals],
+    dictionaries: [adjectives, colors, animals],
     separator: '-',
     length: 3,
-};
+}
 
-
-const randomName: string = uniqueNamesGenerator({
-    dictionaries: [adjectives, colors, animals]
-}); // big_red_donkey
-
-
-export const authSignUpGoogleController = async (request: express.Request, response: express.Response) => {
+export const authSignUpGoogleController = async (req: express.Request, res: express.Response) => {
     try {
+        const { idToken, userType, name, email, imgUrl } = req.body
         console.log("INTENTO CREAR UN USUARIO O ARTISTA")
-        const decodedToken = await appFireBase.auth().verifyIdToken(request.body.idToken)
+        const decodedToken = await appFireBase.auth().verifyIdToken(idToken)
 
-        const exist = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
+        const userDAO = req.db!.createBaseUserDAO()
+        const artistDAO = req.db!.createArtistDAO()
+        const exist = await userDAO.findByUid(decodedToken.uid)
 
         console.log("La respuesta de si existe es: " + exist)
-        console.log("Lo recibido del frontend es: " + request.body.name + request.body.userType + request.body.email)
+        console.log("Lo recibido del frontend es: " + name + userType + email)
 
-        const userName: string = uniqueNamesGenerator(customConfig);
-        const cumple: Date = new Date(1990, 1, 1)
-        console.log("el nombre unico es: " + userName + " y la date: "+ cumple)
-        if (request.body.userType == "user" && exist === null) {
-            console.log("Empiezo a crear usuario")
-            const user = await request.db?.createUserDAO().create(new UserDTO({
-                name: request.body.name,
-                sur_name: " ",
-                user_name: userName,
-                birth_date: cumple,
-                email: request.body.email,
+        const username: string = uniqueNamesGenerator(customConfig)
+        const birthDate: Date = new Date(1990, 1, 1)
+        console.log("el nombre unico es: " + username + " y la date: " + birthDate)
+
+        if (userType === "user") {
+            await userDAO.create(new UserDTO({
+                name: name,
+                sur_name: ' ',
+                user_name: username,
+                birth_date: birthDate,
+                email: email,
                 uid: decodedToken.uid,
-                img_url: request.body.img_url,
-                user_type: "user",
+                img_url: "",
+                user_type: 'user',
                 following: [],
                 library: [],
                 listening_history: [],
                 addresses: []
             }))
-            console.log("He creado un usuario")
-            response.send({ msg: { token: decodedToken } })
-
+        } else if (userType === "artist") {
+            await artistDAO.create(new ArtistDTO({
+                name: name,
+                artist_name: name,
+                sur_name: ' ',
+                user_name: username,
+                artist_user_name: username,
+                birth_date: birthDate,
+                email: email,
+                uid: decodedToken.uid,
+                img_url: "",
+                user_type: 'artist',
+                following: [],
+                library: [],
+                listening_history: [],
+                addresses: [],
+                artist_banner_img_url: '',
+                artist_img_url: ''
+            }))
         } else {
-            if (request.body.userType == "artist" && exist === null) {
-                console.log("Empiezo a crear artista")
-                const registroArtist = request.db?.createArtistDAO().create(new ArtistDTO({
-                    name: request.body.name,
-                    artist_name: request.body.name,
-                    sur_name: " ",
-                    user_name: userName,
-                    artist_user_name: userName,
-                    birth_date: cumple,
-                    email: request.body.email,
-                    uid: decodedToken.uid,
-                    img_url: request.body.img_url,
-                    user_type: "artist",
-                    artist_banner_img_url: ' ',
-                    artist_img_url: ' ',
-                    following: [],
-                    library: [],
-                    listening_history: [],
-                    addresses: []
-                }));
-                console.log("He creado un artista")
-                response.send({ msg: { token: decodedToken } })
-
-            } else {
-                response.send({ err: "USER_ALREADY_EXISTS" })
-            }
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+                error: {
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
+                }
+            })
         }
+
+        res.json({
+            data: {
+                token: idToken
+            }
+        })
     } catch (error: unknown) {
         if (error instanceof FirebaseError) {
             const errorCode = error.code
             if (errorCode === 'auth/email-already-in-use') {
-                response.send({ err: "EMAIL_ALREADY_IN_USE" })
+                return res.status(Number(apiErrorCodes[4001].httpCode)).json({
+                    error: {
+                        code: 4001,
+                        message: apiErrorCodes[4001].message
+                    }
+                })
             } else if (errorCode === 'auth/invalid-email') {
-                response.send({ err: "INVALID_EMAIL" })
-            } else if (errorCode === 'auth/weak-password') {
-                response.send({ err: "WEAK_PASSWORD" })
-            }else{
-                response.send({err: "No se en q he fallado"})
+                return res.status(Number(apiErrorCodes[4002].httpCode)).json({
+                    error: {
+                        code: 4002,
+                        message: apiErrorCodes[4002].message
+                    }
+                })
             }
         }
     }
