@@ -4,7 +4,7 @@ import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
 /**
  * @desc    Gets randomly recommended artists that the user doesn't follow
  * @route   GET /dashboard/featured/artists
- * @access  Public
+ * @access  Private
  */
 
 export const recommendedArtistsController = async (req: Request, res: Response): Promise<Response> => {
