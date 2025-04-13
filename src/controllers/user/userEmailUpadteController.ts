@@ -1,5 +1,5 @@
 import express from 'express'
-import {getAuth} from "firebase-admin/lib/auth";
+import {getAuth} from "firebase-admin/auth";
 
 export const userEmailUpdateController = async (req: express.Request, res: express.Response) => {
     try {

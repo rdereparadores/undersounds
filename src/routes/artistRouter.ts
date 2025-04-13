@@ -8,7 +8,6 @@ import { artistReleaseSongController } from '../controllers/artist/artistRelease
 
 export const artistRouter = express.Router()
 
-// REVISADAS
 artistRouter.get('/profile', artistProfileController)
 artistRouter.post('/profile/update', artistProfileUpdateController)
 artistRouter.post('/profile/update/profileImage', artistProfileUpdateProfileImageController)

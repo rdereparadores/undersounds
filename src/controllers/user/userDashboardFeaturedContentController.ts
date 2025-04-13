@@ -5,7 +5,7 @@ import { ProductDTO } from "../../dto/ProductDTO";
 /**
  * @desc    Retrieves the latest products released by artists followed by the user.
  * @route   GET /api/user/dashboard/featured/content
- * @access  Public
+ * @access  Private
  */
 
 export const userDashboardContentController = async (req: express.Request, res: express.Response) => {

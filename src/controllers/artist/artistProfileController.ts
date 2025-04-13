@@ -1,32 +1,31 @@
-import express from 'express'
-import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { Request, Response } from 'express'
 
-export const artistProfileController = async (req: express.Request, res: express.Response): Promise<express.Response> => {
+export const artistProfileController = async (req: Request, res: Response): Promise<Response> => {
     try {
         const artistDAO = req.db!.createArtistDAO()
-        const artist = await artistDAO.findByUid(req.uid!)
+        const artist = await artistDAO.findByUid(req.body.uid)
 
         return res.json({
             data: {
                 name: artist?.name,
-                surname: artist?.sur_name,
+                surName: artist?.sur_name,
                 birthDate: artist?.birth_date,
-                username: artist?.user_name,
+                userName: artist?.user_name,
                 email: artist?.email,
                 imgUrl: artist?.img_url,
                 artistName: artist?.artist_name,
-                artistUsername: artist?.artist_user_name,
+                artistUserName: artist?.artist_user_name,
                 artistImgUrl: artist?.artist_img_url,
                 artistBannerImgUrl: artist?.artist_banner_img_url
             }
         })
 
     } catch (error) {
-        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+        return res.status(500).json({
             error: {
-                code: 2000,
-                message: apiErrorCodes[2000].message
+                code: 3000,
+                message: 'Error obteniendo la información'
             }
-        })
+        });
     }
-}
+};

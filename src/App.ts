@@ -6,7 +6,7 @@ import { authTokenMiddleware } from "./middleware/authTokenMiddleware"
 import { genreRouter } from "./routes/genreRouter"
 import { userRouter } from "./routes/userRouter"
 import { artistRouter } from "./routes/artistRouter"
-import { shopRouter } from "./routes/shopRouter"
+import {shopRouter} from "./routes/shopRouter";
 import { checkArtistMiddleware } from "./middleware/checkArtistMiddleware"
 
 export class App {

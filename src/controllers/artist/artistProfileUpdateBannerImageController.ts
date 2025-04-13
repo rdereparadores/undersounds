@@ -1,24 +1,23 @@
 import express from 'express'
 import { uploadArtistBannerImage } from '../../utils/uploadArtistBannerImage'
-import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 export const artistProfileUpdateBannerImageController = async (req: express.Request, res: express.Response) => {
     uploadArtistBannerImage(req, res, async (err) => {
         if (err) {
-            return res.status(Number(apiErrorCodes[3002].httpCode)).json({
+            return res.status(400).json({
                 error: {
-                    code: 3002,
-                    message: apiErrorCodes[3002].message
+                    code: 2000,
+                    message: 'Error al subir el archivo de imagen'
                 }
             })
         }
         
         try {
             if (!req.file) {
-                return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+                return res.status(400).json({
                     error: {
-                        code: 3000,
-                        message: apiErrorCodes[3000].message
+                        code: 2001,
+                        message: 'Ninguna imagen subida'
                     }
                 })
             }
@@ -35,10 +34,10 @@ export const artistProfileUpdateBannerImageController = async (req: express.Requ
                 }
             })
         } catch {
-            return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            return res.status(500).json({
                 error: {
-                    code: 2000,
-                    message: apiErrorCodes[2000].message
+                    code: 3000,
+                    message: 'Error obteniendo la información'
                 }
             })
         }

@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { NextFunction, Request, request, Response, response } from 'express'
 import 'dotenv/config'
 import { UserDTO } from '../../dto/UserDTO';
 import { ArtistDTO } from '../../dto/ArtistDTO';
@@ -8,26 +8,25 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
 } from "firebase/auth";
-import { FirebaseError } from 'firebase/app'
-import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { FirebaseError } from 'firebase/app';
 
 
-export const authSignUpController = async (req: express.Request, res: express.Response) => {
+export const authSignUpController = async (request: express.Request, response: express.Response) => {
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, req.body.email, req.body.password)
+        const userCredential = await createUserWithEmailAndPassword(auth, request.body.email, request.body.password)
         const idToken = await userCredential.user.getIdToken()
 
         const decodedToken = await appFireBase.auth().verifyIdToken(idToken)
 
-        const exist = await req.db?.createBaseUserDAO().findByUid(decodedToken.uid)
+        const exist = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
 
-        if (req.body.userType === "user" && exist === null) {
-            const user = await req.db?.createUserDAO().create(new UserDTO({
-                name: req.body.name,
-                sur_name: req.body.surName,
-                user_name: req.body.userName,
-                birth_date: req.body.birthDate,
-                email: req.body.email,
+        if (request.body.userType === "user" && exist === null) {
+            const user = await request.db?.createUserDAO().create(new UserDTO({
+                name: request.body.name,
+                sur_name: request.body.surName,
+                user_name: request.body.userName,
+                birth_date: request.body.birthDate,
+                email: request.body.email,
                 uid: decodedToken.uid,
                 img_url: "",
                 user_type: 'user',
@@ -36,22 +35,18 @@ export const authSignUpController = async (req: express.Request, res: express.Re
                 listening_history: [],
                 addresses: []
             }))
-            res.json({
-                data: {
-                    token: decodedToken
-                }
-            })
+            response.send({ msg: { token: decodedToken } })
 
         } else {
-            if (req.body.userType === "artist" && exist === null) {
-                const registroArtist = req.db?.createArtistDAO().create(new ArtistDTO({
-                    name: req.body.name,
-                    artist_name: req.body.artistName,
-                    sur_name: req.body.surName,
-                    user_name: req.body.artistUserName,
-                    artist_user_name: req.body.artistUserName,
-                    birth_date: req.body.birthDate,
-                    email: req.body.email,
+            if (request.body.userType === "artist" && exist === null) {
+                const registroArtist = request.db?.createArtistDAO().create(new ArtistDTO({
+                    name: request.body.name,
+                    artist_name: request.body.artistName,
+                    sur_name: request.body.surName,
+                    user_name: request.body.artistUserName,
+                    artist_user_name: request.body.artistUserName,
+                    birth_date: request.body.birthDate,
+                    email: request.body.email,
                     uid: decodedToken.uid,
                     img_url: "",
                     user_type: 'artist',
@@ -61,40 +56,24 @@ export const authSignUpController = async (req: express.Request, res: express.Re
                     addresses: [],
                     artist_banner_img_url: '',
                     artist_img_url: ''
-                }))
-
-                res.json({
-                    data: {
-                        token: decodedToken
-                    }
-                })
+                }));
+                response.send({ msg: { token: decodedToken } })
 
             } else {
-                return res.status(Number(apiErrorCodes[4000].httpCode)).json({
-                    error: {
-                        code: 4000,
-                        message: apiErrorCodes[4000].message
-                    }
-                })
+                response.send({ err: "USER_ALREADY_EXISTS" })
             }
         }
     } catch (error: unknown) {
-        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
-            error: {
-                code: 2000,
-                message: apiErrorCodes[2000].message
-            }
-        })
-        /*if (error instanceof FirebaseError) {
+        if (error instanceof FirebaseError) {
             const errorCode = error.code
             if (errorCode === 'auth/email-already-in-use') {
-                res.send({ err: "EMAIL_ALREADY_IN_USE" })
+                response.send({ err: "EMAIL_ALREADY_IN_USE" })
             } else if (errorCode === 'auth/invalid-email') {
-                res.send({ err: "INVALID_EMAIL" })
+                response.send({ err: "INVALID_EMAIL" })
             } else if (errorCode === 'auth/weak-password') {
-                res.send({ err: "WEAK_PASSWORD" })
+                response.send({ err: "WEAK_PASSWORD" })
             }
-        }*/
+        }
     }
 };
 
