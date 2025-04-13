@@ -3,13 +3,13 @@ import express from 'express'
 export const artistProfileUpdateController = async (req: express.Request, res: express.Response): Promise<express.Response> => {
     try {
 
-        const { uid, artistUserName, artistName } = req.body
+        const { uid, artistUsername, artistName } = req.body
 
         const artistDAO = req.db!.createArtistDAO()
         const artist = await artistDAO.findByUid(uid)
 
         if (artistName) artist!.artist_name = artistName
-        if (artistUserName) artist!.artist_user_name = artistUserName
+        if (artistUsername) artist!.artist_user_name = artistUsername
 
         const updatedArtist = await artistDAO.update(artist!)
 

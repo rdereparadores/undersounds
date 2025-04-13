@@ -8,13 +8,13 @@ export const artistProfileController = async (req: Request, res: Response): Prom
         return res.json({
             data: {
                 name: artist?.name,
-                surName: artist?.sur_name,
+                surname: artist?.sur_name,
                 birthDate: artist?.birth_date,
-                userName: artist?.user_name,
+                username: artist?.user_name,
                 email: artist?.email,
                 imgUrl: artist?.img_url,
                 artistName: artist?.artist_name,
-                artistUserName: artist?.artist_user_name,
+                artistUsername: artist?.artist_user_name,
                 artistImgUrl: artist?.artist_img_url,
                 artistBannerImgUrl: artist?.artist_banner_img_url
             }
