@@ -6,6 +6,7 @@ import { Rating } from "../models/Rating";
 import { Genre } from "../models/Genre";
 import {Song} from "../models/Song";
 import {Album} from "../models/Album";
+import {Types} from "mongoose";
 
 export interface IProductDAO {
     findById(_id: string): Promise<ProductDTO | null>
@@ -19,6 +20,16 @@ export interface IProductDAO {
         skip?: number,
         limit?: number
     ): Promise<{products: ProductDTO[], totalCount: number}>
+
+    searchInLibrary(
+        productIds: string[],
+        searchTerm: string
+    ): Promise<{
+        id: string;
+        title: string;
+        author: { user_name: string };
+        img_url: string;
+    }[]>;
 
     getAll(): Promise<ProductDTO[]>
 
@@ -166,6 +177,32 @@ export class ProductDAO implements IProductDAO {
             products: productDTOs,
             totalCount
         };
+    }
+
+    async searchInLibrary(
+        productIds: string[],
+        searchTerm: string
+    ): Promise<{ id: string; title: string; author: { user_name: string }; img_url: string }[]> {
+        const objectIds = productIds.map(id => new Types.ObjectId(id));
+
+        const products = await Product.find({
+            _id: { $in: objectIds },
+            $or: [
+                { title: { $regex: searchTerm, $options: 'i' } },
+                { 'author.artist_user_name': { $regex: searchTerm, $options: 'i' } }
+            ]
+        })
+            .populate<{ author: { artist_user_name: string } }>('author', 'artist_user_name')
+            .lean();
+
+        return products.map(p => ({
+            id: p._id.toString(),
+            title: p.title,
+            author: {
+                user_name: p.author?.artist_user_name
+            },
+            img_url: p.img_url
+        }));
     }
 
     async getAll(): Promise<ProductDTO[]> {
