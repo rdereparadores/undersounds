@@ -4,6 +4,7 @@ import { artistProfileUpdateController } from '../controllers/artist/artistProfi
 import {artistStatsController} from "../controllers/artist/artistStatsController";
 import { artistProfileUpdateProfileImageController } from '../controllers/artist/artistProfileUpdateProfileImageController';
 import { artistProfileUpdateBannerImageController } from '../controllers/artist/artistProfileUpdateBannerImageController';
+import { artistReleaseSongController } from '../controllers/artist/artistReleaseSongController';
 
 export const artistRouter = express.Router()
 
@@ -13,7 +14,7 @@ artistRouter.post('/profile/update', artistProfileUpdateController)
 artistRouter.post('/profile/update/profileImage', artistProfileUpdateProfileImageController)
 artistRouter.post('/profile/update/bannerImage', artistProfileUpdateBannerImageController)
 
-
+artistRouter.post('/release/song', artistReleaseSongController)
 
 
 artistRouter.get('/stats', artistStatsController)

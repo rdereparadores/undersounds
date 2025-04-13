@@ -7,6 +7,8 @@ import { Song } from "../models/Song";
 import { IProductDAO, ProductDAO } from "./ProductDAO";
 
 export interface ISongDAO extends IProductDAO {
+    create(dto: SongDTO): Promise<SongDTO>
+
     findById(_id: string): Promise<SongDTO | null>
     findByTitle(title: string): Promise<SongDTO[] | null>
     findByArtist(artist: ArtistDTO): Promise<SongDTO[] | null>
@@ -28,7 +30,12 @@ export interface ISongDAO extends IProductDAO {
 }
 
 export class SongDAO extends ProductDAO implements ISongDAO {
-    constructor() {super()}
+    constructor() { super() }
+
+    async create(dto: SongDTO): Promise<SongDTO> {
+        const newSong = await Song.create(dto.toJson())
+        return SongDTO.fromDocument(newSong)
+    }
 
     async findById(_id: string): Promise<SongDTO | null> {
         const song = await Song.findById(_id)
