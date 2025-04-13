@@ -10,7 +10,7 @@ export const authSignInController = async(request:express.Request,response:expre
         return
     }  
     response.send({
-        msg: {
+        data: {
             userRole: user?.user_type
         }
     }) 
