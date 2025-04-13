@@ -11,9 +11,12 @@ import { userProfileUpdateController } from '../controllers/user/userProfileUpda
 import { userProfileUpdateImageController } from '../controllers/user/userProfileUpdateImageController'
 import { userProfileAddressController } from '../controllers/user/userProfileAddressController'
 import { userProfileAddressRemoveController } from '../controllers/user/userProfileAddressRemoveController'
-import {userStatsController} from "../controllers/user/userStatsController";
+import { userStatsController } from "../controllers/user/userStatsController";
 import { recommendedArtistsController } from "../controllers/user/userDashboardFeaturedArtistController"
 import { userDashboardContentController } from "../controllers/user/userDashboardFeaturedContentController"
+import { userEmailUpdateController } from "../controllers/user/userEmailUpadteController"
+import { userPasswordResetController } from "../controllers/user/userPasswordUpdateController"
+import { librarySearchController } from "../controllers/user/userLibraryQueryController"
 
 export const userRouter = express.Router()
 
@@ -39,8 +42,8 @@ userRouter.get('/orders/order', userOrdersOrderController)
 userRouter.get('/stats', userStatsController)
 
 
-//userRouter.post('/profile/update/email', userProfileUpdateEmailController)
-//userRouter.post('/profile/update/password', userProfileUpdatePasswordController)
-//userRouter.post('/library/query', userLibraryQueryController)
+userRouter.post('/profile/update/email', userEmailUpdateController)
+userRouter.post('/profile/update/password', userPasswordResetController)
+userRouter.post('/library/query', librarySearchController)
 
 userRouter.patch('/profile/address/set-default', userProfileAddressSetDefaultController)
