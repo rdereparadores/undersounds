@@ -49,7 +49,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async findByArtist(artist: ArtistDTO): Promise<SongDTO[] | null> {
+    async findByArtist(artist: Partial<ArtistDTO>): Promise<SongDTO[] | null> {
         const songs = await Song.find({ author: artist._id })
         return songs.map(song => SongDTO.fromDocument(song))
     }
