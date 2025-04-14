@@ -1,30 +1,30 @@
-import { Document, model, Schema, Types } from "mongoose";
+import { Document, model, Schema } from "mongoose"
 
 export interface IProduct extends Document {
-    _id: Types.ObjectId,
+    _id: Schema.Types.ObjectId,
     title: string,
-    release_date: Date,
+    releaseDate: Date,
     description: string,
-    img_url: string,
+    imgUrl: string,
     version: number,
-    product_type: 'song' | 'album',
-    author: Types.ObjectId,
+    productType: 'song' | 'album',
+    author: Schema.Types.ObjectId,
     pricing: {
         cd: number,
         digital: number,
         cassette: number,
         vinyl: number
     },
-    ratings: Types.ObjectId[]
+    ratings: Schema.Types.ObjectId[]
 }
 
 export const ProductSchema = new Schema<IProduct>({
     title: { type: String, required: true },
-    release_date: { type: Date, required: true },
+    releaseDate: { type: Date, required: true },
     description: { type: String, required: true },
-    img_url: { type: String, required: true },
+    imgUrl: { type: String, required: true },
     version: { type: Number },
-    product_type: { type: String, enum: ['song', 'album'], required: true },
+    productType: { type: String, enum: ['song', 'album'], required: true },
     author: { type: Schema.Types.ObjectId, ref: 'Artist', required: true },
     pricing: {
         cd: { type: Number, required: true },
@@ -33,6 +33,6 @@ export const ProductSchema = new Schema<IProduct>({
         vinyl: { type: Number, required: true }
     },
     ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }]
-}, { discriminatorKey: 'product_type' })
+}, { discriminatorKey: 'productType' })
 
 export const Product = model<IProduct>('Product', ProductSchema)
