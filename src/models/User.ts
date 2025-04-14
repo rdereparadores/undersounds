@@ -1,5 +1,5 @@
-import { Schema } from "mongoose";
-import { BaseUser, BaseUserSchema, IBaseUser } from "./BaseUser";
+import { Schema } from "mongoose"
+import { BaseUser, IBaseUser } from "./BaseUser"
 
 const UserSchema = new Schema({
 })

@@ -1,28 +1,28 @@
-import { Document, model, Schema, Types } from "mongoose";
+import { Document, model, Schema } from "mongoose"
 
 export interface IBaseUser extends Document {
-    _id: Types.ObjectId,
+    _id: Schema.Types.ObjectId,
     name: string,
-    sur_name: string,
-    user_name: string,
-    birth_date: Date,
+    surname: string,
+    username: string,
+    birthDate: Date,
     email: string,
     uid: string,
-    img_url: string,
-    user_type: 'user' | 'artist',
-    following: Types.ObjectId[],
-    library: Types.ObjectId[],
-    listening_history: Types.ObjectId[],
+    imgUrl: string,
+    userType: 'user' | 'artist',
+    following: Schema.Types.ObjectId[],
+    library: Schema.Types.ObjectId[],
+    listeningHistory: Schema.Types.ObjectId[],
     addresses: {
         alias: string,
         name: string,
-        sur_name: string,
+        surname: string,
         phone: number,
         address: string,
-        address_2: string,
+        address2: string,
         province: string,
         city: string,
-        zip_code: number,
+        zipCode: number,
         country: string,
         observations: string,
         default: boolean
@@ -31,29 +31,29 @@ export interface IBaseUser extends Document {
 
 export const BaseUserSchema = new Schema<IBaseUser>({
     name: { type: String, required: true },
-    sur_name: { type: String, required: true },
-    user_name: { type: String, required: true, unique: true },
-    birth_date: { type: Date, required: true },
+    surname: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    birthDate: { type: Date, required: true },
     email: { type: String, required: true, unique: true },
     uid: { type: String, required: true, unique: true },
-    img_url: { type: String, default: '/assets/img/profile/user/default.jpg' },
+    imgUrl: { type: String, default: '/assets/img/profile/user/default.jpg' },
     following: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-    listening_history: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
+    listeningHistory: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
     addresses: [{
         alias: { type: String, required: true, sparse: true },
         name: { type: String, required: true },
-        sur_name: { type: String, required: true },
+        surname: { type: String, required: true },
         phone: { type: Number, required: true },
         address: { type: String, required: true },
-        address_2: { type: String },
+        address2: { type: String },
         province: { type: String, required: true },
         city: { type: String, required: true },
-        zip_code: { type: Number, required: true },
+        zipCode: { type: Number, required: true },
         country: { type: String, required: true },
         observations: { type: String },
         default: { type: Boolean, required: true },
     }]
-}, { discriminatorKey: 'user_type' })
+}, { discriminatorKey: 'userType' })
 
 export const BaseUser = model<IBaseUser>('BaseUser', BaseUserSchema)
