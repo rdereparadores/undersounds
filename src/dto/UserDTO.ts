@@ -1,5 +1,5 @@
-import { IBaseUser } from "../models/BaseUser";
-import { BaseUserDTO, BaseUserDTOProps } from "./BaseUserDTO";
+import { IBaseUser } from "../models/BaseUser"
+import { BaseUserDTO, BaseUserDTOProps } from "./BaseUserDTO"
 
 export interface UserDTOProps extends BaseUserDTOProps{
 

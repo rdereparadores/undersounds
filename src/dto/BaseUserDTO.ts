@@ -1,16 +1,15 @@
-import { Types } from "mongoose"
 import { IBaseUser } from "../models/BaseUser"
 
 export interface AddressDTO {
     alias: string,
     name: string,
-    sur_name: string,
+    surname: string,
     phone: number,
     address: string,
-    address_2?: string,
+    address2?: string,
     province: string,
     city: string,
-    zip_code: number,
+    zipCode: number,
     country: string,
     observations?: string,
     default: boolean
@@ -19,47 +18,47 @@ export interface AddressDTO {
 export interface BaseUserDTOProps {
     _id?: string,
     name: string,
-    sur_name: string,
-    user_name: string,
-    birth_date: Date,
+    surname: string,
+    username: string,
+    birthDate: Date,
     email: string,
     uid: string,
-    img_url: string,
-    user_type: 'user' | 'artist',
+    imgUrl: string,
+    userType: 'user' | 'artist',
     following: string[],
     library: string[],
-    listening_history: string[],
+    listeningHistory: string[],
     addresses: AddressDTO[]
 }
 
 export class BaseUserDTO implements BaseUserDTOProps {
     _id?: string
     name: string
-    sur_name: string
-    user_name: string
-    birth_date: Date
+    surname: string
+    username: string
+    birthDate: Date
     email: string
     uid: string
-    img_url: string
-    user_type: 'user' | 'artist'
+    imgUrl: string
+    userType: 'user' | 'artist'
     following: string[]
     library: string[]
-    listening_history: string[]
+    listeningHistory: string[]
     addresses: AddressDTO[]
 
     constructor(props: BaseUserDTOProps) {
         this._id = props._id
         this.name = props.name
-        this.sur_name = props.sur_name
-        this.user_name = props.user_name
-        this.birth_date = props.birth_date
+        this.surname = props.surname
+        this.username = props.username
+        this.birthDate = props.birthDate
         this.email = props.email
         this.uid = props.uid
-        this.img_url = props.img_url
-        this.user_type = props.user_type
+        this.imgUrl = props.imgUrl
+        this.userType = props.userType
         this.following = props.following || []
         this.library = props.library || []
-        this.listening_history = props.listening_history || []
+        this.listeningHistory = props.listeningHistory || []
         this.addresses = props.addresses || []
     }
 
@@ -67,16 +66,16 @@ export class BaseUserDTO implements BaseUserDTOProps {
         return {
             _id: this._id,
             name: this.name,
-            sur_name: this.sur_name,
-            user_name: this.user_name,
-            birth_date: this.birth_date,
+            surname: this.surname,
+            username: this.username,
+            birthDate: this.birthDate,
             email: this.email,
             uid: this.uid,
-            img_url: this.img_url,
-            user_type: this.user_type,
+            imgUrl: this.imgUrl,
+            userType: this.userType,
             following: this.following,
             library: this.library,
-            listening_history: this.listening_history,
+            listeningHistory: this.listeningHistory,
             addresses: this.addresses
         }
     }
@@ -85,16 +84,16 @@ export class BaseUserDTO implements BaseUserDTOProps {
         return new BaseUserDTO({
             _id: doc._id.toString(),
             name: doc.name,
-            sur_name: doc.sur_name,
-            user_name: doc.user_name,
-            birth_date: doc.birth_date,
+            surname: doc.surname,
+            username: doc.username,
+            birthDate: doc.birthDate,
             email: doc.email,
             uid: doc.uid,
-            img_url: doc.img_url,
-            user_type: doc.user_type,
+            imgUrl: doc.imgUrl,
+            userType: doc.userType,
             following: doc.following.map(artist => artist.toString()),
             library: doc.library.map(product => product.toString()),
-            listening_history: doc.listening_history.map(song => song.toString()),
+            listeningHistory: doc.listeningHistory.map(song => song.toString()),
             addresses: doc.addresses
         })
     }
