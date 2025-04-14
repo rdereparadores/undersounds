@@ -2,11 +2,11 @@ import { IOrder } from "../models/Order"
 
 export interface OrderDTOProps {
     _id?: string,
-    purchase_date: Date,
+    purchaseDate: Date,
     status?: 'processing' | 'shipped' | 'delivered',
     paid: boolean,
-    tracking_number?: string,
-    stripe_checkout_id: string,
+    trackingNumber?: string,
+    stripeCheckoutId: string,
     user: string,
     lines: {
         quantity: number,
@@ -18,11 +18,11 @@ export interface OrderDTOProps {
 
 export class OrderDTO implements OrderDTOProps {
     _id?: string
-    purchase_date: Date
+    purchaseDate: Date
     status?: 'processing' | 'shipped' | 'delivered'
     paid: boolean
-    tracking_number?: string
-    stripe_checkout_id: string
+    trackingNumber?: string
+    stripeCheckoutId: string
     user: string
     lines: {
         quantity: number,
@@ -33,22 +33,22 @@ export class OrderDTO implements OrderDTOProps {
 
     constructor(props: OrderDTOProps) {
         this._id = props._id
-        this.purchase_date = props.purchase_date
+        this.purchaseDate = props.purchaseDate
         this.status = props.status
         this.paid = props.paid
-        this.tracking_number = props.tracking_number
-        this.stripe_checkout_id = props.stripe_checkout_id
+        this.trackingNumber = props.trackingNumber
+        this.stripeCheckoutId = props.stripeCheckoutId
         this.user = props.user
         this.lines = props.lines
     }
 
     toJson(): OrderDTOProps {
         return {
-            purchase_date: this.purchase_date,
+            purchaseDate: this.purchaseDate,
             status: this.status,
             paid: this.paid,
-            tracking_number: this.tracking_number,
-            stripe_checkout_id: this.stripe_checkout_id,
+            trackingNumber: this.trackingNumber,
+            stripeCheckoutId: this.stripeCheckoutId,
             user: this.user,
             lines: this.lines
         }
@@ -56,11 +56,11 @@ export class OrderDTO implements OrderDTOProps {
     
     static fromDocument(doc: IOrder) {
         return new OrderDTO({
-            purchase_date: doc.purchase_date,
+            purchaseDate: doc.purchaseDate,
             status: doc.status,
             paid: doc.paid,
-            tracking_number: doc.tracking_number,
-            stripe_checkout_id: doc.stripe_checkout_id,
+            trackingNumber: doc.trackingNumber,
+            stripeCheckoutId: doc.stripeCheckoutId,
             user: doc.user.toString(),
             lines: doc.lines.map(line => ({
                 quantity: line.quantity,
