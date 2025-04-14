@@ -1,33 +1,43 @@
 import express from 'express'
 import 'dotenv/config'
-import { appFireBase } from '../utils/firebase';
+import { appFireBase } from '../utils/firebase'
+import apiErrorCodes from '../utils/apiErrorCodes.json'
 
-export const authTokenMiddleware = async(request:express.Request,response:express.Response,next:express.NextFunction)=>{
-    const token = request.headers.authorization?.split('Bearer ')[1]
+export const authTokenMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const token = req.headers.authorization?.split('Bearer ')[1]
 
     if(!token){
-        response.status(401).send({err: 'MISSING_TOKEN'})
-        return 
+        return res.status(Number(apiErrorCodes[1000].httpCode)).json({
+            error: {
+                code: 1000,
+                message: apiErrorCodes[1000].message
+            }
+        })
     }
 
-    try{
+    try {
         const decodedToken = await appFireBase.auth().verifyIdToken(token)
-        const user = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
+        const userDAO = req.db!.createBaseUserDAO()
+        const user = await userDAO.findByUid(decodedToken.uid)
+
         if (user === null) {
-            response.status(404).send({
+            return res.status(Number(apiErrorCodes[1002].httpCode)).json({
                 error: {
-                    code: 1000,
-                    message: 'Usuario no encontrado'
+                    code: 1002,
+                    message: apiErrorCodes[1002].message
                 }
             })
-            return
         }
-        request.body.token = token
-        request.body.uid = decodedToken.uid
-        request.uid = decodedToken.uid
-        request.body.user_type = user?.user_type
+        req.body.token = token
+        req.uid = decodedToken.uid
+        req.body.user_type = user?.user_type
         next()
-    }catch(error){
-        response.status(401).send({err: 'INVALID_TOKEN'})
+    } catch {
+        return res.status(Number(apiErrorCodes[1002].httpCode)).json({
+            error: {
+                code: 1002,
+                message: apiErrorCodes[1002].message
+            }
+        })
     }
 };
