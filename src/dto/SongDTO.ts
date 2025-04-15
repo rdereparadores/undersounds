@@ -1,8 +1,8 @@
-import { ISong } from "../models/Song";
-import { ProductDTO, ProductDTOProps } from "./ProductDTO";
+import { ISong } from "../models/Song"
+import { ProductDTO, ProductDTOProps } from "./ProductDTO"
 
 export interface SongDTOProps extends ProductDTOProps {
-    song_dir: string,
+    songDir: string,
     duration: number,
     plays: number,
     genres: string[],
@@ -10,11 +10,11 @@ export interface SongDTOProps extends ProductDTOProps {
         artist: string,
         accepted: boolean
     }[],
-    version_history?: string[]
+    versionHistory?: string[]
 }
 
 export class SongDTO extends ProductDTO implements SongDTOProps {
-    song_dir: string
+    songDir: string
     duration: number
     plays: number
     genres: string[]
@@ -22,27 +22,27 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
         artist: string,
         accepted: boolean
     }[]
-    version_history?: string[]
+    versionHistory?: string[]
 
     constructor(props: SongDTOProps) {
         super(props)
-        this.song_dir = props.song_dir
+        this.songDir = props.songDir
         this.duration = props.duration
         this.plays = props.plays
         this.genres = props.genres
         this.collaborators = props.collaborators
-        this.version_history = props.version_history
+        this.versionHistory = props.versionHistory
     }
 
     override toJson(): SongDTOProps {
         return {
             ...super.toJson(),
-            song_dir: this.song_dir,
+            songDir: this.songDir,
             duration: this.duration,
             plays: this.plays,
             genres: this.genres,
             collaborators: this.collaborators,
-            version_history: this.version_history
+            versionHistory: this.versionHistory
         }
     }
 
@@ -50,7 +50,7 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
         const productProps = ProductDTO.fromDocument(doc).toJson()
         return new SongDTO({
             ...productProps,
-            song_dir: doc.song_dir,
+            songDir: doc.songDir,
             duration: doc.duration,
             plays: doc.plays,
             genres: doc.genres.map(genre => genre.toString()),
@@ -59,7 +59,7 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
                     artist: collaborator.artist.toString(),
                     accepted: collaborator.accepted
                 })),
-            version_history: doc.version_history.map(version => version.toString())
+            versionHistory: doc.versionHistory.map(version => version.toString())
         })
     }
 }

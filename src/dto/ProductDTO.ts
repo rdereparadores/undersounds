@@ -1,13 +1,13 @@
-import { IProduct, Product } from "../models/Product"
+import { IProduct } from "../models/Product"
 
 export interface ProductDTOProps {
     _id?: string,
     title: string,
-    release_date: Date,
+    releaseDate: Date,
     description: string,
-    img_url: string,
+    imgUrl: string,
     version?: number,
-    product_type: 'song' | 'album',
+    productType: 'song' | 'album',
     author: string,
     pricing: {
         cd: number,
@@ -21,11 +21,11 @@ export interface ProductDTOProps {
 export class ProductDTO implements ProductDTOProps {
     _id?: string
     title: string
-    release_date: Date
+    releaseDate: Date
     description: string
-    img_url: string
+    imgUrl: string
     version?: number
-    product_type: 'song' | 'album'
+    productType: 'song' | 'album'
     author: string
     pricing: {
         cd: number
@@ -38,11 +38,11 @@ export class ProductDTO implements ProductDTOProps {
     constructor(props: ProductDTOProps) {
         this._id = props._id
         this.title = props.title
-        this.release_date = props.release_date
+        this.releaseDate = props.releaseDate
         this.description = props.description
-        this.img_url = props.img_url
+        this.imgUrl = props.imgUrl
         this.version = props.version
-        this.product_type = props.product_type
+        this.productType = props.productType
         this.author = props.author
         this.pricing = props.pricing
         this.ratings = props.ratings
@@ -52,11 +52,11 @@ export class ProductDTO implements ProductDTOProps {
         return {
             _id: this._id,
             title: this.title,
-            release_date: this.release_date,
+            releaseDate: this.releaseDate,
             description: this.description,
-            img_url: this.img_url,
+            imgUrl: this.imgUrl,
             version: this.version,
-            product_type: this.product_type,
+            productType: this.productType,
             author: this.author,
             pricing: this.pricing,
             ratings: this.ratings
@@ -67,11 +67,11 @@ export class ProductDTO implements ProductDTOProps {
         return new ProductDTO({
             _id: doc._id.toString(),
             title: doc.title,
-            release_date: doc.release_date,
+            releaseDate: doc.releaseDate,
             description: doc.description,
-            img_url: doc.img_url,
+            imgUrl: doc.imgUrl,
             version: doc.version,
-            product_type: doc.product_type,
+            productType: doc.productType,
             author: doc.author.toString(),
             pricing: doc.pricing,
             ratings: doc.ratings.map(rating => rating.toString())

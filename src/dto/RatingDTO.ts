@@ -5,7 +5,7 @@ export interface RatingDTOProps {
     rating: number,
     title: string,
     description: string,
-    publish_date: Date,
+    publishDate: Date,
     author: string
 }
 
@@ -14,7 +14,7 @@ export class RatingDTO implements RatingDTOProps {
     rating: number
     title: string
     description: string
-    publish_date: Date
+    publishDate: Date
     author: string
 
     constructor(props: RatingDTOProps) {
@@ -22,7 +22,7 @@ export class RatingDTO implements RatingDTOProps {
         this.rating = props.rating
         this.title = props.title
         this.description = props.description
-        this.publish_date = props.publish_date
+        this.publishDate = props.publishDate
         this.author = props.author
     }
 
@@ -32,7 +32,7 @@ export class RatingDTO implements RatingDTOProps {
             rating: this.rating,
             title: this.title,
             description: this.description,
-            publish_date: this.publish_date,
+            publishDate: this.publishDate,
             author: this.author
         }
     }
@@ -43,7 +43,7 @@ export class RatingDTO implements RatingDTOProps {
             rating: doc.rating,
             title: doc.title,
             description: doc.description,
-            publish_date: doc.publish_date,
+            publishDate: doc.publishDate,
             author: doc.author.toString()
         })
     }
