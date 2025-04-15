@@ -1,32 +1,30 @@
-import { ArtistDTO } from "../dto/ArtistDTO";
-import { ProductDTO } from "../dto/ProductDTO";
-import { RatingDTO } from "../dto/RatingDTO";
-import { Product } from "../models/Product";
-import { Rating } from "../models/Rating";
-import { Genre } from "../models/Genre";
+import { ArtistDTO } from "../dto/ArtistDTO"
+import { ProductDTO } from "../dto/ProductDTO"
+import { RatingDTO } from "../dto/RatingDTO"
+import { Product } from "../models/Product"
+import { Rating } from "../models/Rating"
+import { GenreDTO } from "../dto/GenreDTO"
 
 export interface IProductDAO {
     findById(_id: string): Promise<ProductDTO | null>
-    findByTitle(title: string): Promise<ProductDTO[] | null>
-    findByArtist(artist: ArtistDTO): Promise<ProductDTO[] | null>
+    findByTitle(title: string): Promise<ProductDTO[]>
+    findByArtist(artist: Partial<ArtistDTO>): Promise<ProductDTO[]>
     findByReleaseDateRange(from: Date, to: Date): Promise<ProductDTO[]>
     findWithFilters(
-        genreName?: string,
-        dateFilter?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
-        sortBy?: 'relevance' | 'releaseDate',
-        skip?: number,
-        limit?: number
+        skip: number,
+        limit: number,
+        genres?: Partial<GenreDTO>[],
+        date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
+        sortBy?: 'relevance' | 'releaseDate'
     ): Promise<{products: ProductDTO[], totalCount: number}>
 
     getAll(): Promise<ProductDTO[]>
 
-    update(product: ProductDTO): Promise<ProductDTO | null>
+    delete(product: Partial<ProductDTO>): Promise<boolean>
 
-    delete(product: ProductDTO): Promise<boolean>
-
-    getRatings(product: ProductDTO): Promise<RatingDTO[] | null>
-    addRating(product: ProductDTO, rating: RatingDTO): Promise<ProductDTO | null>
-    removeRating(product: ProductDTO, rating: RatingDTO): Promise<ProductDTO | null>
+    getRatings(product: Partial<ProductDTO>): Promise<RatingDTO[]>
+    addRating(product: Partial<ProductDTO>, rating: RatingDTO): Promise<boolean>
+    removeRating(product: Partial<ProductDTO>, rating: Partial<RatingDTO>): Promise<boolean>
 }
 
 export class ProductDAO implements IProductDAO {
@@ -34,18 +32,24 @@ export class ProductDAO implements IProductDAO {
 
     async findById(_id: string): Promise<ProductDTO | null> {
         const product = await Product.findById(_id)
-        if (!product) return null
+        if (product === null) return null
 
         return ProductDTO.fromDocument(product)
     }
 
-    async findByTitle(title: string): Promise<ProductDTO[] | null> {
+    async findByTitle(title: string): Promise<ProductDTO[]> {
         const products = await Product.find({ title })
+
+        if (products === null) return []
+
         return products.map(product => ProductDTO.fromDocument(product))
     }
 
-    async findByArtist(artist: ArtistDTO): Promise<ProductDTO[] | null> {
+    async findByArtist(artist: Partial<ArtistDTO>): Promise<ProductDTO[]> {
         const products = await Product.find({ author: artist._id })
+
+        if (products === null) return []
+
         return products.map(product => ProductDTO.fromDocument(product))
     }
 
@@ -56,82 +60,79 @@ export class ProductDAO implements IProductDAO {
                 $lte: to
             }
         })
+
+        if (products === null) return []
+
         return products.map(product => ProductDTO.fromDocument(product))
     }
 
     async findWithFilters(
-        genreName?: string,
-        dateFilter?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
-        sortBy?: 'relevance' | 'releaseDate',
-        skip?: number,
-        limit?: number
+        page: number,
+        limit: number,
+        genres?: Partial<GenreDTO>[],
+        date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
+        sortBy?: 'relevance' | 'releaseDate'
     ): Promise<{products: ProductDTO[], totalCount: number}> {
-        const filterQuery: any = {};
-
-        let genreId: string | undefined;
-        if (genreName) {
-            const genre = await Genre.findOne({ genre: { $regex: new RegExp(genreName, 'i') } });
-            if (genre) {
-                genreId = genre._id.toString();
-                filterQuery.genres = genreId;
+        const filterQuery: {
+            genres?: string[],
+            releaseDate?: {
+                $gte?: Date,
+                $lte?: Date
             }
+        } = {}
+
+        if (genres) {
+            filterQuery.genres = genres.map(genre => genre._id!)
         }
 
-        if (dateFilter) {
-            const now = new Date();
-            let fromDate = new Date();
+        if (date) {
+            const now = new Date()
+            const fromDate: Date = new Date()
 
-            switch (dateFilter) {
+            switch (date) {
                 case 'today':
-                    fromDate.setHours(0, 0, 0, 0);
-                    filterQuery.release_date = { $gte: fromDate };
-                    break;
+                    fromDate.setHours(0, 0, 0, 0)
+                    break
                 case 'week':
-                    fromDate.setDate(now.getDate() - 7);
-                    filterQuery.release_date = { $gte: fromDate };
-                    break;
+                    fromDate.setDate(now.getDate() - 7)
+                    break
                 case 'month':
-                    fromDate.setMonth(now.getMonth() - 1);
-                    filterQuery.release_date = { $gte: fromDate };
-                    break;
+                    fromDate.setMonth(now.getMonth() - 1)
+                    break
                 case '3months':
-                    fromDate.setMonth(now.getMonth() - 3);
-                    filterQuery.release_date = { $gte: fromDate };
-                    break;
+                    fromDate.setMonth(now.getMonth() - 3)
+                    break
                 case '6months':
-                    fromDate.setMonth(now.getMonth() - 6);
-                    filterQuery.release_date = { $gte: fromDate };
-                    break;
+                    fromDate.setMonth(now.getMonth() - 6)
+                    break
                 case 'year':
-                    fromDate.setFullYear(now.getFullYear() - 1);
-                    filterQuery.release_date = { $gte: fromDate };
-                    break;
+                    fromDate.setFullYear(now.getFullYear() - 1)
+                    break
             }
+
+            filterQuery.releaseDate = { $gte: fromDate }
         }
 
-        const sortOptions: any = {};
-        if (sortBy === 'relevance') {
-            sortOptions.plays = -1;
+        const sortOptions: { [key: string]: 1 | -1 } = {}
+
+        if (sortBy === 'releaseDate') {
+            sortOptions.releaseDate = -1
         } else {
-            sortOptions.release_date = -1;
+            sortOptions.plays = -1
         }
 
-        const totalCount = await Product.countDocuments(filterQuery);
+        const totalCount = await Product.countDocuments(filterQuery)
 
-        let query = Product.find(filterQuery).sort(sortOptions);
+        let query = Product.find(filterQuery).sort(sortOptions)
+        query = query.skip((page - 1) * limit).limit(limit)
+        const products = await query.exec()
 
-        if (typeof skip === 'number' && typeof limit === 'number') {
-            query = query.skip(skip).limit(limit);
-        }
-
-        const products = await query.exec();
-
-        const productDTOs = products.map(product => ProductDTO.fromDocument(product));
+        const productDTOs = products.map(product => ProductDTO.fromDocument(product))
 
         return {
             products: productDTOs,
             totalCount
-        };
+        }
     }
 
     async getAll(): Promise<ProductDTO[]> {
@@ -139,36 +140,25 @@ export class ProductDAO implements IProductDAO {
         return products.map(product => ProductDTO.fromDocument(product))
     }
 
-    async update(product: ProductDTO): Promise<ProductDTO | null> {
-        const updatedProduct = await Product.findByIdAndUpdate(
-            product._id,
-            { ...product.toJson() },
-            { new: true }
-        )
-
-        if (!updatedProduct) return null
-
-        return ProductDTO.fromDocument(updatedProduct)
-    }
-
-    async delete(product: ProductDTO): Promise<boolean> {
+    async delete(product: Partial<ProductDTO>): Promise<boolean> {
         const result = await Product.findByIdAndDelete(product._id)
         return result !== null
     }
 
-    async getRatings(product: ProductDTO): Promise<RatingDTO[] | null> {
-        if (!product.ratings || product.ratings.length === 0) {
-            return null
-        }
+    async getRatings(product: Partial<ProductDTO>): Promise<RatingDTO[]> {
+        const productDoc = await Product.findById(product._id)
+
+        if (productDoc === null) return []
+        if (!productDoc.ratings || productDoc.ratings.length === 0) return []
 
         const ratings = await Rating.find({
-            _id: {$in: product.ratings}
-        }).populate('author')
+            _id: {$in: productDoc.ratings}
+        })
 
         return ratings.map(rating => RatingDTO.fromDocument(rating))
     }
 
-    async addRating(product: ProductDTO, rating: RatingDTO): Promise<ProductDTO | null> {
+    async addRating(product: Partial<ProductDTO>, rating: RatingDTO): Promise<boolean> {
         await Rating.create({
             ...rating.toJson()
         })
@@ -177,20 +167,17 @@ export class ProductDAO implements IProductDAO {
             $push: { ratings: rating._id }
         }, { new: true })
 
-        if (!result) return null
-
-        return ProductDTO.fromDocument(result)
+        return result !== null
     }
 
-    async removeRating(product: ProductDTO, rating: RatingDTO): Promise<ProductDTO | null> {
-        await Rating.findByIdAndDelete(rating._id)
+    async removeRating(product: Partial<ProductDTO>, rating: Partial<RatingDTO>): Promise<boolean> {
+        const ratingResult = await Rating.findByIdAndDelete(rating._id)
+        if (ratingResult === null) return false
 
-        const result = await Product.findByIdAndUpdate(product._id, {
+        const productResult = await Product.findByIdAndUpdate(product._id, {
             $pop: { ratings: rating._id }
         }, { new: true })
 
-        if (!result) return null
-
-        return ProductDTO.fromDocument(result)
+        return productResult !== null
     }
 }

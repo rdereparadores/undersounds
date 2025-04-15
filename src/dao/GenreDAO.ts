@@ -1,18 +1,17 @@
 import { GenreDTO } from "../dto/GenreDTO";
-import { Genre, IGenre } from "../models/Genre";
+import { Genre } from "../models/Genre";
 
 export interface IGenreDAO {
-    create(dto: GenreDTO): Promise<GenreDTO>
+    create(genre: GenreDTO): Promise<GenreDTO>
 
     findById(_id: string): Promise<GenreDTO | null>
-
     findByGenre(genre: string): Promise<GenreDTO | null>
 
     getAll(): Promise<GenreDTO[]>
 
-    update(dto: GenreDTO): Promise<GenreDTO | null>
+    update(genre: Partial<GenreDTO>): Promise<boolean>
 
-    delete(dto: GenreDTO): Promise<boolean>
+    delete(genre: Partial<GenreDTO>): Promise<boolean>
 }
 
 export class GenreDAO implements IGenreDAO {
@@ -20,21 +19,21 @@ export class GenreDAO implements IGenreDAO {
 
     }
 
-    async create(dto: GenreDTO): Promise<GenreDTO> {
-        const newGenre = await Genre.create({ genre: dto.genre }) as IGenre
+    async create(genre: GenreDTO): Promise<GenreDTO> {
+        const newGenre = await Genre.create(genre)
         return GenreDTO.fromDocument(newGenre)
     }
 
     async findById(_id: string): Promise<GenreDTO | null> {
         const genre = await Genre.findById(_id)
-        if (!genre) return null
+        if (genre === null) return null
 
         return GenreDTO.fromDocument(genre)
     }
 
     async findByGenre(genre: string): Promise<GenreDTO | null> {
         const genreDoc = await Genre.findOne({ genre })
-        if (!genreDoc) return null
+        if (genreDoc === null) return null
 
         return GenreDTO.fromDocument(genreDoc)
     }
@@ -44,20 +43,18 @@ export class GenreDAO implements IGenreDAO {
         return genres.map(genre => GenreDTO.fromDocument(genre))
     }
 
-    async update(dto: GenreDTO): Promise<GenreDTO | null> {
+    async update(genre: Partial<GenreDTO>): Promise<boolean> {
         const updatedGenre = await Genre.findByIdAndUpdate(
-            dto._id,
-            { genre: dto.genre },
+            genre._id,
+            { genre: genre.genre },
             { new: true }
         )
 
-        if (!updatedGenre) return null
-
-        return GenreDTO.fromDocument(updatedGenre)
+        return updatedGenre !== null
     }
 
-    async delete(dto: GenreDTO): Promise<boolean> {
-        const result = await Genre.findByIdAndDelete(dto._id)
+    async delete(genre: Partial<GenreDTO>): Promise<boolean> {
+        const result = await Genre.findByIdAndDelete(genre._id)
         return result !== null
     }
 }

@@ -1,119 +1,70 @@
 import { OrderDTO } from "../dto/OrderDTO"
 import { UserDTO } from "../dto/UserDTO"
-import {Order} from "../models/Order";
+import { Order } from "../models/Order"
 
 export interface IOrderDAO {
-    create(dto: OrderDTO): Promise<OrderDTO>
+    create(orders: OrderDTO): Promise<OrderDTO>
 
     findById(_id: string): Promise<OrderDTO | null>
-    getOrdersFromUser(user: UserDTO): Promise<OrderDTO[] | null>
+    findOrdersFromUser(user: Partial<UserDTO>): Promise<OrderDTO[]>
 
     getAll(): Promise<OrderDTO[]>
 
-    update(dto: OrderDTO): Promise<OrderDTO | null>
+    update(order: OrderDTO): Promise<boolean>
 
-    delete(dto: OrderDTO): Promise<boolean>
+    delete(order: OrderDTO): Promise<boolean>
 
-    checkIfPaid(dto: OrderDTO): Promise<boolean>
+    checkIfPaid(order: OrderDTO): Promise<boolean>
 }
 
 export class OrderDAO implements IOrderDAO {
     constructor() {}
 
-    async create(dto: OrderDTO): Promise<OrderDTO> {
-        const newOrder = await Order.create({
-            purchase_date: dto.purchase_date,
-            status: dto.status,
-            paid: dto.paid,
-            tracking_number: dto.tracking_number,
-            user: dto.user,
-            lines: dto.lines.map(line => ({
-                quantity: line.quantity,
-                format: line.format,
-                product: line.product,
-                price: line.price
-            }))
-        });
+    async create(order: OrderDTO): Promise<OrderDTO> {
+        const newOrder = await Order.create(order)
 
-        return OrderDTO.fromDocument(newOrder);
+        return OrderDTO.fromDocument(newOrder)
     }
 
     async findById(_id: string): Promise<OrderDTO | null> {
         const order = await Order.findById(_id)
-            .populate({
-                path: 'user',
-                select: 'name sur_name email img_url'
-            })
-            .populate({
-                path: 'lines.product',
-                select: 'title img_url product_type pricing'
-            });
+        if (!order) return null
 
-        if (!order) return null;
-
-        return OrderDTO.fromDocument(order);
+        return OrderDTO.fromDocument(order)
     }
 
-    async getOrdersFromUser(user: UserDTO): Promise<OrderDTO[] | null> {
+    async findOrdersFromUser(user: Partial<UserDTO>): Promise<OrderDTO[]> {
         const orders = await Order.find({ user: user._id })
-            .populate({
-                path: 'lines.product',
-                select: 'title img_url product_type pricing'
-            })
-            .sort({ purchase_date: -1 });
+        if (orders === null) return []
 
-        if (!orders || orders.length === 0) return null;
-
-        return orders.map(order => OrderDTO.fromDocument(order));
+        return orders.map(order => OrderDTO.fromDocument(order))
     }
 
     async getAll(): Promise<OrderDTO[]> {
         const orders = await Order.find()
-            .populate({
-                path: 'user',
-                select: 'name sur_name email img_url'
-            })
-            .populate({
-                path: 'lines.product',
-                select: 'title img_url product_type pricing'
-            });
 
         return orders.map(order => OrderDTO.fromDocument(order));
     }
 
-    async update(dto: OrderDTO): Promise<OrderDTO | null> {
+    async update(order: Partial<OrderDTO>): Promise<boolean> {
         const updatedOrder = await Order.findByIdAndUpdate(
-            dto,
-            {
-                status: dto.status,
-                paid: dto.paid,
-                tracking_number: dto.tracking_number
-            },
+            order._id,
+            { ...order.toJson!() },
             { new: true }
         )
-            .populate({
-                path: 'user',
-                select: 'name sur_name email img_url'
-            })
-            .populate({
-                path: 'lines.product',
-                select: 'title img_url product_type pricing'
-            });
 
-        if (!updatedOrder) return null;
-
-        return OrderDTO.fromDocument(updatedOrder);
+        return updatedOrder !== null
     }
 
-    async delete(dto: OrderDTO): Promise<boolean> {
-        const result = await Order.findByIdAndDelete(dto);
-        return result !== null;
+    async delete(order: Partial<OrderDTO>): Promise<boolean> {
+        const result = await Order.findByIdAndDelete(order._id)
+        return result !== null
     }
 
-    async checkIfPaid(dto: OrderDTO): Promise<boolean> {
-        const order = await Order.findById(dto);
-        if (!order) return false;
+    async checkIfPaid(order: OrderDTO): Promise<boolean> {
+        const orderDoc = await Order.findById(order)
+        if (orderDoc === null) return false
 
-        return order.paid;
+        return order.paid
     }
 }

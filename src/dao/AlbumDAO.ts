@@ -1,46 +1,51 @@
-import { AlbumDTO } from "../dto/AlbumDTO";
-import { ArtistDTO } from "../dto/ArtistDTO";
-import { RatingDTO } from "../dto/RatingDTO";
-import { SongDTO } from "../dto/SongDTO";
-import {IProductDAO, ProductDAO} from "./ProductDAO";
-import {Album} from "../models/Album";
-import {Song} from "../models/Song";
+import { AlbumDTO } from "../dto/AlbumDTO"
+import { ArtistDTO } from "../dto/ArtistDTO"
+import { SongDTO } from "../dto/SongDTO"
+import { IProductDAO, ProductDAO } from "./ProductDAO"
+import { Album } from "../models/Album"
 
 export interface IAlbumDAO extends IProductDAO {
+    create(album: AlbumDTO): Promise<AlbumDTO>
+    
     findById(_id: string): Promise<AlbumDTO | null>
-    findByTitle(title: string): Promise<AlbumDTO[] | null>
-    findByArtist(artist: ArtistDTO): Promise<AlbumDTO[] | null>
+    findByTitle(title: string): Promise<AlbumDTO[]>
+    findByArtist(artist: Partial<ArtistDTO>): Promise<AlbumDTO[]>
     findByReleaseDateRange(from: Date, to: Date): Promise<AlbumDTO[]>
 
     getAll(): Promise<AlbumDTO[]>
 
-    update(product: AlbumDTO): Promise<AlbumDTO | null>
+    update(album: Partial<AlbumDTO>): Promise<boolean>
     
-    getTrackList(dto: AlbumDTO): Promise<SongDTO[] | null>
-    addToTrackList(dto: AlbumDTO, track: SongDTO): Promise<AlbumDTO | null>
-    removeFromTrackList(dto: AlbumDTO, track: SongDTO): Promise<AlbumDTO | null>
+    getTrackList(album: Partial<AlbumDTO>): Promise<SongDTO[]>
+    addToTrackList(album: Partial<AlbumDTO>, track: SongDTO): Promise<boolean>
+    removeFromTrackList(album: Partial<AlbumDTO>, track: SongDTO): Promise<boolean>
 
-    getVersionHistory(dto: AlbumDTO): Promise<AlbumDTO[] | null>
-    getVersionFromVersionHistory(album: AlbumDTO, version: number): Promise<AlbumDTO | null>
-    addToVersionHistory(album: AlbumDTO, version: AlbumDTO): Promise<AlbumDTO | null>
+    getVersionHistory(album: Partial<AlbumDTO>): Promise<AlbumDTO[]>
+    getVersionFromVersionHistory(album: Partial<AlbumDTO>, version: number): Promise<AlbumDTO | null>
+    addToVersionHistory(album: Partial<AlbumDTO>, version: AlbumDTO): Promise<boolean>
 }
 
 export class AlbumDAO extends ProductDAO implements IAlbumDAO {
     constructor() {super()}
 
+    async create(album: AlbumDTO): Promise<AlbumDTO> {
+        const newAlbum = await Album.create(album)
+        return AlbumDTO.fromDocument(newAlbum)
+    }
+
     async findById(_id: string): Promise<AlbumDTO | null> {
         const album = await Album.findById(_id)
-        if (!album) return null
+        if (album === null) return null
 
         return AlbumDTO.fromDocument(album)
     }
 
-    async findByTitle(title: string): Promise<AlbumDTO[] | null> {
+    async findByTitle(title: string): Promise<AlbumDTO[]> {
         const albums = await Album.find({ title })
         return albums.map(album => AlbumDTO.fromDocument(album))
     }
 
-    async findByArtist(artist: ArtistDTO): Promise<AlbumDTO[] | null> {
+    async findByArtist(artist: Partial<ArtistDTO>): Promise<AlbumDTO[]> {
         const albums = await Album.find({ author: artist._id })
         return albums.map(album => AlbumDTO.fromDocument(album))
     }
@@ -60,81 +65,82 @@ export class AlbumDAO extends ProductDAO implements IAlbumDAO {
         return albums.map(album => AlbumDTO.fromDocument(album))
     }
 
-    async update(product: AlbumDTO): Promise<AlbumDTO | null> {
+    async update(product: Partial<AlbumDTO>): Promise<boolean> {
         const updatedAlbum = await Album.findByIdAndUpdate(
             product._id,
-            { ...product.toJson() },
+            { ...product.toJson!() },
             { new: true }
         )
 
-        if (!updatedAlbum) return null
-
-        return AlbumDTO.fromDocument(updatedAlbum)
+        return updatedAlbum !== null
     }
 
-    async getTrackList(dto: AlbumDTO): Promise<SongDTO[] | null> {
-        const albumDoc = await Album.findById(dto._id).populate('track_list')
-        if (!albumDoc) return null
+    async getTrackList(album: Partial<AlbumDTO>): Promise<SongDTO[]> {
+        const albumDoc = await Album.findById(album._id).populate('trackList')
+        if (albumDoc === null) return []
 
-        return Array.isArray(albumDoc.track_list)
-            ? albumDoc.track_list.map((track: any) => SongDTO.fromDocument(track))
-            : null;
+        return Array.isArray(albumDoc.trackList)
+            ? albumDoc.trackList.map((track: any) => SongDTO.fromDocument(track))
+            : []
     }
 
-    async addToTrackList(dto: AlbumDTO, track: SongDTO): Promise<AlbumDTO | null> {
-        const albumDoc = await Album.findByIdAndUpdate(dto._id, {
-            $push: { track_list: track._id }
+    async addToTrackList(album: Partial<AlbumDTO>, track: SongDTO): Promise<boolean> {
+        const albumDoc = await Album.findByIdAndUpdate(album._id, {
+            $push: { trackList: track._id }
         }, { new: true })
 
-        if (!albumDoc) return null
-        return AlbumDTO.fromDocument(albumDoc)
+        return albumDoc !== null
     }
 
-    async removeFromTrackList(dto: AlbumDTO, track: SongDTO): Promise<AlbumDTO | null> {
-        const albumDoc = await Album.findByIdAndUpdate(dto._id, {
-            $pull: { track_list: track._id }
+    async removeFromTrackList(album: Partial<AlbumDTO>, track: Partial<SongDTO>): Promise<boolean> {
+        const albumDoc = await Album.findByIdAndUpdate(album._id, {
+            $pull: { trackList: track._id }
         }, { new: true })
 
-        if (!albumDoc) return null
-        return AlbumDTO.fromDocument(albumDoc)
+        return albumDoc !== null
     }
 
-    async getVersionHistory(dto: AlbumDTO): Promise<AlbumDTO[] | null> {
-        const albumDoc = await Album.findById(dto._id).populate('version_history')
-        if (!albumDoc) return null
+    async getVersionHistory(album: Partial<AlbumDTO>): Promise<AlbumDTO[]> {
+        const albumDoc = await Album.findById(album._id).populate('versionHistory')
+        if (albumDoc === null) return []
 
-        return Array.isArray(albumDoc.version_history)
-            ? albumDoc.version_history.map((version: any) => AlbumDTO.fromDocument(version))
-            : null;
+        return Array.isArray(albumDoc.versionHistory)
+            ? albumDoc.versionHistory.map((version: any) => AlbumDTO.fromDocument(version))
+            : []
     }
 
-    async getVersionFromVersionHistory(album: AlbumDTO, version: number): Promise<AlbumDTO | null> {
+    async getVersionFromVersionHistory(album: Partial<AlbumDTO>, version: number): Promise<AlbumDTO | null> {
         const albumDoc = await Album.findById(album._id)
-        if (!albumDoc || !albumDoc.version_history.length) return null
+        if (albumDoc === null || albumDoc.versionHistory.length === 0) return null
 
-        const versionDocs = await Album.find({
-            _id: { $in: albumDoc.version_history },
+        const versionDoc = await Album.find({
+            _id: { $in: albumDoc.versionHistory },
             version: version
         })
 
-        if (!versionDocs.length) return null
+        if (versionDoc === null) return null
 
-        return AlbumDTO.fromDocument(versionDocs[0])
+        return AlbumDTO.fromDocument(versionDoc[0])
     }
 
-    async addToVersionHistory(album: AlbumDTO, version: AlbumDTO): Promise<AlbumDTO | null> {
-        let albumDoc = await Album.findById(album._id)
-        if (!albumDoc) return null
+    async addToVersionHistory(album: Partial<AlbumDTO>, version: AlbumDTO): Promise<boolean> {
+        const albumDoc = await Album.findById(album._id)
+        if (albumDoc === null) return false
+
+        const albumGeneric = AlbumDTO.fromDocument(albumDoc)
+        albumGeneric._id = undefined
+        albumGeneric.versionHistory = []
+        
         const newVersion = await Album.create({
+            ...albumGeneric.toJson(),
             ...version.toJson(),
-            version: albumDoc.version_history.length
+            version: albumDoc.versionHistory.length
         })
 
-        albumDoc = await Album.findByIdAndUpdate(album._id, {
-            $push: { version_history: newVersion._id }
+        await Album.findByIdAndUpdate(album._id, {
+            $push: { versionHistory: newVersion._id }
         })
 
-        if (!albumDoc) return null
-        return AlbumDTO.fromDocument(albumDoc)
+        return true
     }
 }
