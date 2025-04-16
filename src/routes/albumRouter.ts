@@ -4,5 +4,6 @@ import {albumRatingsController} from "../controllers/album/albumRatingsControlle
 
 export const albumRouter = express.Router()
 
-albumRouter.get('info', albumInfoController)
-albumRouter.get('ratings', albumRatingsController)
+// PENDIENTES
+albumRouter.get('/info', albumInfoController)
+albumRouter.get('/ratings', albumRatingsController)

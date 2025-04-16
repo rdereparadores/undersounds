@@ -61,4 +61,4 @@ export const trendingRouter = express.Router()
  *                                          description: Mensaje de error
  *      security: []
  */
-trendingRouter.get('songs', trendingSongsController)
+trendingRouter.get('/songs', trendingSongsController)

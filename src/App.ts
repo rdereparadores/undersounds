@@ -11,6 +11,7 @@ import { checkArtistMiddleware } from "./middleware/checkArtistMiddleware"
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from "./utils/swaggerOptions"
 import { trendingRouter } from "./routes/trendingRouter"
+import { songRouter } from "./routes/songRouter"
 
 export class App {
 
@@ -41,13 +42,14 @@ export class App {
         
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/ai/', aiRouter)
-        this.app.use('/api/trending', trendingRouter)
-        //this.app.use('/api/auth/', authRouter)
-        //this.app.use('/api/user/', authTokenMiddleware, userRouter)
-        //this.app.use('/api/store', shopRouter)
-        //this.app.use('/api/artist', authTokenMiddleware, checkArtistMiddleware, artistRouter)
-
-
+        this.app.use('/api/trending/', trendingRouter)
+        this.app.use('/api/auth/', authRouter)
+        this.app.use('/api/user/', authTokenMiddleware, userRouter)
+        this.app.use('/api/artist/', authTokenMiddleware, checkArtistMiddleware, artistRouter)
+        this.app.use('/api/genre/', genreRouter)
+        this.app.use('/api/song/', songRouter)
+        //this.app.use('/api/store/', shopRouter)
+        
         this.app.get('*', async (req, res) => {
             res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {
                 if (err) {

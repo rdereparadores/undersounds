@@ -5,5 +5,5 @@ import { songRatingController } from "../controllers/song/songRatingController"
 export const songRouter = express.Router()
 
 // REVISADAS
-songRouter.get('info', songInfoController)
-songRouter.get('ratings', songRatingController)
+songRouter.get('/info', songInfoController)
+songRouter.get('/ratings', songRatingController)
