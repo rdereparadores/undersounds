@@ -40,9 +40,9 @@ userRouter.post('/orders/order', userOrdersOrderController)
 
 
 // NO REVISADAS
-userRouter.get('/stats', userStatsController)
-userRouter.post('/profile/update/email', userEmailUpdateController)
-userRouter.post('/profile/update/password', userPasswordResetController)
+//userRouter.get('/stats', userStatsController)
+//userRouter.post('/profile/update/email', userEmailUpdateController)
+//userRouter.post('/profile/update/password', userPasswordResetController)
 
 // IMPLEMENTACION NO NECESARIA (POR AHORA)
 // userRouter.post('/library/query', librarySearchController)

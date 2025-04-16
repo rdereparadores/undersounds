@@ -28,9 +28,7 @@ export const authTokenMiddleware = async (req: express.Request, res: express.Res
                 }
             })
         }
-        req.body.token = token
         req.uid = decodedToken.uid
-        req.body.user_type = user?.user_type
         next()
     } catch {
         return res.status(Number(apiErrorCodes[1002].httpCode)).json({
