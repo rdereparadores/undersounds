@@ -32,36 +32,36 @@ export const authSignUpGoogleController = async (req: express.Request, res: expr
         if (userType === "user") {
             await userDAO.create(new UserDTO({
                 name: name,
-                sur_name: ' ',
-                user_name: username,
-                birth_date: birthDate,
+                surname: ' ',
+                username: username,
+                birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                img_url: "",
-                user_type: 'user',
+                imgUrl: "",
+                userType: 'user',
                 following: [],
                 library: [],
-                listening_history: [],
+                listeningHistory: [],
                 addresses: []
             }))
         } else if (userType === "artist") {
             await artistDAO.create(new ArtistDTO({
                 name: name,
-                artist_name: name,
-                sur_name: ' ',
-                user_name: username,
-                artist_user_name: username,
-                birth_date: birthDate,
+                artistName: name,
+                surname: ' ',
+                username: username,
+                artistUsername: username,
+                birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                img_url: "",
-                user_type: 'artist',
+                imgUrl: "",
+                userType: 'artist',
                 following: [],
                 library: [],
-                listening_history: [],
+                listeningHistory: [],
                 addresses: [],
-                artist_banner_img_url: '',
-                artist_img_url: ''
+                artistBannerUrl: '',
+                artistImgUrl: ''
             }))
         } else {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({

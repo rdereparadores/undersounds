@@ -21,36 +21,36 @@ export const authSignUpController = async (req: express.Request, res: express.Re
         if (userType === "user") {
             await userDAO.create(new UserDTO({
                 name: name,
-                sur_name: surname,
-                user_name: username,
-                birth_date: birthDate,
+                surname: surname,
+                username: username,
+                birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                img_url: "",
-                user_type: 'user',
+                imgUrl: "",
+                userType: 'user',
                 following: [],
                 library: [],
-                listening_history: [],
+                listeningHistory: [],
                 addresses: []
             }))
         } else if (userType === "artist") {
             await artistDAO.create(new ArtistDTO({
                 name: name,
-                artist_name: artistName,
-                sur_name: surname,
-                user_name: artistUsername,
-                artist_user_name: artistUsername,
-                birth_date: birthDate,
+                artistName: artistName,
+                surname: surname,
+                username: artistUsername,
+                artistUsername: artistUsername,
+                birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                img_url: "",
-                user_type: 'artist',
+                imgUrl: "",
+                userType: 'artist',
                 following: [],
                 library: [],
-                listening_history: [],
+                listeningHistory: [],
                 addresses: [],
-                artist_banner_img_url: '',
-                artist_img_url: ''
+                artistBannerUrl: '',
+                artistImgUrl: ''
             }))
         } else {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({

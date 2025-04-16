@@ -5,9 +5,10 @@ export const authSignInController = async(req:express.Request, res:express.Respo
     try {
         const userDAO = req.db!.createBaseUserDAO()
         const user = await userDAO.findByUid(req.uid!)
+        if (user === null) throw new Error()
         res.json({
             data: {
-                userRole: user?.user_type
+                userType: user.userType
             }
         }) 
     } catch {
