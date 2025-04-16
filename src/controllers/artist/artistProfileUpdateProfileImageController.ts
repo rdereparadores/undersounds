@@ -1,23 +1,24 @@
 import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import { uploadArtistProfileImage } from '../../utils/uploadArtistProfileImage'
 
 export const artistProfileUpdateProfileImageController = async (req: express.Request, res: express.Response) => {
     uploadArtistProfileImage(req, res, async (err) => {
         if (err) {
-            return res.status(400).json({
+            return res.status(Number(apiErrorCodes[3002].httpCode)).json({
                 error: {
-                    code: 2000,
-                    message: 'Error al subir el archivo de imagen'
+                    code: 3002,
+                    message: apiErrorCodes[3002].message
                 }
             })
         }
 
         try {
             if (!req.file) {
-                return res.status(400).json({
+                return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
-                        code: 2001,
-                        message: 'Ninguna imagen subida'
+                        code: 3000,
+                        message: apiErrorCodes[3000].message
                     }
                 })
             }
@@ -25,7 +26,7 @@ export const artistProfileUpdateProfileImageController = async (req: express.Req
             const imgUrl = '/public/uploads/artist/profile/' + req.file.filename
             const artistDAO = req.db!.createArtistDAO()
             const artist = await artistDAO.findByUid(req.uid!)
-            artist!.artist_img_url = imgUrl
+            artist!.artistImgUrl = imgUrl
             await artistDAO.update(artist!)
 
             return res.json({
@@ -34,10 +35,10 @@ export const artistProfileUpdateProfileImageController = async (req: express.Req
                 }
             })
         } catch {
-            return res.status(500).json({
+            return res.status(Number(apiErrorCodes[2000].httpCode)).json({
                 error: {
-                    code: 3000,
-                    message: 'Error obteniendo la información'
+                    code: 2000,
+                    message: apiErrorCodes[2000].message
                 }
             })
         }

@@ -1,7 +1,7 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-export const artistSongController = async (req: express.Request, res: express.Response) => {
+export const artistSongsController = async (req: express.Request, res: express.Response) => {
     try {
         const artistDAO = req.db!.createArtistDAO()
         const songDAO = req.db!.createSongDAO()
@@ -9,9 +9,7 @@ export const artistSongController = async (req: express.Request, res: express.Re
         const songs = await songDAO.findByArtist({ _id: artist!._id })
 
         return res.json({
-            data: {
-                songs: songs
-            }
+            data: songs
         })
 
     } catch {
@@ -22,4 +20,4 @@ export const artistSongController = async (req: express.Request, res: express.Re
             }
         })
     }
-};
+}

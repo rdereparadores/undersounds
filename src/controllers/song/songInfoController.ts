@@ -1,61 +1,47 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get song information including title, artists, prices, recommendations
- * @route   GET /api/songs/info
- * @access  Public
- */
-export const songInfoController = async (req: Request, res: Response) => {
+export const songInfoController = async (req: express.Request, res: express.Response) => {
+    const { songId } = req.body
     try {
-        const { id } = req.query;
-
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
+        if (!songId) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
-                    message: 'Song ID is required',
-                    code: 'SONG_ID_REQUIRED'
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
                 }
-            });
+            })
         }
 
-        const factory = new MongoDBDAOFactory();
-        const songDAO = factory.createSongDAO();
+        const songDAO = req.db!.createSongDAO()
 
-        const song = await songDAO.findById(id);
+        const song = await songDAO.findById(songId)
 
         if (!song) {
-            return res.status(404).json({
-                success: false,
+            return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
-                    message: 'Song not found',
-                    code: 'SONG_NOT_FOUND'
+                    code: 3001,
+                    message: apiErrorCodes[3001].message
                 }
-            });
+            })
         }
 
-        const recommendationsList = await songDAO.getRecommendations(id, 5);
+        const recommendationsList = await songDAO.findRecommendations(songId, 5)
 
         const response = {
-            song: song,
+            song,
             recommendations: recommendationsList
-        };
+        }
 
-        res.status(200).json({
-            success: true,
-            msg: 'Song information retrieved successfully',
+        res.json({
             data: response
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: errorMessage,
-                code: 'SONG_FETCH_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

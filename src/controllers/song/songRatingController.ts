@@ -1,71 +1,53 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get song ratings and reviews
- * @route   GET /api/songs/ratings
- * @access  Public
- */
-export const songRatingController = async (req: Request, res: Response) => {
+export const songRatingController = async (req: express.Request, res: express.Response) => {
+    const { songId } = req.body
     try {
-        const { id } = req.query;
-
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
+        if (!songId) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
-                    message: 'Song ID is required',
-                    code: 'SONG_ID_REQUIRED'
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
                 }
-            });
+            })
         }
 
-        const factory = new MongoDBDAOFactory();
-        const songDAO = factory.createSongDAO();
+        const songDAO = req.db!.createSongDAO()
+        const song = await songDAO.findById(songId)
 
-        const song = await songDAO.findById(id);
         if (!song) {
-            return res.status(404).json({
-                success: false,
+            return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
-                    message: 'Song not found',
-                    code: 'SONG_NOT_FOUND'
+                    code: 3001,
+                    message: apiErrorCodes[3001].message
                 }
-            });
+            })
         }
 
-        const ratings = await songDAO.getRatings(song);
+        const ratings = await songDAO.getRatings(song)
 
-        let averageRating = 0;
+        let averageRating = 0
         if (ratings && ratings.length > 0) {
-            const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
-            averageRating = sum / ratings.length;
+            const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0)
+            averageRating = sum / ratings.length
         }
 
         const response = {
-            song: {
-                id: song._id,
-                title: song.title
-            },
             ratings: ratings || [],
             averageRating,
             totalRatings: ratings ? ratings.length : 0
         };
 
-        res.status(200).json({
-            success: true,
-            msg: 'Song ratings retrieved successfully',
+        res.json({
             data: response
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: errorMessage,
-                code: 'RATINGS_FETCH_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

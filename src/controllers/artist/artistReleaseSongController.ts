@@ -2,8 +2,8 @@ import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import { SongDTO, SongDTOProps } from '../../dto/SongDTO'
 import { uploadSongFiles } from '../../utils/uploadSongFiles'
+import mm from 'music-metadata'
 
-// TODO: REVISAR Y AÑADIR COLABORADORES Y GENEROS
 export const artistReleaseSongController = async (req: express.Request, res: express.Response) => {
     uploadSongFiles(req, res, async (err) => {
         if (err) {
@@ -25,21 +25,41 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
                 })
             }
             const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, collaborators, genres } = req.body
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette || !genres) throw new Error()
+
             const artistDAO = req.db!.createArtistDAO()
+            const genreDAO = req.db!.createGenreDAO()
+
+            const genresSplitted: string[] = genres.split(',')
+            const genreIds = await Promise.all(genresSplitted.map(async (genreName: string) => {
+                const genre = await genreDAO.findByGenre(genreName)
+                if (genre === null) throw new Error()
+                return genre._id!
+            }))
+
+            let collaboratorList: { accepted: boolean, artist: string }[] = []
+            if (collaborators) {
+                const collaboratorsSplitted: string[] = genres.split(',')
+                collaboratorList = await Promise.all(collaboratorsSplitted.map(async (collaborator: string) => {
+                    const collaboratorDoc = await artistDAO.findByArtistUsername(collaborator)
+                    if (collaboratorDoc === null) throw new Error()
+                    return { accepted: false, artist: collaboratorDoc._id! }
+                }))
+            }
+
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+
             const artist = await artistDAO.findByUid(req.uid!)
 
-            /*const collaboratorsDoc = collaborators.split(',').map(async (collaborator: string) => {
-                const collDoc = await artistDAO.findByArtistUsername(collaborator)
-                return { accepted: false, artist: collDoc!._id }
-            })*/
+            const metadata = await mm.parseFile(files.song[0].path)
+            const duration = metadata.format.duration || 0
 
             const song = new SongDTO({
                 title,
-                release_date: new Date(),
+                releaseDate: new Date(),
                 description,
-                img_url: '/public/uploads/song/cover/' + files.img[0].filename,
-                product_type: 'song',
+                imgUrl: '/public/uploads/song/cover/' + files.img[0].filename,
+                productType: 'song',
                 author: artist!._id!.toString(),
                 pricing: {
                     cd: Number(priceCd),
@@ -48,12 +68,12 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
                     vinyl: Number(priceVinyl)
                 },
                 ratings: [],
-                song_dir: '/protected/song/' + files.song[0].filename,
-                duration: 0,
+                songDir: '/protected/song/' + files.song[0].filename,
+                duration,
                 plays: 0,
-                genres: [], // Cambiarlo a IDs de géneros
-                collaborators: [],
-                version_history: []
+                genres: genreIds,
+                collaborators: collaboratorList.length === 0 ? [] : collaboratorList,
+                versionHistory: []
             })
 
             const songDAO = req.db?.createSongDAO()
@@ -65,8 +85,7 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
                 }
             })
 
-        } catch (error) {
-            console.log(error)
+        } catch {
             return res.status(Number(apiErrorCodes[2000].httpCode)).json({
                 error: {
                     code: 2000,
