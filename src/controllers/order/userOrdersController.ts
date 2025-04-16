@@ -1,56 +1,23 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get all orders for a user
- * @route   GET /api/user/orders
- * @access  Private
- */
-export const userOrdersController = async (req: Request, res: Response) => {
+export const userOrdersController = async (req: express.Request, res: express.Response) => {
     try {
-        const { id } = req.body;
+        const userDAO = req.db!.createBaseUserDAO()
+        const user = await userDAO.findByUid(req.uid!)
 
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'User ID is required',
-                    code: 'USER_ID_REQUIRED'
-                }
-            });
-        }
+        const orderDAO = req.db!.createOrderDAO()
+        const orders = await orderDAO.findOrdersFromUser(user!)
 
-        const factory = new MongoDBDAOFactory();
-        const userDAO = factory.createUserDAO();
-        const user = await userDAO.findById(id);
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'User not found',
-                    code: 'USER_NOT_FOUND'
-                }
-            });
-        }
-
-        const orderDAO = factory.createOrderDAO();
-        const orders = await orderDAO.getOrdersFromUser(user);
-
-        res.status(200).json({
-            success: true,
-            msg: 'Orders retrieved successfully',
-            data: orders || []
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
+        res.json({
+            data: orders
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: errorMessage,
-                code: 'ORDERS_FETCH_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

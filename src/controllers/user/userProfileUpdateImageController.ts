@@ -26,8 +26,9 @@ export const userProfileUpdateImageController = async (req: express.Request, res
             const imgUrl = '/public/uploads/user/profile/' + req.file.filename
             const userDAO = req.db!.createBaseUserDAO()
             const user = await userDAO.findByUid(req.uid!)
-            user!.img_url = imgUrl
-            await userDAO.update(user!)
+            user!.imgUrl = imgUrl
+            const result = await userDAO.update(user!)
+            if (!result) throw new Error()
 
             return res.json({
                 data: {

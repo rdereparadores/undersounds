@@ -1,73 +1,42 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get detailed information of a specific order
- * @route   GET /api/user/order/order
- * @access  Private
- */
-export const userOrdersOrderController = async (req: Request, res: Response) => {
+export const userOrdersOrderController = async (req: express.Request, res: express.Response) => {
     try {
-        const { orderId, userId } = req.body;
+        const { orderId } = req.body
 
-        if (!orderId || typeof orderId !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'Order ID is required',
-                    code: 'ORDER_ID_REQUIRED'
-                }
-            });
-        }
-
-        if (!userId || typeof userId !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'User ID is required',
-                    code: 'USER_ID_REQUIRED'
-                }
-            });
-        }
-
-        const factory = new MongoDBDAOFactory();
-        const orderDAO = factory.createOrderDAO();
-        const order = await orderDAO.findById(orderId);
+        const userDAO = req.db!.createBaseUserDAO()
+        const orderDAO = req.db!.createOrderDAO()
+        const order = await orderDAO.findById(orderId)
+        const user = await userDAO.findByUid(req.uid!)
 
         if (!order) {
-            return res.status(404).json({
-                success: false,
+            return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
-                    message: 'Order not found',
-                    code: 'ORDER_NOT_FOUND'
+                    code: 3001,
+                    message: apiErrorCodes[3001].message
                 }
-            });
+            })
         }
 
-        if (order.user.toString() !== userId) {
-            return res.status(403).json({
-                success: false,
+        if (order.user !== user!._id) {
+            return res.status(Number(apiErrorCodes[1003].httpCode)).json({
                 error: {
-                    message: 'The order does not belong to the user',
-                    code: 'NOT_AUTHORIZED'
+                    code: 1003,
+                    message: apiErrorCodes[1003].message
                 }
-            });
+            })
         }
 
-        res.status(200).json({
-            success: true,
-            msg: 'Order details retrieved successfully',
+        res.json({
             data: order
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: errorMessage,
-                code: 'ORDER_FETCH_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

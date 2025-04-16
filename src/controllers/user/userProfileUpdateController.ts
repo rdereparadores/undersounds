@@ -2,20 +2,22 @@ import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 export const userProfileUpdateController = async (req: express.Request, res: express.Response) => {
+    const { name, surname, birthDate } = req.body
     try {
         const userDAO = req.db!.createBaseUserDAO()
         const user = await userDAO.findByUid(req.uid!)
-        if (req.body.name) {
-            user!.name = req.body.name
+        if (name) {
+            user!.name = name
         }
-        if (req.body.surname) {
-            user!.sur_name = req.body.surName
+        if (surname) {
+            user!.surname = surname
         }
-        if (req.body.birthDate) {
-            user!.birth_date = req.body.birthDate
+        if (birthDate) {
+            user!.birthDate = birthDate
         }
 
-        await userDAO.update(user!)
+        const result = await userDAO.update(user!)
+        if (!result) throw new Error()
 
         return res.json({
             data: {

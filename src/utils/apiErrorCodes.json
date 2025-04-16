@@ -11,6 +11,10 @@
         "httpCode": "401",
         "message": "Token de usuario no válido o expirado"
     },
+    "1003": {
+        "httpCode": "401",
+        "message": "Usuario sin acceso al recurso"
+    },
     
     "2000": {
         "httpCode": "500",

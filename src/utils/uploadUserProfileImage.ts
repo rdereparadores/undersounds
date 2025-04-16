@@ -35,7 +35,7 @@ export const imageFileFilter = (req: express.Request, file: Express.Multer.File,
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true)
     } else {
-        cb(new Error('Invalid format. Must be JPEG/PNG/JPG.'))
+        cb(new Error('Formato inválido. Debe ser JPEG/PNG/JPG'))
     }
 }
 

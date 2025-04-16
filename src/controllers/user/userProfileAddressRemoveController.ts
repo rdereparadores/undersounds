@@ -1,11 +1,10 @@
-import { Request, Response } from 'express'
+import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-export const userProfileAddressRemoveController = async (req: Request, res: Response): Promise<Response> => {
+export const userProfileAddressRemoveController = async (req: express.Request, res: express.Response) => {
+    const { addressId } = req.body
     try {
-
-        const { _id } = req.body
-        if (!_id) {
+        if (!addressId) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
                     code: 3000,
@@ -15,7 +14,8 @@ export const userProfileAddressRemoveController = async (req: Request, res: Resp
         }
         const userDAO = req.db!.createBaseUserDAO()
         const user = await userDAO.findByUid(req.uid!)
-        await userDAO.removeAddress(user!, { _id })
+        const result = await userDAO.removeAddress(user!, { _id: addressId })
+        if (!result) throw new Error()
 
         return res.json({
             data: {

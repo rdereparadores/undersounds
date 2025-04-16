@@ -1,10 +1,9 @@
-import { Request, Response } from 'express'
+import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-export const userIsFollowingController = async (req: Request, res: Response) => {
+export const userIsFollowingController = async (req: express.Request, res: express.Response) => {
+    const { artistUsername } = req.body
     try {
-        const { artistUsername } = req.body()
-
         if (!artistUsername) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
@@ -18,10 +17,11 @@ export const userIsFollowingController = async (req: Request, res: Response) => 
         const artistDAO = req.db!.createArtistDAO()
         const user = await userDAO.findByUid(req.uid!)
         const artist = await artistDAO.findByArtistUsername(artistUsername)
+        if (artist === null) throw new Error()
 
         return res.json({
             data: {
-                following: user?.following.includes(artist?._id!)
+                following: user!.following.includes(artist._id!)
             }
         })
     } catch {

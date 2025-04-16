@@ -4,12 +4,16 @@ import { BaseUserDTO, BaseUserDTOProps } from "./BaseUserDTO"
 export interface ArtistDTOProps extends BaseUserDTOProps {
     artistName: string,
     artistUsername: string,
+    artistImgUrl: string,
+    artistBannerUrl: string,
     bankAccount?: string
 }
 
 export class ArtistDTO extends BaseUserDTO implements ArtistDTOProps{
     artistName: string
     artistUsername: string
+    artistImgUrl: string
+    artistBannerUrl: string
     bankAccount?: string
 
     constructor(props: ArtistDTOProps) {
@@ -17,6 +21,8 @@ export class ArtistDTO extends BaseUserDTO implements ArtistDTOProps{
 
         this.artistName = props.artistName
         this.artistUsername = props.artistUsername
+        this.artistImgUrl = props.artistImgUrl
+        this.artistBannerUrl = props.artistBannerUrl
         this.bankAccount = props.bankAccount
     }
 
@@ -25,6 +31,8 @@ export class ArtistDTO extends BaseUserDTO implements ArtistDTOProps{
             ...super.toJson(),
             artistName: this.artistName,
             artistUsername: this.artistUsername,
+            artistImgUrl: this.artistImgUrl,
+            artistBannerUrl: this.artistBannerUrl,
             bankAccount: this.bankAccount
         }
     }
@@ -35,6 +43,8 @@ export class ArtistDTO extends BaseUserDTO implements ArtistDTOProps{
             ...baseUserProps,
             artistName: doc.artistName,
             artistUsername: doc.artistUsername,
+            artistImgUrl: doc.artistImgUrl,
+            artistBannerUrl: doc.artistBannerUrl,
             bankAccount: doc.bankAccount
         })
     }

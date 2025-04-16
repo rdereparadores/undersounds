@@ -28,10 +28,11 @@ export interface IBaseUserDAO {
 
     addAddress(baseUser: Partial<BaseUserDTO>, address: AddressDTO): Promise<boolean>
     removeAddress(baseUser: Partial<BaseUserDTO>, address: Partial<AddressDTO>): Promise<boolean>
+    setAddressAsDefault(baseUser: Partial<BaseUserDTO>, address: Partial<AddressDTO>): Promise<boolean>
 }
 
 export class BaseUserDAO implements IBaseUserDAO {
-    constructor() {}
+    constructor() { }
 
     async create(baseUser: BaseUserDTO): Promise<BaseUserDTO> {
         const newBaseUser = await BaseUser.create(baseUser)
@@ -47,7 +48,7 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async findByUsername(username: string): Promise<BaseUserDTO | null> {
         const baseUser = await BaseUser.findOne({ username })
-        if(baseUser === null) return null
+        if (baseUser === null) return null
 
         return BaseUserDTO.fromDocument(baseUser)
     }
@@ -76,7 +77,7 @@ export class BaseUserDAO implements IBaseUserDAO {
             { ...baseUser.toJson!() },
             { new: true }
         )
-        
+
         return updatedBaseUser !== null
     }
 
@@ -87,7 +88,7 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async addToFollowing(baseUser: Partial<BaseUserDTO>, artist: Partial<ArtistDTO>): Promise<boolean> {
         const follow = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $push: { following: artist._id }},
+            { $push: { following: artist._id } },
             { new: true }
         )
         return follow !== null
@@ -103,7 +104,7 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async addToLibrary(baseUser: Partial<BaseUserDTO>, product: Partial<ProductDTO>): Promise<boolean> {
         const updatedBaseUser = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $push: { library: product._id }},
+            { $push: { library: product._id } },
             { new: true }
         )
         return updatedBaseUser !== null
@@ -111,7 +112,7 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async removeFromLibrary(baseUser: Partial<BaseUserDTO>, product: Partial<ProductDTO>): Promise<boolean> {
         const updatedBaseUser = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $pull: { library: product._id }},
+            { $pull: { library: product._id } },
             { new: true }
         )
         return updatedBaseUser !== null
@@ -119,7 +120,7 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async addToListeningHistory(baseUser: Partial<BaseUserDTO>, product: Partial<ProductDTO>): Promise<boolean> {
         const updatedBaseUser = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $push: { listening_history: product._id }},
+            { $push: { listening_history: product._id } },
             { new: true }
         );
         return updatedBaseUser !== null
@@ -127,8 +128,9 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async addAddress(baseUser: Partial<BaseUserDTO>, address: AddressDTO): Promise<boolean> {
         const updatedBaseUser = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $push: {
-                addresses: {
+            {
+                $push: {
+                    addresses: {
                         ...address
                     }
                 }
@@ -138,12 +140,28 @@ export class BaseUserDAO implements IBaseUserDAO {
         return updatedBaseUser !== null
     }
 
-    async removeAddress(baseUser: BaseUserDTO, address: AddressDTO): Promise<boolean> {
+    async removeAddress(baseUser: Partial<BaseUserDTO>, address: Partial<AddressDTO>): Promise<boolean> {
         const updatedBaseUser = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $pull: {addresses: { alias: address.alias } } },
+            { $pull: { addresses: { alias: address.alias } } },
             { new: true }
         )
         return updatedBaseUser !== null
+    }
+
+    async setAddressAsDefault(baseUser: Partial<BaseUserDTO>, address: Partial<AddressDTO>): Promise<boolean> {
+        try {
+            await BaseUser.updateOne(
+                { _id: baseUser._id },
+                { $set: { 'addresses.$[].default': false } }
+            )
+            await BaseUser.updateOne(
+                { _id: baseUser._id, 'addresses._id': address._id },
+                { $set: { 'addresses.$.default': true } }
+            )
+            return true
+        } catch {
+            return false
+        }
     }
 
 }

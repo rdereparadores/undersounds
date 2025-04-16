@@ -1,11 +1,10 @@
-import { Request, Response } from 'express'
+import express from 'express'
 import { AddressDTO } from '../../dto/BaseUserDTO'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-export const userProfileAddressAddController = async (req: Request, res: Response): Promise<Response> => {
+export const userProfileAddressAddController = async (req: express.Request, res: express.Response) => {
+    const { address } = req.body
     try {
-
-        const { address } = req.body
         if (!address) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
@@ -18,22 +17,10 @@ export const userProfileAddressAddController = async (req: Request, res: Respons
         const userDAO = req.db!.createBaseUserDAO()
         const user = await userDAO.findByUid(req.uid!)
 
-        const newAddress: AddressDTO = {
-            alias: address.alias,
-            name: address.name,
-            sur_name: address.surname,
-            phone: address.phone,
-            address: address.address,
-            address_2: address.address2,
-            province: address.province,
-            city: address.city,
-            zip_code: address.zipCode,
-            country: address.country,
-            observations: address.observations,
-            default: false
-        }
+        const newAddress: AddressDTO = address
 
-        await userDAO.addAddress(user!, newAddress)
+        const result = await userDAO.addAddress(user!, newAddress)
+        if (!result) throw new Error()
 
         return res.json({
             data: {
@@ -41,7 +28,7 @@ export const userProfileAddressAddController = async (req: Request, res: Respons
             }
         })
 
-    } catch (error) {
+    } catch {
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
                 code: 2000,
