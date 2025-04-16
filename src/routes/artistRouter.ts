@@ -7,6 +7,7 @@ import { artistProfileUpdateBannerImageController } from '../controllers/artist/
 import { artistReleaseSongController } from '../controllers/artist/artistReleaseSongController';
 import { artistSongsController } from '../controllers/artist/artistSongsController'
 import { artistAlbumsController } from '../controllers/artist/artistAlbumsController';
+import { artistReleaseAlbumController } from '../controllers/artist/artistReleaseAlbumController';
 
 export const artistRouter = express.Router()
 
@@ -20,7 +21,7 @@ artistRouter.post('/profile/update/bannerImage', artistProfileUpdateBannerImageC
 artistRouter.post('/release/song', artistReleaseSongController)
 
 // PENDIENTES
-//artistRouter.post('/release/album', artistReleaseAlbumController)
+artistRouter.post('/release/album', artistReleaseAlbumController)
 
 // SIN REVISAR
 //artistRouter.get('/stats', artistStatsController)
