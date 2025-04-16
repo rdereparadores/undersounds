@@ -1,32 +1,23 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get top 10 trending songs
- * @route   GET /api/trending/top10
- * @access  Public
- */
-export const trendingSongsController = async (req: Request, res: Response) => {
+export const trendingSongsController = async (req: express.Request, res: express.Response) => {
     try {
-        const factory = new MongoDBDAOFactory();
-        const songDAO = factory.createSongDAO();
+        const songDAO = req.db!.createSongDAO()
 
-        const trendingSongs = await songDAO.getMostPlayed(10);
+        const trendingSongs = await songDAO.findMostPlayed(10)
 
-        res.status(200).json({
-            success: true,
-            msg: 'Trending songs retrieved successfully',
-            data: trendingSongs
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
-            error: {
-                message: errorMessage,
-                code: 'TRENDING_SONGS_FETCH_ERROR'
+        res.json({
+            data: {
+                songs: trendingSongs
             }
-        });
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            error: {
+                code: 2000,
+                message: apiErrorCodes[2000].message
+            }
+        })
     }
-};
+}

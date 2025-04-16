@@ -8,12 +8,12 @@ export const userProfileController = async (req: express.Request, res: express.R
 
         return res.json({
             data: {
-                name: user?.name,
-                surname: user?.sur_name,
-                birthDate: user?.birth_date,
-                username: user?.user_name,
-                email: user?.email,
-                imgUrl: user?.img_url
+                name: user!.name,
+                surname: user!.surname,
+                birthDate: user!.birthDate,
+                username: user!.username,
+                email: user!.email,
+                imgUrl: user!.imgUrl
             }
         })
 

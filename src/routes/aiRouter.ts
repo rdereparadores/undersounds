@@ -1,6 +1,6 @@
 import express from 'express'
-import { aiCoverController } from '../controllers/ai/aiCoverController'
+import { aiImageController } from '../controllers/ai/aiImageController'
 
 export const aiRouter = express.Router()
 
-aiRouter.post('/cover', aiCoverController)
+aiRouter.post('/image', aiImageController)

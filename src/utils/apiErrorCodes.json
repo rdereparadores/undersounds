@@ -41,7 +41,10 @@
     "4002": {
         "httpCode": "400",
         "message": "El correo electrónico proporcionado no es válido"
+    },
+
+    "5000": {
+        "httpCode": "400",
+        "message": "Prompt no válido"
     }
-
-
 }
