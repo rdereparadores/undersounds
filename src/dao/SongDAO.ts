@@ -1,56 +1,55 @@
-import { ArtistDTO } from "../dto/ArtistDTO";
-import { GenreDTO } from "../dto/GenreDTO";
-import { RatingDTO } from "../dto/RatingDTO";
-import { SongDTO } from "../dto/SongDTO";
-import { Rating } from "../models/Rating";
-import { Song } from "../models/Song";
-import { IProductDAO, ProductDAO } from "./ProductDAO";
+import { ArtistDTO } from "../dto/ArtistDTO"
+import { GenreDTO } from "../dto/GenreDTO"
+import { SongDTO } from "../dto/SongDTO"
+import { Song } from "../models/Song"
+import { IProductDAO, ProductDAO } from "./ProductDAO"
 
 export interface ISongDAO extends IProductDAO {
-    create(dto: SongDTO): Promise<SongDTO>
-
+    create(song: SongDTO): Promise<SongDTO>
+    
     findById(_id: string): Promise<SongDTO | null>
-    findByTitle(title: string): Promise<SongDTO[] | null>
-    findByArtist(artist: ArtistDTO): Promise<SongDTO[] | null>
+    findByTitle(title: string): Promise<SongDTO[]>
+    findByArtist(artist: Partial<ArtistDTO>): Promise<SongDTO[]>
     findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]>
     findByTopViews(limit: number): Promise<SongDTO[]>
-    findByGenre(genre: GenreDTO): Promise<SongDTO[]>
-    getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null>
-    getMostPlayed(limit: number): Promise<SongDTO[]>
-    getRecommendations(songId: string, limit: number): Promise<SongDTO[]>
-    getByCollaborator(artistId: string): Promise<SongDTO[]>
-    getAllByArtistParticipation(artistId: string): Promise<SongDTO[]>
+    findByGenre(genre: Partial<GenreDTO>): Promise<SongDTO[]>
+    findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
 
-    update(song: SongDTO): Promise<SongDTO | null>
+    update(song: Partial<SongDTO>): Promise<boolean>
 
-    getVersionHistory(song: SongDTO): Promise<SongDTO[] | null>
-    addToVersionHistory(song: SongDTO, version: SongDTO): Promise<SongDTO | null>
+    getVersionHistory(song: Partial<SongDTO>): Promise<SongDTO[]>
+    getVersionFromVersionHistory(song: Partial<SongDTO>, version: number): Promise<SongDTO | null>
+    addToVersionHistory(song: Partial<SongDTO>, version: SongDTO): Promise<boolean>
 }
 
 export class SongDAO extends ProductDAO implements ISongDAO {
     constructor() { super() }
 
-    async create(dto: SongDTO): Promise<SongDTO> {
-        const newSong = await Song.create(dto.toJson())
+    async create(song: SongDTO): Promise<SongDTO> {
+        const newSong = await Song.create(song)
         return SongDTO.fromDocument(newSong)
     }
 
     async findById(_id: string): Promise<SongDTO | null> {
         const song = await Song.findById(_id)
-        if (!song) return null
+        if (song === null) return null
 
         return SongDTO.fromDocument(song)
     }
 
-    async findByTitle(title: string): Promise<SongDTO[] | null> {
+    async findByTitle(title: string): Promise<SongDTO[]> {
         const songs = await Song.find({ title })
+        if (songs === null) return []
+
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async findByArtist(artist: Partial<ArtistDTO>): Promise<SongDTO[] | null> {
+    async findByArtist(artist: Partial<ArtistDTO>): Promise<SongDTO[]> {
         const songs = await Song.find({ author: artist._id })
+        if (songs === null) return []
+
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
@@ -61,161 +60,101 @@ export class SongDAO extends ProductDAO implements ISongDAO {
                 $lte: to
             }
         })
+        if (songs === null) return []
+
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
     async findByTopViews(limit: number): Promise<SongDTO[]> {
         const songs = await Song.find().sort({ plays: -1 }).limit(limit)
-        if (!songs) return []
+        if (songs === null) return []
 
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async findByGenre(genre: GenreDTO): Promise<SongDTO[]> {
+    async findByGenre(genre: Partial<GenreDTO>): Promise<SongDTO[]> {
         const songs = await Song.find({
             genres: genre._id
         })
-
-        if (!songs) return []
+        if (songs === null) return []
 
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async getCollaborators(songId: string): Promise<{ artist: string, accepted: boolean }[] | null> {
-        try {
-            const song = await Song.findById(songId);
-            if (!song) return null;
+    async findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]> {
+        const songDoc = await Song.findById(song._id)
+        if (songDoc === null) return []
 
-            if (!song.collaborators || song.collaborators.length === 0) {
-                return [];
-            }
-
-            return song.collaborators.map(collab => ({
-                artist: collab.artist.toString(),
-                accepted: collab.accepted
-            }));
-        } catch (error) {
-            console.error('Error al obtener colaboradores:', error);
-            return null;
-        }
-    }
-
-    async getByCollaborator(artistId: string): Promise<SongDTO[]> {
-        try {
-            const songs = await Song.find({
-                'collaborators.artist': artistId,
-                'collaborators.accepted': true
-            });
-
-            return songs.map(song => SongDTO.fromDocument(song));
-        } catch (error) {
-            console.error('Error al buscar colaboraciones:', error);
-            return [];
-        }
-    }
-
-    async getAllByArtistParticipation(artistId: string): Promise<SongDTO[]> {
-        try {
-            const authoredSongs = await Song.find({ author: artistId });
-
-            const collaborationSongs = await Song.find({
-                'collaborators.artist': artistId,
-                'collaborators.accepted': true
-            });
-
-            const allSongs = [...authoredSongs, ...collaborationSongs];
-            const uniqueSongIds = new Set();
-            const uniqueSongs = [];
-
-            for (const song of allSongs) {
-                if (!uniqueSongIds.has(song._id.toString())) {
-                    uniqueSongIds.add(song._id.toString());
-                    uniqueSongs.push(song);
+        const recommendations = await Song.aggregate([
+            {
+                $match: {
+                    _id: { $ne: songDoc._id },
+                    genres: { $in: songDoc.genres }
                 }
-            }
+            },
+            { $sample: { size: limit } }
+        ])
 
-            return uniqueSongs.map(song => SongDTO.fromDocument(song));
-        } catch (error) {
-            console.error('Error al buscar canciones por participación:', error);
-            return [];
-        }
-    }
-
-    async getMostPlayed(limit: number): Promise<SongDTO[]> {
-        try {
-            const songs = await Song.find()
-                .sort({ plays: -1 })
-                .limit(limit)
-                .populate('author');
-
-            return songs.map(song => SongDTO.fromDocument(song));
-        } catch (error) {
-            console.error('Error al obtener canciones más reproducidas:', error);
-            return [];
-        }
-    }
-
-    async getRecommendations(songId: string, limit: number): Promise<SongDTO[]> {
-        try {
-            const song = await Song.findById(songId);
-            if (!song) return [];
-
-            const recommendations = await Song.find({
-                $or: [
-                    { genres: { $in: song.genres } },
-                    { author: song.author }
-                ],
-                _id: { $ne: song._id }
-            })
-                .limit(limit)
-                .sort({ plays: -1 });
-
-            return recommendations.map(song => SongDTO.fromDocument(song));
-        } catch (error) {
-            console.error('Error al obtener recomendaciones:', error);
-            return [];
-        }
+        return recommendations.map(song => SongDTO.fromDocument(song))
     }
 
     async getAll(): Promise<SongDTO[]> {
         const songs = await Song.find()
+        if (songs === null) return []
+
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
-    async update(song: SongDTO): Promise<SongDTO | null> {
+    async update(song: Partial<SongDTO>): Promise<boolean> {
         const updatedSong = await Song.findByIdAndUpdate(
-            song._id,
-            { ...song.toJson() },
+            { ...song.toJson!() },
             { new: true }
         )
 
-        if (!updatedSong) return null
-
-        return SongDTO.fromDocument(updatedSong)
+        return updatedSong !== null
     }
 
-    async getVersionHistory(song: SongDTO): Promise<SongDTO[] | null> {
-        const songDoc = await Song.findById(song._id).populate('version_history')
-        if (!songDoc) return null
+    async getVersionHistory(song: Partial<SongDTO>): Promise<SongDTO[]> {
+        const songDoc = await Song.findById(song._id).populate('versionHistory')
+        if (songDoc === null) return []
 
-        return Array.isArray(songDoc.version_history)
-            ? songDoc.version_history.map((version: any) => SongDTO.fromDocument(version))
-            : null;
+        return Array.isArray(songDoc.versionHistory)
+            ? songDoc.versionHistory.map((version: any) => SongDTO.fromDocument(version))
+            : []
     }
 
-    async addToVersionHistory(song: SongDTO, version: SongDTO): Promise<SongDTO | null> {
-        let songDoc = await Song.findById(song._id)
-        if (!songDoc) return null
+    async getVersionFromVersionHistory(song: Partial<SongDTO>, version: number): Promise<SongDTO | null> {
+        const songDoc = await Song.findById(song._id)
+        if (songDoc === null || songDoc.versionHistory.length === 0) return null
+
+        const versionDoc = await Song.find({
+            _id: { $in: songDoc.versionHistory },
+            version: version
+        })
+
+        if (versionDoc === null) return null
+
+        return SongDTO.fromDocument(versionDoc[0])
+    }
+
+    async addToVersionHistory(song: Partial<SongDTO>, version: SongDTO): Promise<boolean> {
+        const songDoc = await Song.findById(song._id)
+        if (songDoc === null) return false
+
+        const songGeneric = SongDTO.fromDocument(songDoc)
+        songGeneric._id = undefined
+        songGeneric.versionHistory = []
+
         const newVersion = await Song.create({
+            ...songGeneric.toJson(),
             ...version.toJson(),
-            version: songDoc.version_history.length
+            version: songDoc.versionHistory.length
         })
 
-        songDoc = await Song.findByIdAndUpdate(song._id, {
-            $push: { version_history: newVersion._id }
+        await Song.findByIdAndUpdate(song._id, {
+            $push: { versionHistory: newVersion._id }
         })
 
-        if (!songDoc) return null
-        return SongDTO.fromDocument(songDoc)
+        return true
     }
 }
