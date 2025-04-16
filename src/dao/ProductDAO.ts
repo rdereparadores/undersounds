@@ -18,16 +18,6 @@ export interface IProductDAO {
         sortBy?: 'relevance' | 'releaseDate'
     ): Promise<{products: ProductDTO[], totalCount: number}>
 
-    searchInLibrary(
-        productIds: string[],
-        searchTerm: string
-    ): Promise<{
-        id: string;
-        title: string;
-        author: { user_name: string };
-        img_url: string;
-    }[]>;
-
     getAll(): Promise<ProductDTO[]>
 
     delete(product: Partial<ProductDTO>): Promise<boolean>
