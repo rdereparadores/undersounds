@@ -42,6 +42,7 @@
     "music-metadata": "^11.2.1",
     "openai": "^4.92.1",
     "redis": "^4.7.0",
+    "stripe": "^18.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "unique-names-generator": "^4.7.1",
