@@ -88,7 +88,7 @@ export class ProductDAO implements IProductDAO {
             title?: { $regex: string, $options: string }
         } = {}
 
-        if (genres && genres.length > 0) {
+        if (genres) {
             const genreIds = genres.map(genre => genre._id!).filter(id => !!id)
             if (genreIds.length > 0) {
                 filterQuery.genres = { $in: genreIds }
