@@ -1,14 +1,14 @@
-import { Schema, Types } from "mongoose";
-import { IProduct, Product } from "./Product";
+import { Schema } from "mongoose"
+import { IProduct, Product } from "./Product"
 
 export interface IAlbum extends IProduct {
-    track_list: Types.ObjectId[],
-    version_history: Types.ObjectId[]
+    trackList: Schema.Types.ObjectId[],
+    versionHistory: Schema.Types.ObjectId[]
 }
 
 export const AlbumSchema = new Schema<IAlbum>({
-    track_list: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
-    version_history: [{ type: Schema.Types.ObjectId, ref: 'Album' }]
+    trackList: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
+    versionHistory: [{ type: Schema.Types.ObjectId, ref: 'Album' }]
 })
 
 export const Album = Product.discriminator<IAlbum>('album', AlbumSchema)

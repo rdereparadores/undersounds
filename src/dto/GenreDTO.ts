@@ -1,12 +1,12 @@
 import { IGenre } from "../models/Genre"
 
 export interface GenreDTOProps {
-    _id: string,
+    _id?: string,
     genre: string
 }
 
 export class GenreDTO implements GenreDTOProps {
-    _id: string
+    _id?: string
     genre: string
 
     constructor(props: GenreDTOProps) {

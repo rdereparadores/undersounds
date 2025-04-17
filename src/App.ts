@@ -1,6 +1,9 @@
 import { MongoDBDAOFactory } from "./factory/MongoDBDAOFactory"
 import express from 'express'
 import { songRouter } from "./routes/songRouter"
+import { aiRouter } from "./routes/aiRouter"
+import { authRouter } from "./routes/authRouter"
+import { authTokenMiddleware } from "./middleware/authTokenMiddleware"
 import { checkoutRouter } from "./routes/checkoutRouter";
 
 export class App {
@@ -26,8 +29,8 @@ export class App {
     }
 
     routes() {
-        this.app.use('/api/checkout', checkoutRouter)
-
+        this.app.use('/api/ai/', aiRouter)
+        this.app.use('/api/auth/', authRouter)
     }
 
     listen() {

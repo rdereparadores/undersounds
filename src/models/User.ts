@@ -1,3 +1,7 @@
-import { BaseUser, BaseUserSchema, IBaseUser } from "./BaseUser";
+import { Schema } from "mongoose"
+import { BaseUser, IBaseUser } from "./BaseUser"
 
-export const User = BaseUser.discriminator<IBaseUser>('user', BaseUserSchema)
+const UserSchema = new Schema({
+})
+
+export const User = BaseUser.discriminator<IBaseUser>('user', UserSchema)
