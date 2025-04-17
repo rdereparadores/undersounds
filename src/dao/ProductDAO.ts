@@ -4,6 +4,10 @@ import { RatingDTO } from "../dto/RatingDTO"
 import { Product } from "../models/Product"
 import { Rating } from "../models/Rating"
 import { GenreDTO } from "../dto/GenreDTO"
+import { SongDTO } from "../dto/SongDTO"
+import { AlbumDTO } from "../dto/AlbumDTO"
+import { Song } from "../models/Song"
+import { Album } from "../models/Album"
 
 export interface IProductDAO {
     findById(_id: string): Promise<ProductDTO | null>
@@ -13,10 +17,11 @@ export interface IProductDAO {
     findWithFilters(
         skip: number,
         limit: number,
+        query?: string,
         genres?: Partial<GenreDTO>[],
         date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
         sortBy?: 'relevance' | 'releaseDate'
-    ): Promise<{products: ProductDTO[], totalCount: number}>
+    ): Promise<{ products: (SongDTO | AlbumDTO)[], totalCount: number }>
 
     getAll(): Promise<ProductDTO[]>
 
@@ -28,7 +33,7 @@ export interface IProductDAO {
 }
 
 export class ProductDAO implements IProductDAO {
-    constructor() {}
+    constructor() { }
 
     async findById(_id: string): Promise<ProductDTO | null> {
         const product = await Product.findById(_id)
@@ -69,20 +74,29 @@ export class ProductDAO implements IProductDAO {
     async findWithFilters(
         page: number,
         limit: number,
+        query?: string,
         genres?: Partial<GenreDTO>[],
         date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
         sortBy?: 'relevance' | 'releaseDate'
-    ): Promise<{products: ProductDTO[], totalCount: number}> {
+    ): Promise<{ products: (SongDTO | AlbumDTO)[], totalCount: number }> {
         const filterQuery: {
-            genres?: string[],
+            genres?: { $in: string[] },
             releaseDate?: {
                 $gte?: Date,
                 $lte?: Date
-            }
+            },
+            title?: { $regex: string, $options: string }
         } = {}
 
-        if (genres) {
-            filterQuery.genres = genres.map(genre => genre._id!)
+        if (genres && genres.length > 0) {
+            const genreIds = genres.map(genre => genre._id!).filter(id => !!id)
+            if (genreIds.length > 0) {
+                filterQuery.genres = { $in: genreIds }
+            }
+        }
+
+        if (query) {
+            filterQuery.title = { $regex: query, $options: 'i' }
         }
 
         if (date) {
@@ -123,14 +137,23 @@ export class ProductDAO implements IProductDAO {
 
         const totalCount = await Product.countDocuments(filterQuery)
 
-        let query = Product.find(filterQuery).sort(sortOptions)
-        query = query.skip((page - 1) * limit).limit(limit)
-        const products = await query.exec()
+        let queryResult = Product.find(filterQuery).sort(sortOptions)
+        if (page > 0 && limit > 0) {
+            queryResult = queryResult.skip((page - 1) * limit).limit(limit)
+        }
+        const products = await queryResult.exec()
 
-        const productDTOs = products.map(product => ProductDTO.fromDocument(product))
+        const productDTOs = await Promise.all(products.map(async (product) => {
+            if (product.productType === 'song') {
+                return SongDTO.fromDocument((await Song.findById(product._id))!)
+            } else if (product.productType === 'album') {
+                return AlbumDTO.fromDocument((await Album.findById(product._id))!)
+            }
+        }))
+        const productDTOsFiltered = productDTOs.filter(product => product !== undefined)
 
         return {
-            products: productDTOs,
+            products: productDTOsFiltered,
             totalCount
         }
     }
@@ -152,7 +175,7 @@ export class ProductDAO implements IProductDAO {
         if (!productDoc.ratings || productDoc.ratings.length === 0) return []
 
         const ratings = await Rating.find({
-            _id: {$in: productDoc.ratings}
+            _id: { $in: productDoc.ratings }
         })
 
         return ratings.map(rating => RatingDTO.fromDocument(rating))

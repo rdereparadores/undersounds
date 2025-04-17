@@ -1,107 +1,37 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Query store products with optional filters and load genres
- * @route   POST /api/store/query
- * @access  Public
- */
-export const shopQueryController = async (req: Request, res: Response) => {
+export const shopQueryController = async (req: express.Request, res: express.Response) => {
     try {
         const {
-            genre,
-            date,
-            sort = 'releaseDate',
             page = 1,
-            limit = 10
-        } = req.body;
+            genres,
+            date,
+            sortBy,
+            query
+        } = req.body
+        console.log(genres)
 
-        const pageNumber = page;
-        const limitNumber = limit;
+        const limit = 20
 
-        if (isNaN(pageNumber) || pageNumber < 1) {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'Page must be a positive number',
-                    code: 'INVALID_PAGE_NUMBER'
-                }
-            });
-        }
+        const genreDAO = req.db!.createGenreDAO()
+        const productDAO = req.db!.createProductDAO()
 
-        if (isNaN(limitNumber) || limitNumber < 1) {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'Limit must be a positive number',
-                    code: 'INVALID_LIMIT_NUMBER'
-                }
-            });
-        }
+        const genresSplitted: string[] = date ? genres.split(',') : []
+        const genresDocs = await Promise.all(genresSplitted.map(async (genre: string) => await genreDAO.findByGenre(genre)))
+        const genresFiltered = genresDocs.filter(genre => genre !== null)
 
-        const skip = (pageNumber - 1) * limitNumber;
+        const response = await productDAO.findWithFilters(page, limit, query, genresFiltered, date, sortBy)
 
-        const factory = new MongoDBDAOFactory();
-
-        const genreDAO = factory.createGenreDAO();
-        const productDAO = factory.createProductDAO();
-
-        let dateFilter: 'today' | 'week' | 'month' | '3months' | '6months' | 'year' | undefined;
-        if (date && ['today', 'week', 'month', '3months', '6months', 'year'].includes(date)) {
-            dateFilter = date as 'today' | 'week' | 'month' | '3months' | '6months' | 'year';
-        }
-
-        let sortOption: 'relevance' | 'releaseDate' = 'releaseDate';
-        if (sort === 'relevance') {
-            sortOption = 'relevance';
-        }
-
-        const [allGenres, productsResult] = await Promise.all([
-            genreDAO.getAll(),
-            productDAO.findWithFilters(
-                genre,
-                dateFilter,
-                sortOption,
-                skip,
-                limitNumber
-            )
-        ]);
-
-        const totalPages = Math.ceil(productsResult.totalCount / limitNumber);
-
-        const response = {
-            genres: allGenres,
-            products: productsResult.products,
-            filters: {
-                genre: genre,
-                date: dateFilter
-            },
-            sorting: {
-                type: sortOption
-            },
-            pagination: {
-                currentPage: pageNumber,
-                totalPages,
-                totalItems: productsResult.totalCount,
-                hasNextPage: pageNumber < totalPages,
-                hasPrevPage: pageNumber > 1
-            }
-        };
-
-        res.status(200).json({
-            success: true,
-            msg: 'Store data retrieved successfully',
+        res.json({
             data: response
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: errorMessage,
-                code: 'STORE_QUERY_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
 };

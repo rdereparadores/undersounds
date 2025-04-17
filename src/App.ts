@@ -48,7 +48,7 @@ export class App {
         this.app.use('/api/artist/', authTokenMiddleware, checkArtistMiddleware, artistRouter)
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/song/', songRouter)
-        //this.app.use('/api/store/', shopRouter)
+        this.app.use('/api/shop/', shopRouter)
         
         this.app.get('*', async (req, res) => {
             res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {
