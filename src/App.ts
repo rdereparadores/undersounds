@@ -4,6 +4,7 @@ import { songRouter } from "./routes/songRouter"
 import { aiRouter } from "./routes/aiRouter"
 import { authRouter } from "./routes/authRouter"
 import { authTokenMiddleware } from "./middleware/authTokenMiddleware"
+import { checkoutRouter } from "./routes/checkoutRouter";
 
 export class App {
 

@@ -34,6 +34,7 @@
     "firebase-admin": "^13.2.0",
     "fs-extra": "^11.3.0",
     "mongoose": "^8.13.0",
-    "openai": "^4.92.1"
+    "openai": "^4.92.1",
+    "stripe": "^18.0.0"
   }
 }

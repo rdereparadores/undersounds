@@ -3,3 +3,5 @@ dist/
 src/views/
 .env
 src/utils/admin.json
+public/
+protected/
