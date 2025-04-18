@@ -3,7 +3,6 @@ import { IProduct, Product } from "./Product"
 
 export interface ISong extends IProduct {
     songDir: string,
-    duration: number,
     plays: number,
     genres: Schema.Types.ObjectId[],
     collaborators: {
@@ -15,7 +14,6 @@ export interface ISong extends IProduct {
 
 export const SongSchema = new Schema<ISong>({
     songDir: { type: String, required: true },
-    duration: { type: Number, required: true },
     plays: { type: Number, required: true },
     genres: [{ type: Schema.Types.ObjectId, ref: 'Genre' }],
     collaborators: [{

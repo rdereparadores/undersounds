@@ -1,4 +1,4 @@
-import { Document, model, Schema } from "mongoose"
+import { Document, model, Schema, trusted } from "mongoose"
 
 export interface IProduct extends Document {
     _id: Schema.Types.ObjectId,
@@ -9,6 +9,7 @@ export interface IProduct extends Document {
     version: number,
     productType: 'song' | 'album',
     author: Schema.Types.ObjectId,
+    duration: number,
     pricing: {
         cd: number,
         digital: number,
@@ -26,6 +27,7 @@ export const ProductSchema = new Schema<IProduct>({
     version: { type: Number },
     productType: { type: String, enum: ['song', 'album'], required: true },
     author: { type: Schema.Types.ObjectId, ref: 'Artist', required: true },
+    duration: {type: Number, required: true},
     pricing: {
         cd: { type: Number, required: true },
         digital: { type: Number, required: true },

@@ -59,15 +59,22 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
             const songsSplitted: string[] = songs.split(',')
             console.log("He dividido las canciones que son: " + songsSplitted)
 
-            var albumDuration = 0
             const songArray = await Promise.all(songsSplitted.map(async (songID: string) => {
                 const song = await songDAO.findById(songID)
-                albumDuration = albumDuration + (song?.duration || 0)
-                console.log("He encontrado " + song?._id)
                 if (song === null) throw new Error()
                 return song._id!
             }))
 
+            const songDTOArray = await Promise.all(songsSplitted.map(async (songID: string) => {
+                const song = await songDAO.findById(songID)
+                if (song === null) throw new Error()
+                return song
+            }))
+
+            let albumDuration = 0
+            songDTOArray.forEach((song) => albumDuration = albumDuration + song.duration)
+
+            console.log("El álbum dura: " + albumDuration)
             console.log("He conseguido los generos y las canciones")
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
 
@@ -82,6 +89,7 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
                 imgUrl: '/public/uploads/album/cover/' + files.albumImage[0].filename,
                 productType: 'album',
                 author: artist!._id!.toString(),
+                duration: albumDuration,
                 pricing: {
                     cd: Number(priceCd),
                     digital: Number(priceDigital),

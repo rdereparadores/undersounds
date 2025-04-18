@@ -61,6 +61,7 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
                 imgUrl: '/public/uploads/song/cover/' + files.img[0].filename,
                 productType: 'song',
                 author: artist!._id!.toString(),
+                duration: duration,
                 pricing: {
                     cd: Number(priceCd),
                     digital: Number(priceDigital),
@@ -69,7 +70,7 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
                 },
                 ratings: [],
                 songDir: '/protected/song/' + files.song[0].filename,
-                duration,
+                
                 plays: 0,
                 genres: genreIds,
                 collaborators: collaboratorList.length === 0 ? [] : collaboratorList,
