@@ -13,7 +13,7 @@ import { userProfileAddressController } from '../controllers/user/userProfileAdd
 import { userProfileAddressRemoveController } from '../controllers/user/userProfileAddressRemoveController'
 import { userStatsController } from "../controllers/user/userStatsController";
 import { userFeaturedArtistsController } from "../controllers/user/userFeaturedArtistsController"
-import { userEmailUpdateController } from "../controllers/user/userEmailUpadteController"
+import { userEmailUpdateController } from "../controllers/user/userEmailUpdateController"
 import { userPasswordResetController } from "../controllers/user/userPasswordUpdateController"
 import { librarySearchController } from "../controllers/user/userLibraryQueryController"
 import { userFeaturedContentController } from '../controllers/user/userFeaturedContentController'
@@ -65,13 +65,37 @@ export const userRouter = express.Router()
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -138,13 +162,37 @@ userRouter.get('/profile', userProfileController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -193,13 +241,37 @@ userRouter.get('/profile/address', userProfileAddressController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -242,19 +314,55 @@ userRouter.post('/profile/update', userProfileUpdateController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '401':
  *              description: No autorizado
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -331,19 +439,55 @@ userRouter.post('/profile/update/image', userProfileUpdateImageController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '401':
  *              description: No autorizado
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -387,19 +531,55 @@ userRouter.post('/profile/address/add', userProfileAddressAddController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '401':
  *              description: No autorizado
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -443,19 +623,55 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '401':
  *              description: No autorizado
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -499,19 +715,55 @@ userRouter.post('/is-following', userIsFollowingController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '401':
  *              description: No autorizado
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -551,17 +803,41 @@ userRouter.patch('/profile/address/set-default', userProfileAddressSetDefaultCon
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
-userRouter.get('featured/content', userFeaturedContentController)
+userRouter.get('/featured/content', userFeaturedContentController)
 
 /**
  * @swagger
@@ -594,17 +870,41 @@ userRouter.get('featured/content', userFeaturedContentController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
-userRouter.get('featured/artists', userFeaturedArtistsController)
+userRouter.get('/featured/artists', userFeaturedArtistsController)
 
 /**
  * @swagger
@@ -643,13 +943,37 @@ userRouter.get('featured/artists', userFeaturedArtistsController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -692,13 +1016,37 @@ userRouter.get('/library/songs', userLibrarySongsController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -758,13 +1106,37 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
@@ -834,25 +1206,59 @@ userRouter.get('/orders', userOrdersController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '401':
  *              description: No autorizado
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security:
  *          - bearerAuth: []
  */
 userRouter.post('/orders/order', userOrdersOrderController)
-
-
 
 // NO REVISADAS
 //userRouter.get('/stats', userStatsController)
