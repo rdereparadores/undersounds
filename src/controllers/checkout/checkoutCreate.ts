@@ -25,36 +25,38 @@ export const checkoutCreate = async (req: express.Request, res: express.Response
         const productDAO = req.db!.createProductDAO()
         const user = await userDAO.findByUid(req.uid!)
 
-        const lineItems = await Promise.all(cart.map(async (item: CartItemProps) => {
+        let stripeLineItems: any[] = []
+        let lines: any[] = []
+
+        await Promise.all(cart.map(async (item: CartItemProps) => {
             const product = await productDAO.findById(item.id)
             if (!product) throw new Error()
-            return {
+            stripeLineItems.push({
                 price_data: {
                     currency: 'eur',
                     product_data: {
                         name: product.title,
+                        metadata: {
+                            "Formato": item.format
+                        }
                     },
                     unit_amount: product.pricing[item.format] * 100,
                 },
                 quantity: item.quantity,
-            }
-        }))
-        const lines = await Promise.all(cart.map(async (item: CartItemProps) => {
-            const product = await productDAO.findById(item.id)
-            if (!product) throw new Error()
-            return {
+            })
+            lines.push({
                 quantity: item.quantity,
                 format: item.format,
                 product: product._id!,
                 price: product.pricing[item.format]
-            }
+            })
         }))
 
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
         const session = await stripe.checkout.sessions.create({
             success_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/success?checkoutSession={CHECKOUT_SESSION_ID}`,
             cancel_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/deny?checkoutSession={CHECKOUT_SESSION_ID}`,
-            line_items: lineItems,
+            line_items: stripeLineItems,
             mode: 'payment',
             payment_method_types: ['card']
         })
