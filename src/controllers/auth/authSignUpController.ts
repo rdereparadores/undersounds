@@ -38,7 +38,7 @@ export const authSignUpController = async (req: express.Request, res: express.Re
                 name: name,
                 artistName: artistName,
                 surname: surname,
-                username: artistUsername,
+                username: username,
                 artistUsername: artistUsername,
                 birthDate: birthDate,
                 email: email,
