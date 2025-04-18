@@ -81,13 +81,37 @@ export const songRouter = express.Router()
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security: []
  */
 songRouter.post('/info', songInfoController)
@@ -157,13 +181,37 @@ songRouter.post('/info', songInfoController)
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
  *          '500':
  *              description: Error del servidor
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/ErrorResponse'
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
  *      security: []
  */
 songRouter.post('/ratings', songRatingController)
