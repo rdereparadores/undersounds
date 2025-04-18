@@ -63,8 +63,21 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
 
             let albumDuration = 0
             songDTOArray.forEach((song) => albumDuration = albumDuration + song.duration)
-
             console.log("El álbum dura: " + albumDuration)
+
+            const genreMatrix = await Promise.all(songsSplitted.map(async (songID: string) => {
+                const song = await songDAO.findById(songID)
+                if (song === null) throw new Error()
+                return song.genres
+            }))
+
+            const genreArray = genreMatrix.flat()
+
+            var genreArrayUnique = genreArray.filter(function(elem, index, self) {
+                return index === self.indexOf(elem);
+            })
+            console.log("El album tiene los generos: " + genreArrayUnique)
+            
             console.log("He conseguido los generos y las canciones")
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
 
@@ -80,6 +93,7 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
                 productType: 'album',
                 author: artist!._id!.toString(),
                 duration: albumDuration,
+                genres: genreArrayUnique,
                 pricing: {
                     cd: Number(priceCd),
                     digital: Number(priceDigital),

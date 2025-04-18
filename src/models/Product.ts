@@ -10,6 +10,7 @@ export interface IProduct extends Document {
     productType: 'song' | 'album',
     author: Schema.Types.ObjectId,
     duration: number,
+    genres: Schema.Types.ObjectId[],
     pricing: {
         cd: number,
         digital: number,
@@ -28,6 +29,7 @@ export const ProductSchema = new Schema<IProduct>({
     productType: { type: String, enum: ['song', 'album'], required: true },
     author: { type: Schema.Types.ObjectId, ref: 'Artist', required: true },
     duration: {type: Number, required: true},
+    genres: [{ type: Schema.Types.ObjectId, ref: 'Genre' }],
     pricing: {
         cd: { type: Number, required: true },
         digital: { type: Number, required: true },
