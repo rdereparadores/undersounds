@@ -2,12 +2,15 @@ import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import mm from 'music-metadata'
 import { AlbumDTO } from '../../dto/AlbumDTO'
-import { uploadAlbumFiles } from '../../utils/uploadAlbumFiles'
-import { SongDAO } from '../../dao/SongDAO'
+import { uploadAlbumImage } from '../../utils/uploadAlbumImage'
 
 export const artistReleaseAlbumController = async (req: express.Request, res: express.Response) => {
-    uploadAlbumFiles(req, res, async (err) => {
+    console.log("intento crear un álbum: " + req.body.title)
+
+    uploadAlbumImage(req, res, async (err) => {
+        console.log("Intento subir el archivo")
         if (err) {
+            console.error("Error al subir el archivo", err)
             return res.status(Number(apiErrorCodes[3002].httpCode)).json({
                 error: {
                     code: 3002,
@@ -15,9 +18,11 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
                 }
             })
         }
-
+        console.log("Sigo")
+        console.log("Archivos subidos:", req.files)
         try {
-            if (!req.files || Number(req.files.length) < 2) {
+            if (!req.files) {
+                console.error("Error en el numero de archivos")
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
@@ -25,50 +30,56 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
                     }
                 })
             }
-            const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, collaborators, genres, songs } = req.body
-            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette || !genres || !songs) throw new Error()
+
+            console.log("sigo")
+            const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, genres, songs } = req.body
+            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette || !genres || !songs) {
+                console.log("He fallado al conseguir el body")
+                console.log(title + description + genres + songs)
+                throw new Error()
+            }
+
+            console.log("He conseguido los valores del body")
 
             const artistDAO = req.db!.createArtistDAO()
             const genreDAO = req.db!.createGenreDAO()
+            const songDAO = req.db!.createSongDAO()
+
+            console.log("He conseguido el artista, genero y canción")
 
             const genresSplitted: string[] = genres.split(',')
+            console.log("He dividido los generos que son: " + genresSplitted)
+
             const genreIds = await Promise.all(genresSplitted.map(async (genreName: string) => {
                 const genre = await genreDAO.findByGenre(genreName)
                 if (genre === null) throw new Error()
                 return genre._id!
             }))
 
-            let collaboratorList: { accepted: boolean, artist: string }[] = []
-            if (collaborators) {
-                const collaboratorsSplitted: string[] = genres.split(',')
-                collaboratorList = await Promise.all(collaboratorsSplitted.map(async (collaborator: string) => {
-                    const collaboratorDoc = await artistDAO.findByArtistUsername(collaborator)
-                    if (collaboratorDoc === null) throw new Error()
-                    return { accepted: false, artist: collaboratorDoc._id! }
-                }))
-            }
+            const songsSplitted: string[] = songs.split(',')
+            console.log("He dividido las canciones que son: " + songsSplitted)
 
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] }
-
-            const artist = await artistDAO.findByUid(req.uid!)
-
-            const metadata = await mm.parseFile(files.song[0].path)
-            const duration = metadata.format.duration || 0
-
-            const songDAO = req.db!.createSongDAO()
-
-            const songSplitted: string[] = songs.split(',')
-            const songArray = await Promise.all(songSplitted.map(async (songID: string) => {
+            var albumDuration = 0
+            const songArray = await Promise.all(songsSplitted.map(async (songID: string) => {
                 const song = await songDAO.findById(songID)
+                albumDuration = albumDuration + (song?.duration || 0)
+                console.log("He encontrado " + song?._id)
                 if (song === null) throw new Error()
                 return song._id!
             }))
 
+            console.log("He conseguido los generos y las canciones")
+            const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+
+            console.log("El artita con uid: " + req.uid)
+            const artist = await artistDAO.findByUid(req.uid!)
+
+            console.log("Empiezo a crear el album")
             const album = new AlbumDTO({
                 title,
                 releaseDate: new Date(),
                 description,
-                imgUrl: '/public/uploads/album/cover/' + files.img[0].filename,
+                imgUrl: '/public/uploads/album/cover/' + files.albumImage[0].filename,
                 productType: 'album',
                 author: artist!._id!.toString(),
                 pricing: {
@@ -81,6 +92,7 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
                 trackList: songArray,
                 versionHistory: []
             })
+            console.log("album creado")
 
             const albumDAO = req.db?.createAlbumDAO()
             const albumDoc = await albumDAO?.create(album)
