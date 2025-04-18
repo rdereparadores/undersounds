@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const albumImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'artist', 'album')
+        const uploadPath = path.join(process.cwd(), 'public', 'uploads', 'album', 'cover')
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true })
         }
@@ -16,7 +16,7 @@ const albumImageStorage = multer.diskStorage({
     filename: (req: express.Request, file, cb) => {
         const extension = path.extname(file.originalname)
         const fileName = `${uuidv4()}${extension}`
-        const fullPath = path.join(process.cwd(), 'public', 'uploads', 'artist', 'album', fileName)
+        const fullPath = path.join(process.cwd(), 'public', 'uploads', 'album', 'cover', fileName)
 
         if (fs.existsSync(fullPath)) {
             try {

@@ -32,29 +32,19 @@ export const artistReleaseAlbumController = async (req: express.Request, res: ex
             }
 
             console.log("sigo")
-            const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, genres, songs } = req.body
-            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette || !genres || !songs) {
+            const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, songs } = req.body
+            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette  || !songs) {
                 console.log("He fallado al conseguir el body")
-                console.log(title + description + genres + songs)
+                console.log(title + description + songs)
                 throw new Error()
             }
 
             console.log("He conseguido los valores del body")
 
             const artistDAO = req.db!.createArtistDAO()
-            const genreDAO = req.db!.createGenreDAO()
             const songDAO = req.db!.createSongDAO()
 
             console.log("He conseguido el artista, genero y canción")
-
-            const genresSplitted: string[] = genres.split(',')
-            console.log("He dividido los generos que son: " + genresSplitted)
-
-            const genreIds = await Promise.all(genresSplitted.map(async (genreName: string) => {
-                const genre = await genreDAO.findByGenre(genreName)
-                if (genre === null) throw new Error()
-                return genre._id!
-            }))
 
             const songsSplitted: string[] = songs.split(',')
             console.log("He dividido las canciones que son: " + songsSplitted)
