@@ -6,15 +6,17 @@ export interface IOrderDAO {
     create(orders: OrderDTO): Promise<OrderDTO>
 
     findById(_id: string): Promise<OrderDTO | null>
+    findByStripeCheckoutId(id: string): Promise<OrderDTO | null>
     findOrdersFromUser(user: Partial<UserDTO>): Promise<OrderDTO[]>
 
     getAll(): Promise<OrderDTO[]>
 
-    update(order: OrderDTO): Promise<boolean>
+    update(order: Partial<OrderDTO>): Promise<boolean>
 
-    delete(order: OrderDTO): Promise<boolean>
+    delete(order: Partial<OrderDTO>): Promise<boolean>
 
-    checkIfPaid(order: OrderDTO): Promise<boolean>
+    checkIfPaid(order: Partial<OrderDTO>): Promise<boolean>
+    markAsPaid(order: Partial<OrderDTO>): Promise<boolean>
 }
 
 export class OrderDAO implements IOrderDAO {
@@ -28,6 +30,13 @@ export class OrderDAO implements IOrderDAO {
 
     async findById(_id: string): Promise<OrderDTO | null> {
         const order = await Order.findById(_id)
+        if (!order) return null
+
+        return OrderDTO.fromDocument(order)
+    }
+
+    async findByStripeCheckoutId(id: string): Promise<OrderDTO | null> {
+        const order = await Order.findOne({ stripeCheckoutId: id })
         if (!order) return null
 
         return OrderDTO.fromDocument(order)
@@ -61,10 +70,25 @@ export class OrderDAO implements IOrderDAO {
         return result !== null
     }
 
-    async checkIfPaid(order: OrderDTO): Promise<boolean> {
-        const orderDoc = await Order.findById(order)
+    async checkIfPaid(order: Partial<OrderDTO>): Promise<boolean> {
+        const orderDoc = await Order.findById(order._id!)
         if (orderDoc === null) return false
 
-        return order.paid
+        return orderDoc.paid
+    }
+
+    async markAsPaid(order: Partial<OrderDTO>): Promise<boolean> {
+        const orderDoc = await Order.findById(order._id!)
+        if (orderDoc === null) return false
+        const newOrder = OrderDTO.fromDocument(orderDoc)
+        newOrder.paid = true
+
+        const result = await Order.findByIdAndUpdate(
+            order._id!,
+            { ...newOrder.toJson!() },
+            { new: true }
+        )
+
+        return result !== null
     }
 }

@@ -12,6 +12,7 @@ import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from "./utils/swaggerOptions"
 import { trendingRouter } from "./routes/trendingRouter"
 import { songRouter } from "./routes/songRouter"
+import { checkoutRouter } from "./routes/checkoutRouter"
 
 export class App {
 
@@ -49,6 +50,7 @@ export class App {
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/song/', songRouter)
         this.app.use('/api/shop/', shopRouter)
+        this.app.use('/api/checkout/', authTokenMiddleware, checkoutRouter)
         
         this.app.get('*', async (req, res) => {
             res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {
