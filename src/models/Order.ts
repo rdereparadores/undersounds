@@ -8,6 +8,14 @@ export interface IOrder extends Document {
     trackingNumber: string,
     stripeCheckoutId: string,
     user: Schema.Types.ObjectId,
+    address: {
+        name: string,
+        surname: string,
+        address: string,
+        city: string,
+        zipCode: string,
+        country: string
+    }
     lines: {
         quantity: number,
         format: 'digital' | 'cd' | 'cassette' | 'vinyl',
@@ -23,6 +31,14 @@ const OrderSchema = new Schema<IOrder>({
     trackingNumber: { type: String },
     stripeCheckoutId: { type: String, required: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    address: {
+        name: { type: String, required: true },
+        surname: { type: String, required: true },
+        address: { type: String, required: true },
+        city: { type: String, required: true },
+        zipCode: { type: String, required: true },
+        country: { type: String, required: true }
+    },
     lines: [{
         quantity: { type: Number, required: true },
         format: { type: String, enum: ['digital', 'cd', 'cassette', 'vinyl'], required: true },

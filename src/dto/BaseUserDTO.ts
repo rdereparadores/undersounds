@@ -1,6 +1,7 @@
 import { IBaseUser } from "../models/BaseUser"
 
 export interface AddressDTO {
+    _id?: string,
     alias: string,
     name: string,
     surname: string,

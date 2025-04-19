@@ -6,7 +6,7 @@ import { IProductDAO, ProductDAO } from "./ProductDAO"
 
 export interface ISongDAO extends IProductDAO {
     create(song: SongDTO): Promise<SongDTO>
-    
+
     findById(_id: string): Promise<SongDTO | null>
     findByTitle(title: string): Promise<SongDTO[]>
     findByArtist(artist: Partial<ArtistDTO>): Promise<SongDTO[]>
@@ -14,6 +14,7 @@ export interface ISongDAO extends IProductDAO {
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: Partial<GenreDTO>): Promise<SongDTO[]>
     findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]>
+    findMostPlayed(limit: number): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
 
@@ -96,6 +97,15 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         ])
 
         return recommendations.map(song => SongDTO.fromDocument(song))
+    }
+
+    async findMostPlayed(limit: number): Promise<SongDTO[]> {
+        const songs = await Song.find()
+            .sort({ plays: -1 })
+            .limit(limit)
+        if (songs === null) return []
+
+        return songs.map(song => SongDTO.fromDocument(song))
     }
 
     async getAll(): Promise<SongDTO[]> {

@@ -1,6 +1,6 @@
 import express from 'express'
+import {albumInfoController} from "../controllers/album/albumInfoController"
 
 export const albumRouter = express.Router()
 
-albumRouter.get('info', albumInfoController)
-albumRouter.get('ratings', albumRatingsController)
+albumRouter.post('/info', albumInfoController)

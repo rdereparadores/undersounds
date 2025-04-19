@@ -5,4 +5,4 @@ import { checkoutSuccess } from '../controllers/checkout/checkoutSuccess'
 export const checkoutRouter = express.Router()
 
 checkoutRouter.post('/order/create', checkoutCreate)
-checkoutRouter.get('/order/success', checkoutSuccess)
+checkoutRouter.post('/order/success', checkoutSuccess)

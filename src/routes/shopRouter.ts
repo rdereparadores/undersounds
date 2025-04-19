@@ -1,5 +1,7 @@
 import express from 'express'
+import {shopQueryController} from "../controllers/shop/shopQueryController";
 
-const shopRouter = express.Router()
+export const shopRouter = express.Router()
 
-shopRouter.get('query', shopQueryController)
+// PENDIENTES
+shopRouter.post('/query', shopQueryController)
