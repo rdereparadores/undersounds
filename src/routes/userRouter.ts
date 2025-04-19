@@ -17,6 +17,8 @@ import { userEmailUpdateController } from "../controllers/user/userEmailUpdateCo
 import { userPasswordResetController } from "../controllers/user/userPasswordUpdateController"
 import { librarySearchController } from "../controllers/user/userLibraryQueryController"
 import { userFeaturedContentController } from '../controllers/user/userFeaturedContentController'
+import { userFollowController } from '../controllers/user/userFollowController'
+import { userUnfollowController } from '../controllers/user/userUnfollowController'
 
 export const userRouter = express.Router()
 
@@ -676,6 +678,9 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *          - bearerAuth: []
  */
 userRouter.post('/is-following', userIsFollowingController)
+
+userRouter.post('/follow', userFollowController)
+userRouter.post('/unfollow', userUnfollowController)
 
 /**
  * @swagger

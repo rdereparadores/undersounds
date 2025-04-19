@@ -1,55 +1,76 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-/**
- * @desc    Get album information including title, artists, tracklist
- * @route   GET /api/album/info
- * @access  Public
- */
-export const albumInfoController = async (req: Request, res: Response) => {
+export const albumInfoController = async (req: express.Request, res: express.Response) => {
+    const { albumId } = req.body
     try {
-        const { id } = req.query;
-
-        if (!id || typeof id !== 'string') {
-            return res.status(400).json({
-                success: false,
+        if (!albumId) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
-                    message: 'Album ID is required',
-                    code: 'ALBUM_ID_REQUIRED'
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
                 }
-            });
+            })
         }
 
-        const factory = new MongoDBDAOFactory();
-        const albumDAO = factory.createAlbumDAO();
+        const albumDAO = req.db!.createAlbumDAO()
+        const songDAO = req.db!.createSongDAO()
+        const artistDAO = req.db!.createArtistDAO()
+        const genreDAO = req.db!.createGenreDAO()
+        const album = await albumDAO.findById(albumId)
 
-        const album = await albumDAO.findById(id);
         if (!album) {
-            return res.status(404).json({
-                success: false,
+            return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
-                    message: 'Album not found',
-                    code: 'ALBUM_NOT_FOUND'
+                    code: 3001,
+                    message: apiErrorCodes[3001].message
                 }
-            });
+            })
         }
 
-        const populatedAlbum = await albumDAO.findById(id);
-
-        res.status(200).json({
-            success: true,
-            msg: 'Album information retrieved successfully',
-            data: populatedAlbum
-        });
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
-            error: {
-                message: errorMessage,
-                code: 'ALBUM_FETCH_ERROR'
+        const artist = await artistDAO.findById(album.author)
+        const genres = await Promise.all(album.genres.map(async (genreId) => {
+            const genreDoc = await genreDAO.findById(genreId)
+            return genreDoc!.genre
+        }))
+        const trackList = await Promise.all(album.trackList.map(async (trackId) => {
+            const song = await songDAO.findById(trackId)
+            if (!song) throw new Error()
+            return {
+                _id: song._id!,
+                title: song.title,
+                duration: song.duration,
+                imgUrl: song.imgUrl
             }
-        });
+        }))
+
+        const response = {
+            album: {
+                ...album,
+                trackList,
+                author: {
+                    _id: artist!._id,
+                    artistName: artist!.artistName,
+                    artistImgUrl: artist!.artistImgUrl,
+                    artistUsername: artist!.artistUsername,
+                    followers: artist!.followerCount
+                },
+                genres,
+                productType: undefined,
+                ratings: undefined,
+                versionHistory: undefined
+            }
+        }
+
+        res.json({
+            data: response
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            error: {
+                code: 2000,
+                message: apiErrorCodes[2000].message
+            }
+        })
     }
-};
+}

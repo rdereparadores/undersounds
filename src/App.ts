@@ -14,6 +14,7 @@ import { trendingRouter } from "./routes/trendingRouter"
 import { songRouter } from "./routes/songRouter"
 import { checkoutRouter } from "./routes/checkoutRouter"
 import { productRouter } from "./routes/productRouter"
+import { albumRouter } from "./routes/albumRouter"
 
 export class App {
 
@@ -51,6 +52,7 @@ export class App {
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/product/', productRouter)
         this.app.use('/api/song/', songRouter)
+        this.app.use('/api/album/', albumRouter)
         this.app.use('/api/shop/', shopRouter)
         this.app.use('/api/checkout/', authTokenMiddleware, checkoutRouter)
         

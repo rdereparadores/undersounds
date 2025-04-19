@@ -27,7 +27,7 @@ export const songInfoController = async (req: express.Request, res: express.Resp
             })
         }
 
-        const artist = await artistDAO.findById(song!.author)
+        const artist = await artistDAO.findById(song.author)
         const genres = await Promise.all(song.genres.map(async (genreId) => {
             const genreDoc = await genreDAO.findById(genreId)
             return genreDoc!.genre
