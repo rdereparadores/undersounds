@@ -35,12 +35,23 @@ export const albumInfoController = async (req: express.Request, res: express.Res
         }))
         const trackList = await Promise.all(album.trackList.map(async (trackId) => {
             const song = await songDAO.findById(trackId)
+            const collaborators = await Promise.all(song!.collaborators.filter(c => c.accepted).map(async (collaborator) => {
+                const artist = await artistDAO.findById(collaborator.artist)
+                return {
+                    _id: artist!._id!,
+                    artistName: artist!.artistName,
+                    artistUsername: artist!.artistUsername,
+                    artistImgUrl: artist!.artistImgUrl,
+                    followers: artist!.followerCount
+                }
+            }))
             if (!song) throw new Error()
             return {
                 _id: song._id!,
                 title: song.title,
                 duration: song.duration,
-                imgUrl: song.imgUrl
+                imgUrl: song.imgUrl,
+                collaborators
             }
         }))
 
