@@ -13,6 +13,7 @@ import { swaggerSpec } from "./utils/swaggerOptions"
 import { trendingRouter } from "./routes/trendingRouter"
 import { songRouter } from "./routes/songRouter"
 import { checkoutRouter } from "./routes/checkoutRouter"
+import { productRouter } from "./routes/productRouter"
 
 export class App {
 
@@ -48,6 +49,7 @@ export class App {
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
         this.app.use('/api/artist/', authTokenMiddleware, checkArtistMiddleware, artistRouter)
         this.app.use('/api/genre/', genreRouter)
+        this.app.use('/api/product/', productRouter)
         this.app.use('/api/song/', songRouter)
         this.app.use('/api/shop/', shopRouter)
         this.app.use('/api/checkout/', authTokenMiddleware, checkoutRouter)

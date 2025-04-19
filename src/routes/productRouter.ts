@@ -1,17 +1,15 @@
 import express from 'express'
-import { songInfoController } from "../controllers/song/songInfoController"
+import { productRatingsController } from '../controllers/product/productRatingsController'
 
-export const songRouter = express.Router()
-
-// REVISADAS
+export const productRouter = express.Router()
 
 /**
  * @swagger
- * /song/info:
+ * /product/ratings:
  *  post:
  *      tags:
- *          - Canciones
- *      summary: Obtiene información detallada de una canción
+ *          - Productos
+ *      summary: Obtiene las valoraciones de un producto
  *      requestBody:
  *          required: true
  *          content:
@@ -26,7 +24,7 @@ export const songRouter = express.Router()
  *                              description: ID de la canción
  *      responses:
  *          '200':
- *              description: Información de la canción obtenida con éxito
+ *              description: Valoraciones obtenidas con éxito
  *              content:
  *                  application/json:
  *                      schema:
@@ -35,46 +33,36 @@ export const songRouter = express.Router()
  *                              data:
  *                                  type: object
  *                                  properties:
- *                                      song:
- *                                          type: object
- *                                          properties:
- *                                              _id:
- *                                                  type: string
- *                                                  description: ID de la canción
- *                                              title:
- *                                                  type: string
- *                                                  description: Título de la canción
- *                                              description:
- *                                                  type: string
- *                                                  description: Descripción de la canción
- *                                              imgUrl:
- *                                                  type: string
- *                                                  description: URL de la portada
- *                                              author:
- *                                                  type: string
- *                                                  description: ID del autor
- *                                              duration:
- *                                                  type: number
- *                                                  description: Duración en segundos
- *                                              genres:
- *                                                  type: array
- *                                                  items:
- *                                                      type: string
- *                                                  description: IDs de los géneros
- *                                      recommendations:
+ *                                      ratings:
  *                                          type: array
  *                                          items:
  *                                              type: object
  *                                              properties:
  *                                                  _id:
  *                                                      type: string
- *                                                      description: ID de la canción recomendada
+ *                                                      description: ID de la valoración
+ *                                                  rating:
+ *                                                      type: number
+ *                                                      description: Puntuación (1-5)
  *                                                  title:
  *                                                      type: string
- *                                                      description: Título de la canción recomendada
- *                                                  imgUrl:
+ *                                                      description: Título de la valoración
+ *                                                  description:
  *                                                      type: string
- *                                                      description: URL de la portada
+ *                                                      description: Comentario de la valoración
+ *                                                  author:
+ *                                                      type: string
+ *                                                      description: ID del autor de la valoración
+ *                                                  publishDate:
+ *                                                      type: string
+ *                                                      format: date
+ *                                                      description: Fecha de publicación
+ *                                      averageRating:
+ *                                          type: number
+ *                                          description: Puntuación media
+ *                                      totalRatings:
+ *                                          type: number
+ *                                          description: Número total de valoraciones
  *          '400':
  *              description: Error en la solicitud
  *              content:
@@ -113,4 +101,4 @@ export const songRouter = express.Router()
  *                                          description: Mensaje de error
  *      security: []
  */
-songRouter.post('/info', songInfoController)
+productRouter.post('/ratings', productRatingsController)

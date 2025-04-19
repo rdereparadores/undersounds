@@ -61,7 +61,8 @@ export const authSignUpGoogleController = async (req: express.Request, res: expr
                 listeningHistory: [],
                 addresses: [],
                 artistBannerUrl: '',
-                artistImgUrl: ''
+                artistImgUrl: '',
+                followerCount: 0
             }))
         } else {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({

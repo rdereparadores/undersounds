@@ -1,10 +1,10 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-export const songRatingController = async (req: express.Request, res: express.Response) => {
-    const { songId } = req.body
+export const productRatingsController = async (req: express.Request, res: express.Response) => {
+    const { id } = req.body
     try {
-        if (!songId) {
+        if (!id) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
                     code: 3000,
@@ -13,10 +13,10 @@ export const songRatingController = async (req: express.Request, res: express.Re
             })
         }
 
-        const songDAO = req.db!.createSongDAO()
-        const song = await songDAO.findById(songId)
+        const productDAO = req.db!.createProductDAO()
+        const product = await productDAO.findById(id)
 
-        if (!song) {
+        if (!product) {
             return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
                     code: 3001,
@@ -25,7 +25,7 @@ export const songRatingController = async (req: express.Request, res: express.Re
             })
         }
 
-        const ratings = await songDAO.getRatings(song)
+        const ratings = await productDAO.getRatings(product)
 
         let averageRating = 0
         if (ratings && ratings.length > 0) {
@@ -50,4 +50,4 @@ export const songRatingController = async (req: express.Request, res: express.Re
             }
         })
     }
-};
+}
