@@ -20,11 +20,9 @@ export const shopRouter = express.Router()
  *               page:
  *                 type: integer
  *                 description: Número de página (por defecto 1)
- *                 example: 1
  *               genres:
  *                 type: string
  *                 description: Géneros separados por comas para filtrar
- *                 example: "rock,pop"
  *               date:
  *                 type: string
  *                 format: date
