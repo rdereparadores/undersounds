@@ -1265,8 +1265,10 @@ userRouter.get('/orders', userOrdersController)
  */
 userRouter.post('/orders/order', userOrdersOrderController)
 
+userRouter.get('/stats', userStatsController)
+
 // NO REVISADAS
-//userRouter.get('/stats', userStatsController)
+
 //userRouter.post('/profile/update/email', userEmailUpdateController)
 //userRouter.post('/profile/update/password', userPasswordResetController)
 

@@ -32,6 +32,16 @@ export const songInfoController = async (req: express.Request, res: express.Resp
             const genreDoc = await genreDAO.findById(genreId)
             return genreDoc!.genre
         }))
+        const collaborators = await Promise.all(song!.collaborators.filter(c => c.accepted).map(async (collaborator) => {
+            const artist = await artistDAO.findById(collaborator.artist)
+            return {
+                _id: artist!._id!,
+                artistName: artist!.artistName,
+                artistUsername: artist!.artistUsername,
+                artistImgUrl: artist!.artistImgUrl,
+                followers: artist!.followerCount
+            }
+        }))
         const recommendationsList = await songDAO.findRecommendations(songId, 5)
 
         const response = {
@@ -45,6 +55,7 @@ export const songInfoController = async (req: express.Request, res: express.Resp
                     followers: artist!.followerCount
                 },
                 genres,
+                collaborators,
                 productType: undefined,
                 ratings: undefined,
                 versionHistory: undefined

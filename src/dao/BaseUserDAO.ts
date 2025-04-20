@@ -120,7 +120,7 @@ export class BaseUserDAO implements IBaseUserDAO {
 
     async addToListeningHistory(baseUser: Partial<BaseUserDTO>, product: Partial<ProductDTO>): Promise<boolean> {
         const updatedBaseUser = await BaseUser.findByIdAndUpdate(baseUser._id,
-            { $push: { listening_history: product._id } },
+            { $push: { listeningHistory: { song: product._id!, playedAt: new Date() } } },
             { new: true }
         );
         return updatedBaseUser !== null

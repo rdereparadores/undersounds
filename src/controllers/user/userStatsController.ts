@@ -1,481 +1,211 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
-import { OrderDTO } from '../../dto/OrderDTO';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-interface ListeningHistoryEntry {
-    song: string;
-    played_at: Date;
+const mostFrequentValue = (arr: any[]) => {
+    const hashmap = arr.reduce((acc, val) => {
+        acc[val] = (acc[val] || 0) + 1
+        return acc
+    }, {})
+    return Object.keys(hashmap).reduce((a, b) => hashmap[a] > hashmap[b] ? a : b)
 }
 
-interface ListeningTimeStats {
-    current: number;
-    previous: number;
-    listeningPercentage: number;
-}
-
-interface FormatStats {
-    preferredFormat: string;
-    ratio: string;
-    formatDistribution: { format: string; quantity: number}[];
-}
-
-interface ArtistBadge {
-    artist: string;
-    userListeningTime: number;
-    totalListeningTime: number;
-    percentile: number;
-}
-
-export const userStatsController = async (req: Request, res: Response) => {
+export const userStatsController = async (req: express.Request, res: express.Response) => {
     try {
-        const uid = req.body.uid;
+        const userDAO = req.db!.createBaseUserDAO()
+        const artistDAO = req.db!.createArtistDAO()
+        const genreDAO = req.db!.createGenreDAO()
+        const songDAO = req.db!.createSongDAO()
+        const orderDAO = req.db!.createOrderDAO()
+        const user = await userDAO.findByUid(req.uid!)
+        const orders = await orderDAO.findOrdersFromUser(user!)
 
-        if (!uid || typeof uid !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'User ID is required',
-                    code: 'USER_ID_REQUIRED'
-                }
-            });
-        }
+        const listeningTime = { thisMonth: -1, pastMonth: -1 }
+        const preferredFormat = { format: 'N/A', percentage: -1 }
+        const preferredGenre = { thisMonth: 'N/A', pastMonth: 'N/A' }
+        const mostListenedArtist = { thisMonth: { artistName: 'N/A', percentage: -1 } }
+        const artistBadge = { artistName: 'N/A', artistImgUrl: 'N/A', percentile: -1 }
+        const ordersFormat = { digital: 0, cd: 0, vinyl: 0, cassette: 0 }
+        const topArtists: { artistName: string, plays: number }[] = []
 
-        const factory = new MongoDBDAOFactory();
-        const user = await getUserFromUid(factory, uid);
+        const listeningHistoryPopulated = await Promise.all(user!.listeningHistory.map(async (item) => {
+            const song = await songDAO.findById(item.song)
+            if (!song) throw new Error()
+            const author = await artistDAO.findById(song.author)
+            if (!author) throw new Error()
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'User not found',
-                    code: 'USER_NOT_FOUND'
-                }
-            });
-        }
+            const genres = await Promise.all(song.genres.map(async (genreId) => {
+                const genre = await genreDAO.findById(genreId)
+                if (!genre) throw new Error()
+                return genre
+            }))
 
-        const { currentMonthHistory, previousMonthHistory, listeningHistory } =
-            getFilteredListeningHistory(user.listening_history || []);
+            const collaborators = await Promise.all(song.collaborators.map(async (collaborator) => {
+                const artist = await artistDAO.findById(collaborator.artist)
+                if (!artist) throw new Error()
+                return artist
+            }))
 
-        const songDAO = factory.createSongDAO();
-
-        const allSongIds = [...new Set([
-            ...currentMonthHistory.map(entry => entry.song),
-            ...previousMonthHistory.map(entry => entry.song)
-        ])];
-
-        const {
-            songDurations,
-            songGenres,
-            songArtists,
-            songCollaborators
-        } = await loadSongsData(songDAO, allSongIds);
-
-        const monthListening = calculateListeningTime(
-            currentMonthHistory,
-            previousMonthHistory,
-            songDurations
-        );
-
-        const orderDAO = factory.createOrderDAO();
-        const orders = await orderDAO.getOrdersFromUser(user) || [];
-        const formatStats = calculatePreferredFormat(orders);
-
-        const genreStats = await calculateGenreStats(
-            factory,
-            currentMonthHistory,
-            previousMonthHistory,
-            songGenres
-        );
-
-        const artistStats = await calculateArtistStats(
-            factory,
-            listeningHistory,
-            songDurations,
-            songArtists,
-            songCollaborators,
-            uid
-        );
-
-        const response = {
-            listeningTime: {
-                currentMonth: {
-                    minutes: monthListening.current,
-                    changePercentage: monthListening.listeningPercentage
-                }
-            },
-            preferredFormat: formatStats,
-            genreStats,
-            artistStats
-        };
-
-        res.status(200).json({
-            success: true,
-            msg: 'User statistics retrieved successfully',
-            data: response
-        });
-    } catch (error) {
-        console.error('Error in userStatsController:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
-            error: {
-                message: errorMessage,
-                code: 'STATS_FETCH_ERROR'
-            }
-        });
-    }
-};
-
-async function getUserFromUid(factory: MongoDBDAOFactory, uid: string) {
-    const userDAO = factory.createBaseUserDAO();
-    return await userDAO.findByUid(uid);
-}
-
-function getFilteredListeningHistory(listeningHistory: any[]) {
-    const now = new Date();
-    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-
-    const currentMonthHistory = listeningHistory.filter(entry => {
-        const playedAt = new Date(entry.played_at);
-        return playedAt >= currentMonthStart && playedAt <= now;
-    });
-
-    const previousMonthHistory = listeningHistory.filter(entry => {
-        const playedAt = new Date(entry.played_at);
-        return playedAt >= previousMonthStart && playedAt <= previousMonthEnd;
-    });
-
-    return {
-        currentMonthHistory,
-        previousMonthHistory,
-        listeningHistory
-    };
-}
-
-async function loadSongsData(songDAO: any, allSongIds: string[]) {
-    const songDurations = new Map();
-    const songGenres = new Map();
-    const songArtists = new Map();
-    const songCollaborators = new Map();
-
-    const songsPromises = allSongIds.map(songId => songDAO.findById(songId));
-    const allUniqueSongs = (await Promise.all(songsPromises)).filter(Boolean);
-
-    const collaboratorsPromises = allSongIds.map(songId => songDAO.getCollaborators(songId));
-    const allCollaborators = await Promise.all(collaboratorsPromises);
-
-    for (let i = 0; i < allSongIds.length; i++) {
-        if (allCollaborators[i]) {
-            songCollaborators.set(allSongIds[i], allCollaborators[i]);
-        }
-    }
-
-    allUniqueSongs.forEach(song => {
-        if (song && song._id) {
-            songDurations.set(song._id, song.duration);
-            songGenres.set(song._id, song.genres);
-            songArtists.set(song._id, song.author);
-        }
-    });
-
-    return {
-        songDurations,
-        songGenres,
-        songArtists,
-        songCollaborators
-    };
-}
-
-function calculateListeningTime(
-    currentMonthHistory: ListeningHistoryEntry[],
-    previousMonthHistory: ListeningHistoryEntry[],
-    songDurations: Map<string, number>
-): ListeningTimeStats {
-    const current = Math.round(
-        currentMonthHistory.reduce((total, entry) => {
-            const duration = songDurations.get(entry.song) || 0;
-            return total + (duration / 60);
-        }, 0)
-    );
-
-    const previous = Math.round(
-        previousMonthHistory.reduce((total, entry) => {
-            const duration = songDurations.get(entry.song) || 0;
-            return total + (duration / 60);
-        }, 0)
-    );
-
-    const listeningPercentage = previous > 0
-        ? Math.round(((current - previous) / previous) * 100)
-        : 100;
-
-    return {
-        current,
-        previous,
-        listeningPercentage
-    };
-}
-
-async function calculateGenreStats(
-    factory: MongoDBDAOFactory,
-    currentMonthHistory: ListeningHistoryEntry[],
-    previousMonthHistory: ListeningHistoryEntry[],
-    songGenres: Map<string, string[]>
-) {
-    const genreDAO = factory.createGenreDAO();
-
-    const currentMonthGenreCounts: Record<string, number> = {};
-    for (const entry of currentMonthHistory) {
-        const genres = songGenres.get(entry.song) || [];
-        for (const genreId of genres) {
-            currentMonthGenreCounts[genreId] = (currentMonthGenreCounts[genreId] || 0) + 1;
-        }
-    }
-
-    const previousMonthGenreCounts: Record<string, number> = {};
-    for (const entry of previousMonthHistory) {
-        const genres = songGenres.get(entry.song) || [];
-        for (const genreId of genres) {
-            previousMonthGenreCounts[genreId] = (previousMonthGenreCounts[genreId] || 0) + 1;
-        }
-    }
-
-    const currentMonthTopGenreId = findMostPopularGenre(currentMonthGenreCounts);
-
-    const previousMonthTopGenreId = findMostPopularGenre(previousMonthGenreCounts);
-
-    const currentMonthGenre = currentMonthTopGenreId ?
-        await genreDAO.findById(currentMonthTopGenreId) : null;
-    const previousMonthGenre = previousMonthTopGenreId ?
-        await genreDAO.findById(previousMonthTopGenreId) : null;
-
-    return {
-        currentMonth: currentMonthGenre?.genre || 'N/A',
-        previousMonth: previousMonthGenre?.genre || 'N/A'
-    };
-}
-
-function findMostPopularGenre(genreCounts: Record<string, number>): string {
-    let topGenreId = '';
-    let maxCount = 0;
-
-    for (const [genreId, count] of Object.entries(genreCounts)) {
-        if (count > maxCount) {
-            maxCount = count;
-            topGenreId = genreId;
-        }
-    }
-
-    return topGenreId;
-}
-
-async function calculateArtistStats(
-    factory: MongoDBDAOFactory,
-    listeningHistory: any[],
-    songDurations: Map<string, number>,
-    songArtists: Map<string, string>,
-    songCollaborators: Map<string, any[]>,
-    uid: string
-) {
-    const artistDAO = factory.createArtistDAO();
-
-    const { artistPlays, artistListeningTime } = countArtistPlays(
-        listeningHistory,
-        songDurations,
-        songArtists,
-        songCollaborators
-    );
-
-    const sortedArtists = Object.entries(artistPlays)
-        .sort((a, b) => b[1] - a[1]);
-
-    const topArtistsData = await getTopArtistsData(artistDAO, sortedArtists);
-
-    const totalPlays = listeningHistory.length;
-    const topArtistPlayCount = sortedArtists[0]?.[1] || 0;
-    const topArtist = topArtistsData[0]?.artist;
-
-    const topArtistPercentage = totalPlays > 0
-        ? Math.round((topArtistPlayCount / totalPlays) * 100)
-        : 0;
-
-    const topArtistId = topArtistsData[0]?.id;
-    const topArtistListeningTime = topArtistId ? (artistListeningTime[topArtistId] || 0) : 0;
-
-    const topArtistBadge = topArtistId
-        ? await calculateArtistBadge(factory, topArtistId, uid, topArtistListeningTime / 60)
-        : null;
-
-    return {
-        mostListened: {
-            artist: topArtist || 'N/A',
-            percentage: topArtistPercentage,
-        },
-        topArtists: topArtistsData,
-        artistBadge: topArtistBadge
-    };
-}
-
-function countArtistPlays(
-    listeningHistory: any[],
-    songDurations: Map<string, number>,
-    songArtists: Map<string, string>,
-    songCollaborators: Map<string, any[]>
-) {
-    const artistPlays: Record<string, number> = {};
-    const artistListeningTime: Record<string, number> = {};
-
-    for (const entry of listeningHistory) {
-        const songId = entry.song;
-        const duration = songDurations.get(songId) || 0;
-
-        const artistId = songArtists.get(songId);
-        if (artistId) {
-            artistPlays[artistId] = (artistPlays[artistId] || 0) + 1;
-            artistListeningTime[artistId] = (artistListeningTime[artistId] || 0) + duration;
-        }
-
-        const collaborators = songCollaborators.get(songId) || [];
-        for (const collab of collaborators) {
-            if (collab.accepted) {
-                artistPlays[collab.artist] = (artistPlays[collab.artist] || 0) + 1;
-                artistListeningTime[collab.artist] = (artistListeningTime[collab.artist] || 0) + duration;
-            }
-        }
-    }
-
-    return { artistPlays, artistListeningTime };
-}
-
-async function getTopArtistsData(artistDAO: any, sortedArtists: [string, number][]) {
-    const topArtistsData = [];
-    const topArtistIds = sortedArtists.slice(0, 5).map(entry => entry[0]);
-    const topArtistsPromises = topArtistIds.map(artistId => artistDAO.findById(artistId));
-    const topArtistsResults = await Promise.all(topArtistsPromises);
-
-    for (let i = 0; i < topArtistsResults.length; i++) {
-        const artist = topArtistsResults[i];
-        if (artist) {
-            topArtistsData.push({
-                id: artist._id,
-                artist: artist.artist_name,
-                plays: sortedArtists[i][1]
-            });
-        }
-    }
-
-    return topArtistsData;
-}
-
-async function calculateArtistBadge(
-    factory: MongoDBDAOFactory,
-    artistId: string,
-    userId: string,
-    userListeningTimeMinutes?: number
-): Promise<ArtistBadge> {
-    if (!artistId || !userId) {
-        return {
-            artist: 'N/A',
-            userListeningTime: 0,
-            totalListeningTime: 0,
-            percentile: 0,
-        };
-    }
-
-    try {
-        const artistDAO = factory.createArtistDAO();
-        const artist = await artistDAO.findById(artistId);
-        if (!artist) {
             return {
-                artist: 'Artista desconocido',
-                userListeningTime: userListeningTimeMinutes || 0,
-                totalListeningTime: 0,
-                percentile: 0,
-            };
+                ...item,
+                song: {
+                    ...song,
+                    author,
+                    genres,
+                    collaborators
+                }
+            }
+        }))
+        const historyThisMonth = listeningHistoryPopulated.filter(item => {
+            const playedAt = new Date(item.playedAt)
+            const now = new Date()
+            return playedAt.getMonth() === now.getMonth() && playedAt.getFullYear() === now.getFullYear()
+        })
+        const historyPastMonth = listeningHistoryPopulated.filter(item => {
+            const playedAt = new Date(item.playedAt)
+            const now = new Date()
+            const pastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            return playedAt.getMonth() === pastMonth.getMonth() && playedAt.getFullYear() === pastMonth.getFullYear()
+        })
+
+        // CÁLCULO DE LISTENINGTIME
+        if (historyThisMonth.length > 0 || historyPastMonth.length > 0) {
+            const minutesThisMonth = historyThisMonth.reduce((total, item) => {
+                return total + (item.song.duration / 60)
+            }, 0)
+
+            const minutesPastMonth = historyPastMonth.reduce((total, item) => {
+                return total + (item.song.duration / 60)
+            }, 0)
+
+            listeningTime.thisMonth = Math.round(minutesThisMonth)
+            listeningTime.pastMonth = Math.round(minutesPastMonth)
         }
 
-        const now = new Date();
-        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        // CÁLCULO DE PREFERREDGENRE
+        if (historyThisMonth.length > 0) {
+            const genresThisMonth: string[] = []
+            historyThisMonth.forEach(item => item.song.genres.forEach(genre => genresThisMonth.push(genre.genre)))
+            preferredGenre.thisMonth = mostFrequentValue(genresThisMonth)
+        }
+        if (historyPastMonth.length > 0) {
+            const genresPastMonth: string[] = []
+            historyPastMonth.forEach(item => item.song.genres.forEach(genre => genresPastMonth.push(genre.genre)))
+            preferredGenre.pastMonth = mostFrequentValue(genresPastMonth)
+        }
 
-        const userDAO = factory.createUserDAO();
-        const userRankInfo = await userDAO.getUserRankForArtist(artistId, userId, currentMonthStart);
+        // CÁLCULO DE MOSTLISTENEDARTIST
+        if (historyThisMonth.length > 0) {
+            const artistsThisMonth: string[] = []
+            historyThisMonth.forEach(item => {
+                artistsThisMonth.push(item.song.author.artistName)
+                item.song.collaborators.forEach(collaborator => artistsThisMonth.push(collaborator.artistName))
+            })
+            mostListenedArtist.thisMonth.artistName = mostFrequentValue(artistsThisMonth)
+            const count = artistsThisMonth.reduce((sum, item) => (
+                item === mostListenedArtist.thisMonth.artistName ? sum + 1 : sum
+            ), 0)
+            mostListenedArtist.thisMonth.percentage = count / artistsThisMonth.length * 100
+        }
 
-        const userTime = userListeningTimeMinutes !== undefined
-            ? userListeningTimeMinutes
-            : userRankInfo.userListeningTime;
-
-        let percentile = 0;
-        if (userRankInfo.totalFans > 0) {
-            percentile = Math.round((userRankInfo.rank / userRankInfo.totalFans) * 100);
-            if (percentile < 0.1) {
-                percentile = 0.1;
+        // CÁLCULO DE TOPARTISTS
+        if (listeningHistoryPopulated.length > 0) {
+            let artistsOverall: string[] = []
+            listeningHistoryPopulated.forEach(item => {
+                artistsOverall.push(item.song.author.artistName)
+                item.song.collaborators.forEach(collaborator => artistsOverall.push(collaborator.artistName))
+            })
+            let topLimit = 5
+            while (topLimit > 0 && artistsOverall.length > 0) {
+                const artist = mostFrequentValue(artistsOverall)
+                const playCount = artistsOverall.reduce((sum, item) => (
+                    item === artist ? sum + 1 : sum
+                ), 0)
+                topArtists.push({
+                    artistName: artist,
+                    plays: playCount
+                })
+                artistsOverall = artistsOverall.filter(item => item !== artist)
+                topLimit -= 1
             }
         }
 
-        const badge = percentile > 0
-            ? `Estás en el top ${percentile}% de oyentes`
-            : 'Sin datos suficientes';
-
-        return {
-            artist: artist.artist_name,
-            userListeningTime: Math.round(userTime),
-            totalListeningTime: Math.round(userRankInfo.artistTotalListeningTime),
-            percentile: percentile,
-        };
-    } catch (error) {
-        console.error('Error calculando la insignia del artista:', error);
-        return {
-            artist: 'Error',
-            userListeningTime: 0,
-            totalListeningTime: 0,
-            percentile: 0,
-        };
-    }
-}
-
-function calculatePreferredFormat(orders: OrderDTO[]): FormatStats {
-    const formatCounts: Record<string, number> = {
-        digital: 0,
-        cd: 0,
-        vinyl: 0,
-        cassette: 0
-    };
-
-    orders.forEach(order => {
-        order.lines.forEach(line => {
-            if (formatCounts[line.format] !== undefined) {
-                formatCounts[line.format] += line.quantity;
-            }
-        });
-    });
-
-    let preferredFormat = 'digital';
-    let maxCount = 0;
-
-    for (const [format, count] of Object.entries(formatCounts)) {
-        if (count > maxCount) {
-            maxCount = count;
-            preferredFormat = format;
+        // CÁLCULO DE PREFERREDFORMAT Y ORDERSFORMAT
+        if (orders.length > 0) {
+            const formats: string[] = []
+            orders.forEach(order => {
+                order.lines.forEach(line => {
+                    formats.push(line.format)
+                    ordersFormat[line.format] += 1
+                })
+            })
+            preferredFormat.format = mostFrequentValue(formats)
+            const count = formats.reduce((sum, item) => (
+                item === preferredFormat.format ? sum + 1 : sum
+            ), 0)
+            preferredFormat.percentage = count / formats.length * 100
         }
+
+        // CÁLCULO DE ARTISTBADGE
+        // PRINCIPIO DE PARETO
+        if (listeningHistoryPopulated.length > 0) {
+            const artistsRepeated: string[] = []
+            const artists: string[] = []
+            listeningHistoryPopulated.forEach(item => {
+                artistsRepeated.push(item.song.author._id!)
+                if (artists.find(id => id === item.song.author._id!) === undefined) {
+                    artists.push(item.song.author._id!)
+                }
+                item.song.collaborators.forEach(collaborator => {
+                    artistsRepeated.push(collaborator._id!)
+                    if (artists.find(id => id === collaborator._id!) === undefined) {
+                        artists.push(collaborator._id!)
+                    }
+                })
+            })
+
+            const artistPercentiles: { artist: string, percentile: number }[] = []
+
+            await Promise.all(artists.map(async (artistId) => {
+                const songs = await songDAO.findByArtist({ _id: artistId })
+                const totalPlays = songs.reduce((sum, song) => sum += song.plays, 0)
+                const myPlays = artistsRepeated.reduce((sum, artist) => artist === artistId ? sum + 1 : sum, 0)
+                const avgUsers = 10
+                const alpha = (totalPlays / avgUsers) / ((totalPlays / avgUsers) - 1)
+                const percentile = 100 * (1 - Math.pow(1 / myPlays, alpha))
+                artistPercentiles.push({ artist: artistId, percentile })
+            }))
+
+            const bestPercentile = artistPercentiles.sort((a, b) => {
+                return b.percentile - a.percentile
+            })[0]
+            
+            const artist = await artistDAO.findById(bestPercentile.artist)
+            artistBadge.artistImgUrl = artist!.artistImgUrl
+            artistBadge.artistName = artist!.artistName
+            artistBadge.percentile = bestPercentile.percentile
+        }
+
+
+        // FINAL RESPONSE
+        const response = {
+            listeningTime,
+            preferredGenre,
+            mostListenedArtist,
+            topArtists,
+            preferredFormat,
+            ordersFormat,
+            artistBadge,
+        }
+
+        res.json({
+            data: { ...response }
+        })
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            error: {
+                code: 2000,
+                message: apiErrorCodes[2000].message
+            }
+        })
     }
-
-    const totalPurchases = Object.values(formatCounts).reduce((sum, count) => sum + count, 0);
-
-    const formatDistribution = Object.entries(formatCounts).map(([format, quantity]) => ({
-        format,
-        quantity
-    }));
-
-    const ratio = totalPurchases > 0
-        ? `${Math.round((formatCounts[preferredFormat] / totalPurchases) * 10)} de cada 10 compras`
-        : 'No hay compras';
-
-    return {
-        preferredFormat,
-        ratio,
-        formatDistribution
-    };
 }
