@@ -29,6 +29,8 @@ export interface IBaseUserDAO {
     addAddress(baseUser: Partial<BaseUserDTO>, address: AddressDTO): Promise<boolean>
     removeAddress(baseUser: Partial<BaseUserDTO>, address: Partial<AddressDTO>): Promise<boolean>
     setAddressAsDefault(baseUser: Partial<BaseUserDTO>, address: Partial<AddressDTO>): Promise<boolean>
+
+    getListenersOfArtist(artist: Partial<ArtistDTO>, date: Date): Promise<number>
 }
 
 export class BaseUserDAO implements IBaseUserDAO {
@@ -162,6 +164,25 @@ export class BaseUserDAO implements IBaseUserDAO {
         } catch {
             return false
         }
+    }
+
+    async getListenersOfArtist(artist: Partial<ArtistDTO>, date: Date): Promise<number> {
+        const users = await BaseUser.find().populate('listeningHistory.song')
+        const listeners = users.filter(user => {
+            let isListener = false
+            user.listeningHistory.forEach(entry => {
+                const song = entry.song as unknown as ProductDTO
+                const playedAt = new Date(entry.playedAt)
+                const validDate = playedAt.getMonth() === date.getMonth() && playedAt.getFullYear() === date.getFullYear()
+                if (song.author === artist._id! && validDate) {
+                    isListener = true
+                    return
+                }
+            })
+            return isListener
+        })
+        return listeners.length
+
     }
 
 }

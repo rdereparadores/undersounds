@@ -745,5 +745,4 @@ artistRouter.post('/release/song', artistReleaseSongController)
  */
 artistRouter.post('/release/album', artistReleaseAlbumController)
 
-// SIN REVISAR
-//artistRouter.get('/stats', artistStatsController)
+artistRouter.get('/stats', artistStatsController)

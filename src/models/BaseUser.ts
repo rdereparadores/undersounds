@@ -43,7 +43,7 @@ export const BaseUserSchema = new Schema<IBaseUser>({
     following: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
     listeningHistory: [{
-        song: { type: Schema.Types.ObjectId, ref: 'Song' },
+        song: { type: Schema.Types.ObjectId, ref: 'Product' },
         playedAt: { type: Date, default: new Date() }
     }],
     addresses: [{
