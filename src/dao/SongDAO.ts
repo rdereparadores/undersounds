@@ -137,27 +137,22 @@ export class SongDAO extends ProductDAO implements ISongDAO {
     
         const songDoc = await Song.findById(song._id);
         if (!songDoc) {
-            console.error("No se encontró la canción");
             return null;
         }
     
         if (!songDoc.versionHistory || songDoc.versionHistory.length === 0) {
-            console.error("El historial de versiones está vacío");
             return null;
         }
     
-        console.log("Buscando la versión:", version);
         const versionDoc = await Song.findOne({
             _id: { $in: songDoc.versionHistory },
             version: version
         });
     
         if (!versionDoc) {
-            console.error("No se encontró la versión:", version);
             return null;
         }
     
-        console.log("Versión encontrada:", versionDoc);
         return SongDTO.fromDocument(versionDoc);
     }
 
