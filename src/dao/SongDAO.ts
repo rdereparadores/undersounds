@@ -134,17 +134,31 @@ export class SongDAO extends ProductDAO implements ISongDAO {
     }
 
     async getVersionFromVersionHistory(song: Partial<SongDTO>, version: number): Promise<SongDTO | null> {
-        const songDoc = await Song.findById(song._id)
-        if (songDoc === null || songDoc.versionHistory.length === 0) return null
-
-        const versionDoc = await Song.find({
+    
+        const songDoc = await Song.findById(song._id);
+        if (!songDoc) {
+            console.error("No se encontró la canción");
+            return null;
+        }
+    
+        if (!songDoc.versionHistory || songDoc.versionHistory.length === 0) {
+            console.error("El historial de versiones está vacío");
+            return null;
+        }
+    
+        console.log("Buscando la versión:", version);
+        const versionDoc = await Song.findOne({
             _id: { $in: songDoc.versionHistory },
             version: version
-        })
-
-        if (versionDoc === null) return null
-
-        return SongDTO.fromDocument(versionDoc[0])
+        });
+    
+        if (!versionDoc) {
+            console.error("No se encontró la versión:", version);
+            return null;
+        }
+    
+        console.log("Versión encontrada:", versionDoc);
+        return SongDTO.fromDocument(versionDoc);
     }
 
     async addToVersionHistory(song: Partial<SongDTO>, version: SongDTO): Promise<boolean> {

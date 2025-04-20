@@ -1,5 +1,6 @@
 import express from 'express'
 import { songInfoController } from "../controllers/song/songInfoController"
+import { songFromIdAndVersion } from '../controllers/song/songFromIdAndVersion'
 
 export const songRouter = express.Router()
 
@@ -114,3 +115,5 @@ export const songRouter = express.Router()
  *      security: []
  */
 songRouter.post('/info', songInfoController)
+
+songRouter.post('/songidandversion', songFromIdAndVersion)
