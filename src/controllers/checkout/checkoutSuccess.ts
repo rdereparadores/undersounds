@@ -15,6 +15,7 @@ export const checkoutSuccess = async (req: express.Request, res: express.Respons
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
     const orderDAO = req.db!.createOrderDAO()
+    const userDAO = req.db!.createBaseUserDAO()
     const order = await orderDAO.findByStripeCheckoutId(sessionId)
     if (!order) throw new Error()
 
@@ -22,6 +23,11 @@ export const checkoutSuccess = async (req: express.Request, res: express.Respons
         const session = await stripe.checkout.sessions.retrieve(sessionId)
         if (session.payment_status == 'paid') {
             await orderDAO.markAsPaid(order)
+            await Promise.all(order.lines.map(async (line) => {
+                if (line.format === 'digital') {
+                    await userDAO.addToLibrary({ _id: order.user }, { _id: line.product })
+                }
+            }))
             res.json({
                 data: { paid: true }
             })

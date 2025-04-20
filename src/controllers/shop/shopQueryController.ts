@@ -1,17 +1,18 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import { SongDTO } from '../../dto/SongDTO';
+import { GenreDTO } from '../../dto/GenreDTO';
+import { ArtistDTO } from '../../dto/ArtistDTO';
 
 export const shopQueryController = async (req: express.Request, res: express.Response) => {
     try {
         const {
             page = 1,
-            genres,
+            genres = [],
             date,
             sortBy,
             query
         } = req.body
-        console.log(genres)
 
         const limit = 20
 
@@ -19,26 +20,42 @@ export const shopQueryController = async (req: express.Request, res: express.Res
         const artistDAO = req.db!.createArtistDAO()
         const productDAO = req.db!.createProductDAO()
 
-        const genresSplitted: string[] = genres ? genres.split(',') : []
-        const genresDocs = await Promise.all(genresSplitted.map(async (genre: string) => await genreDAO.findByGenre(genre)))
-        const genresFiltered = genresDocs.filter(genre => genre !== null)
+        const genresDocs: GenreDTO[] = await Promise.all(genres.map(async (genre: string) => await genreDAO.findByGenre(genre)))
 
-        const response = await productDAO.findWithFilters(page, limit, query, genresFiltered, date, sortBy)
-        const responsePopulated = await Promise.all(response.products.map(async (product) => {
-            if (!(product instanceof SongDTO)) return product
-            const genreNames = await Promise.all(product.genres.map(async (genre: string) => await genreDAO.findById(genre)))
-            const authorDoc = await artistDAO.findById(product.author)
+        const result = await productDAO.findWithFilters(page, limit, query, genresDocs, date, sortBy)
+
+        const responsePopulated = await Promise.all(result.products.map(async (product) => {
+            const genres = await Promise.all(product.genres.map(async (genre: string) => await genreDAO.findById(genre)))
+            const author = await artistDAO.findById(product.author)
+            // TEMPORAL, AÑADIR CAMPO COLLABORATORS A ALBUM PARA Q VAYA
+            let collaborators: ArtistDTO[] = []
             return {
                 ...product,
-                author: authorDoc!.artistName,
-                genres: genreNames.map(genre => genre?.genre)
+                author,
+                genres,
+                collaborators
             }
+        }))
+        const response = responsePopulated.map(item => ({
+            _id: item._id!,
+            imgUrl: item.imgUrl,
+            title: item.title,
+            author: {
+                _id: item.author!._id!,
+                artistName: item.author!.artistName
+            },
+            collaborators: item.collaborators.map(c => ({
+                _id: c._id!,
+                artistName: c.artistName
+            })),
+            type: item.productType,
+            genres: item.genres.map(genre => genre!.genre)
         }))
 
         res.json({
             data: {
-                products: responsePopulated,
-                totalCount: response.totalCount
+                products: response,
+                totalCount: result.totalCount
             }
         })
     } catch {

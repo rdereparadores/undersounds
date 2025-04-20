@@ -42,7 +42,6 @@ export const songInfoController = async (req: express.Request, res: express.Resp
                 followers: artist!.followerCount
             }
         }))
-        const recommendationsList = await songDAO.findRecommendations(songId, 5)
 
         const response = {
             song: {
@@ -59,8 +58,7 @@ export const songInfoController = async (req: express.Request, res: express.Resp
                 productType: undefined,
                 ratings: undefined,
                 versionHistory: undefined
-            },
-            recommendations: recommendationsList
+            }
         }
 
         res.json({

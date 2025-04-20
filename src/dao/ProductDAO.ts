@@ -21,7 +21,8 @@ export interface IProductDAO {
         genres?: Partial<GenreDTO>[],
         date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
         sortBy?: 'relevance' | 'releaseDate'
-    ): Promise<{ products: (SongDTO | AlbumDTO)[], totalCount: number }>
+    ): Promise<{ products: (ProductDTO)[], totalCount: number }>
+    findRecommendations(product: Partial<ProductDTO>, limit: number): Promise<ProductDTO[]>
 
     getAll(): Promise<ProductDTO[]>
 
@@ -78,9 +79,9 @@ export class ProductDAO implements IProductDAO {
         genres?: Partial<GenreDTO>[],
         date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
         sortBy?: 'relevance' | 'releaseDate'
-    ): Promise<{ products: (SongDTO | AlbumDTO)[], totalCount: number }> {
+    ): Promise<{ products: (ProductDTO)[], totalCount: number }> {
         const filterQuery: {
-            genres?: { $in: string[] },
+            genres?: { $all: string[] },
             releaseDate?: {
                 $gte?: Date,
                 $lte?: Date
@@ -91,7 +92,7 @@ export class ProductDAO implements IProductDAO {
         if (genres) {
             const genreIds = genres.map(genre => genre._id!).filter(id => !!id)
             if (genreIds.length > 0) {
-                filterQuery.genres = { $in: genreIds }
+                filterQuery.genres = { $all: genreIds }
             }
         }
 
@@ -144,11 +145,7 @@ export class ProductDAO implements IProductDAO {
         const products = await queryResult.exec()
 
         const productDTOs = await Promise.all(products.map(async (product) => {
-            if (product.productType === 'song') {
-                return SongDTO.fromDocument((await Song.findById(product._id))!)
-            } else if (product.productType === 'album') {
-                return AlbumDTO.fromDocument((await Album.findById(product._id))!)
-            }
+            return ProductDTO.fromDocument(product)
         }))
         const productDTOsFiltered = productDTOs.filter(product => product !== undefined)
 
@@ -156,6 +153,23 @@ export class ProductDAO implements IProductDAO {
             products: productDTOsFiltered,
             totalCount
         }
+    }
+
+    async findRecommendations(product: Partial<ProductDTO>, limit: number): Promise<ProductDTO[]> {
+        const productDoc = await Product.findById(product._id)
+        if (productDoc === null) return []
+
+        const recommendations = await Product.aggregate([
+            {
+                $match: {
+                    _id: { $ne: productDoc._id },
+                    genres: { $in: productDoc.genres }
+                }
+            },
+            { $sample: { size: limit } }
+        ])
+
+        return recommendations.map(product => ProductDTO.fromDocument(product))
     }
 
     async getAll(): Promise<ProductDTO[]> {

@@ -13,7 +13,6 @@ export interface ISongDAO extends IProductDAO {
     findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]>
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: Partial<GenreDTO>): Promise<SongDTO[]>
-    findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]>
     findMostPlayed(limit: number): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
@@ -80,23 +79,6 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         if (songs === null) return []
 
         return songs.map(song => SongDTO.fromDocument(song))
-    }
-
-    async findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]> {
-        const songDoc = await Song.findById(song._id)
-        if (songDoc === null) return []
-
-        const recommendations = await Song.aggregate([
-            {
-                $match: {
-                    _id: { $ne: songDoc._id },
-                    genres: { $in: songDoc.genres }
-                }
-            },
-            { $sample: { size: limit } }
-        ])
-
-        return recommendations.map(song => SongDTO.fromDocument(song))
     }
 
     async findMostPlayed(limit: number): Promise<SongDTO[]> {

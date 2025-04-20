@@ -8,26 +8,22 @@ export const trendingSongsController = async (req: express.Request, res: express
 
         const trendingSongs = await songDAO.findMostPlayed(10)
 
-        const enrichedTrendingSongs = await Promise.all(
-            trendingSongs.map(async (song) => {
-                let artistName = 'Unknown Artist';
-                try {
-                    const artist = await artistDAO.findById(song.author);
-                    artistName = artist?.artistName || artist?.artistUsername || 'Unknown Artist';
-                } catch (error) {
-                    console.error(`Error fetching artist for song ${song._id}:`, error);
+        const trendingSongsPopulated = await Promise.all(trendingSongs.map(async (song) => {
+            const artist = await artistDAO.findById(song.author)
+            return {
+                _id: song._id,
+                imgUrl: song.imgUrl,
+                title: song.title,
+                author: {
+                    _id: artist!._id,
+                    artistName: artist!.artistName
                 }
+            }
+        }))
 
-                return {
-                    ...song.toJson(),
-                    artistName: artistName
-                };
-            })
-        );
-
-        res.json({
+        return res.json({
             data: {
-                songs: enrichedTrendingSongs
+                songs: trendingSongsPopulated
             }
         })
     } catch {

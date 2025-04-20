@@ -1,5 +1,6 @@
 import express from 'express'
 import { productRatingsController } from '../controllers/product/productRatingsController'
+import { productRecommendationsController } from '../controllers/product/productRecommendationsController'
 
 export const productRouter = express.Router()
 
@@ -102,3 +103,5 @@ export const productRouter = express.Router()
  *      security: []
  */
 productRouter.post('/ratings', productRatingsController)
+
+productRouter.post('/recommendations', productRecommendationsController)
