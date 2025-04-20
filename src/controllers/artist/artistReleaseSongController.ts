@@ -80,6 +80,14 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
             const songDAO = req.db?.createSongDAO()
             const songDoc = await songDAO?.create(song)
 
+            if(songDoc === undefined){
+                return
+            }
+
+            //Añadir cancion al historial
+            /*await songDAO?.addToVersionHistory(songDoc,song)
+            console.log("Se ha añadido la canción al historia de versiones ")*/
+            
             return res.json({
                 data: {
                     id: songDoc?._id
