@@ -1,4 +1,6 @@
+import { ArtistDTO } from "../dto/ArtistDTO"
 import { OrderDTO } from "../dto/OrderDTO"
+import { ProductDTO } from "../dto/ProductDTO"
 import { UserDTO } from "../dto/UserDTO"
 import { Order } from "../models/Order"
 
@@ -8,6 +10,13 @@ export interface IOrderDAO {
     findById(_id: string): Promise<OrderDTO | null>
     findByStripeCheckoutId(id: string): Promise<OrderDTO | null>
     findOrdersFromUser(user: Partial<UserDTO>): Promise<OrderDTO[]>
+    findItemsSoldByArtist(artist: Partial<ArtistDTO>): Promise<{ 
+        quantity: number, 
+        format: 'cd' | 'digital' | 'vinyl' | 'cassette', 
+        product: ProductDTO,
+        purchaseDate: Date,
+        price: number 
+    }[] | null>
 
     getAll(): Promise<OrderDTO[]>
 
@@ -49,10 +58,38 @@ export class OrderDAO implements IOrderDAO {
         return orders.map(order => OrderDTO.fromDocument(order))
     }
 
+    async findItemsSoldByArtist(artist: Partial<ArtistDTO>): Promise<{ 
+        quantity: number, 
+        format: 'cd' | 'digital' | 'vinyl' | 'cassette', 
+        product: ProductDTO,
+        purchaseDate: Date,
+        price: number 
+    }[] | null> {
+        const orders = await Order.find().populate('lines.product')
+        if (!orders) return null
+        const lines: { quantity: number, format: 'cd' | 'digital' | 'vinyl' | 'cassette', product: ProductDTO, price: number, purchaseDate: Date }[] = []
+        orders.forEach(order => {
+            order.lines.forEach(line => {
+                const product = line.product as unknown as ProductDTO
+                if (product.author == artist._id!) {
+                    lines.push({
+                        quantity: line.quantity,
+                        format: line.format,
+                        product,
+                        purchaseDate: order.purchaseDate,
+                        price: line.price
+                    })
+                }
+            })
+        })
+
+        return lines
+    }
+
     async getAll(): Promise<OrderDTO[]> {
         const orders = await Order.find()
 
-        return orders.map(order => OrderDTO.fromDocument(order));
+        return orders.map(order => OrderDTO.fromDocument(order))
     }
 
     async update(order: Partial<OrderDTO>): Promise<boolean> {

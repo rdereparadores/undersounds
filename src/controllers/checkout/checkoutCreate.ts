@@ -54,8 +54,8 @@ export const checkoutCreate = async (req: express.Request, res: express.Response
 
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
         const session = await stripe.checkout.sessions.create({
-            success_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/success?checkoutSession={CHECKOUT_SESSION_ID}`,
-            cancel_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/deny?checkoutSession={CHECKOUT_SESSION_ID}`,
+            success_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/success/{CHECKOUT_SESSION_ID}`,
+            cancel_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/deny/{CHECKOUT_SESSION_ID}`,
             line_items: stripeLineItems,
             mode: 'payment',
             payment_method_types: ['card']

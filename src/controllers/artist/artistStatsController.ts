@@ -1,154 +1,108 @@
-import { Request, Response } from 'express';
-import { MongoDBDAOFactory } from '../../factory/MongoDBDAOFactory';
+import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { mostFrequentValue } from '../../utils/mostFrequentValue'
 
-/**
- * @desc    Get artist dashboard statistics
- * @route   GET /api/artist/stats
- * @access  Private
- */
-export const artistStatsController = async (req: Request, res: Response) => {
+export const artistStatsController = async (req: express.Request, res: express.Response) => {
     try {
-        const uid = req.body.uid;
+        const artistDAO = req.db!.createArtistDAO()
+        const userDAO = req.db!.createBaseUserDAO()
+        const productDAO = req.db!.createProductDAO()
+        const orderDAO = req.db!.createOrderDAO()
+        const artist = await artistDAO.findByUid(req.uid!)
 
-        if (!uid || typeof uid !== 'string') {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    message: 'Artist ID is required',
-                    code: 'ARTIST_ID_REQUIRED'
+        const copiesSold = { thisMonth: 0, pastMonth: 0 }
+        const releases = { thisMonth: 0, pastMonth: 0 }
+        const mostSoldFormat = { format: 'N/A', percentage: -1 }
+        const monthlyListeners = { thisMonth: 0, pastMonth: 0 }
+        const salesFormat = { digital: 0, cd: 0, cassette: 0, vinyl: 0 }
+        const topProducts: { title: string, sales: number }[] = []
+
+        const allCopiesSold = await orderDAO.findItemsSoldByArtist(artist!)
+        const copiesThisMonth = allCopiesSold!.filter(line => {
+            const date = new Date(line.purchaseDate)
+            const today = new Date()
+            return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
+        })
+        const copiesPastMonth = allCopiesSold!.filter(line => {
+            const date = new Date(line.purchaseDate)
+            const today = new Date()
+            return date.getMonth() === today.getMonth() - 1 && date.getFullYear() === today.getFullYear()
+        })
+
+        const artistProducts = await productDAO.findByArtist(artist!)
+        const artistsProductsThisMonth = artistProducts.filter(product => {
+            const releaseDate = new Date(product.releaseDate)
+            const today = new Date()
+            return releaseDate.getMonth() === today.getMonth() && releaseDate.getFullYear() === today.getFullYear()
+        })
+        const artistsProductsPastMonth = artistProducts.filter(product => {
+            const releaseDate = new Date(product.releaseDate)
+            const today = new Date()
+            return releaseDate.getMonth() === today.getMonth() - 1 && releaseDate.getFullYear() === today.getFullYear()
+        })
+
+        // CÁLCULO DE COPIESSOLD
+        copiesSold.thisMonth = copiesThisMonth.reduce((sum, copy) => sum + copy.quantity, 0)
+        copiesSold.pastMonth = copiesPastMonth.reduce((sum, copy) => sum + copy.quantity, 0)
+
+        // CÁLCULO DE RELEASES
+        releases.thisMonth = artistsProductsThisMonth.length
+        releases.pastMonth = artistsProductsPastMonth.length
+
+        // CÁLCULO DE MOSTSOLDFORMAT
+        if (allCopiesSold!.length > 0) {
+            const allFormats: string[] = []
+            allCopiesSold!.forEach(copy => {
+                for (let i = 0; i < copy.quantity; i++) {
+                    allFormats.push(copy.format)
                 }
-            });
+            })
+            mostSoldFormat.format = mostFrequentValue(allFormats)
+            mostSoldFormat.percentage = allFormats.reduce((sum, format) => format === mostSoldFormat.format ? sum + 1 : sum, 0) / allFormats.length * 100
         }
 
-        const factory = new MongoDBDAOFactory();
-        const artistDAO = factory.createArtistDAO();
-        const artist = await artistDAO.findByUid(uid);
+        // CÁLCULO DE SALESFORMAT
+        copiesThisMonth.forEach(copy => {
+            salesFormat[copy.format] += copy.quantity
+        })
 
-        if (!artist) {
-            return res.status(404).json({
-                success: false,
-                error: {
-                    message: 'Artist not found',
-                    code: 'ARTIST_NOT_FOUND'
-                }
-            });
+        // CÁLCULO DE TOPPRODUCTS
+        let allTitles: string[] = allCopiesSold!.map(copy => copy.product.title)
+        let limit = 5
+        while (limit > 0 && allTitles.length > 0) {
+            const title = mostFrequentValue(allTitles)
+            const sales = allTitles.reduce((sum, t) => t === title ? sum + 1 : sum, 0)
+            topProducts.push({ title, sales })
+            allTitles = allTitles.filter(t => t !== title)
+            limit -= 1
         }
 
-        // Calculate date ranges for monthly stats
-        const now = new Date();
-        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        // CÁLCULO DE MONTHLYLISTENERS
+        monthlyListeners.thisMonth = await userDAO.getListenersOfArtist(artist!, new Date())
+        const pastMonth = new Date()
+        pastMonth.setMonth(pastMonth.getMonth() - 1)
+        monthlyListeners.pastMonth = await userDAO.getListenersOfArtist(artist!, pastMonth)
 
-        // Get sales statistics
-        const currentMonthSales = await artistDAO.getArtistMonthlySales(
-            factory,
-            artist._id!,
-            currentMonthStart,
-            now
-        );
-
-        const previousMonthSales = await artistDAO.getArtistMonthlySales(
-            factory,
-            artist._id!,
-            previousMonthStart,
-            previousMonthEnd
-        );
-
-        // Calculate percentage change in sales
-        const salesChange = previousMonthSales.totalQuantity > 0
-            ? Math.round(((currentMonthSales.totalQuantity - previousMonthSales.totalQuantity) / previousMonthSales.totalQuantity) * 100)
-            : 100;
-
-        // Get top selling products
-        const topSellingProducts = await artistDAO.getTopSellingProducts(
-            factory,
-            artist._id!,
-            5,
-            currentMonthStart,
-            now
-        );
-
-        // Format distribution for pie chart
-        const formatDistribution = currentMonthSales.formatDistribution.map(format => ({
-            format: format.format,
-            quantity: format.quantity,
-        }));
-
-        // Get most sold format
-        let mostSoldFormat = 'digital';
-        let maxFormatQuantity = 0;
-
-        for (const format of currentMonthSales.formatDistribution) {
-            if (format.quantity > maxFormatQuantity) {
-                maxFormatQuantity = format.quantity;
-                mostSoldFormat = format.format;
-            }
-        }
-
-        // Calculate format ratio
-        const formatRatio = currentMonthSales.totalQuantity > 0
-            ? `${Math.round((maxFormatQuantity / currentMonthSales.totalQuantity) * 10)} de cada 10 compras`
-            : 'No hay ventas';
-
-        // Get listeners count
-        const currentMonthListeners = await artistDAO.getListenersCount(
-            factory,
-            artist._id!,
-            currentMonthStart,
-            now
-        );
-
-        const previousMonthListeners = await artistDAO.getListenersCount(
-            factory,
-            artist._id!,
-            previousMonthStart,
-            previousMonthEnd
-        );
-
-        // Calculate percentage change in listeners
-        const listenersChange = previousMonthListeners > 0
-            ? Math.round(((currentMonthListeners - previousMonthListeners) / previousMonthListeners) * 100)
-            : 100;
-
-        // Prepare response object with all statistics
+        // FINAL RESPONSE
         const response = {
-            salesStats: {
-                totalSales: currentMonthSales.totalQuantity,
-                changePercentage: salesChange,
-                totalRevenue: currentMonthSales.totalRevenue
-            },
-            formatStats: {
-                mostSoldFormat: mostSoldFormat,
-                formatRatio: formatRatio,
-                formatDistribution: formatDistribution
-            },
-            listenerStats: {
-                uniqueListeners: currentMonthListeners,
-                changePercentage: listenersChange
-            },
-            topSellingProducts: topSellingProducts.map(product => ({
-                title: product.title,
-                quantity: product.quantity,
-                revenue: product.revenue,
-            }))
-        };
+            copiesSold,
+            releases,
+            mostSoldFormat,
+            salesFormat,
+            topProducts,
+            monthlyListeners
+        }
 
-        res.status(200).json({
-            success: true,
-            msg: 'Artist statistics retrieved successfully',
-            data: response
-        });
-    } catch (error) {
-        console.error('Error in artistStatsController:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-        res.status(500).json({
-            success: false,
+        res.json({
+            data: { ...response }
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                message: errorMessage,
-                code: 'STATS_FETCH_ERROR'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
-        });
+        })
     }
-};
+}
