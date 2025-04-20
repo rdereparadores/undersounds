@@ -624,7 +624,125 @@ artistRouter.post('/profile/update/bannerImage', artistProfileUpdateBannerImageC
  */
 artistRouter.post('/release/song', artistReleaseSongController)
 
-// PENDIENTES
+/**
+ * @swagger
+ * /artist/release/album:
+ *   post:
+ *     tags:
+ *       - Artista
+ *     summary: Publica un nuevo álbum
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - priceDigital
+ *               - priceCd
+ *               - priceVinyl
+ *               - priceCassette
+ *               - songs
+ *               - albumImage
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Título del álbum
+ *               description:
+ *                 type: string
+ *                 description: Descripción del álbum
+ *               priceDigital:
+ *                 type: number
+ *                 description: Precio en formato digital
+ *               priceCd:
+ *                 type: number
+ *                 description: Precio en formato CD
+ *               priceVinyl:
+ *                 type: number
+ *                 description: Precio en formato vinilo
+ *               priceCassette:
+ *                 type: number
+ *                 description: Precio en formato cassette
+ *               songs:
+ *                 type: string
+ *                 description: IDs de las canciones separadas por comas
+ *               albumImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de portada del álbum
+ *     responses:
+ *       '200':
+ *         description: Álbum publicado con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID del álbum creado
+ *       '400':
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                       description: Código de error (datos faltantes o invalidos)
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *                       description: Mensaje de error
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                       description: Código de error de autenticación
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *                       description: Mensaje de error
+ *       '500':
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                       description: Código de error interno
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *                       description: Mensaje descriptivo del error
+ *     security:
+ *       - bearerAuth: []
+ */
 artistRouter.post('/release/album', artistReleaseAlbumController)
 
 // SIN REVISAR
