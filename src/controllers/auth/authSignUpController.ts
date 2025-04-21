@@ -26,7 +26,7 @@ export const authSignUpController = async (req: express.Request, res: express.Re
                 birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                imgUrl: "",
+                imgUrl: '/public/uploads/user/profile/generic.jpg',
                 userType: 'user',
                 following: [],
                 library: [],
@@ -43,14 +43,14 @@ export const authSignUpController = async (req: express.Request, res: express.Re
                 birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                imgUrl: "",
+                imgUrl: '/public/uploads/user/profile/generic.jpg',
                 userType: 'artist',
                 following: [],
                 library: [],
                 listeningHistory: [],
                 addresses: [],
-                artistBannerUrl: '',
-                artistImgUrl: '',
+                artistBannerUrl: '/public/uploads/artist/banner/generic.jpg',
+                artistImgUrl: '/public/uploads/artist/profile/generic.jpg',
                 followerCount: 0
             }))
         } else {
