@@ -8,7 +8,7 @@ export const artistSongsController = async (req: express.Request, res: express.R
         const artist = await artistDAO.findByUid(req.uid!)
         const songs = (await songDAO.findByArtist({ _id: artist!._id })).filter((cancion) => cancion.version === undefined)
 
-        console.log(songs)
+        //console.log(songs)
         return res.json({
             data: songs
         })
