@@ -39,7 +39,7 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
 
             let collaboratorList: { accepted: boolean, artist: string }[] = []
             if (collaborators) {
-                const collaboratorsSplitted: string[] = genres.split(',')
+                const collaboratorsSplitted: string[] = collaborators.split(',')
                 collaboratorList = await Promise.all(collaboratorsSplitted.map(async (collaborator: string) => {
                     const collaboratorDoc = await artistDAO.findByArtistUsername(collaborator)
                     if (collaboratorDoc === null) throw new Error()
