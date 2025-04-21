@@ -13,8 +13,7 @@ export const userUnfollowController = async (req: express.Request, res: express.
         if (artist === null) throw new Error()
         if (!user!.following.includes(artist._id!)) throw new Error()
         
-        user!.following = user!.following.filter(follow => follow !== artist._id!)
-        await userDAO.update(user!)
+        await userDAO.removeFromFollowing(user!, artist)
         artist.followerCount -= 1
         await artistDAO.update(artist)
 

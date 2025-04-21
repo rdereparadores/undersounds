@@ -1,21 +1,11 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-interface ReleaseItem {
-    id: string;
-    title: string;
-    imgUrl: string;
-    artist: string;
-    artistId: string;
-    releaseDate: Date;
-    type: string;
-}
-
-export const artistProfileInfoController = async (req: express.Request, res: express.Response) => {
-    const { artistId } = req.body
+export const profileArtistInfoController = async (req: express.Request, res: express.Response) => {
+    const { artistUsername } = req.body
 
     try {
-        if (!artistId) {
+        if (!artistUsername) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
                     code: 3000,
@@ -25,11 +15,11 @@ export const artistProfileInfoController = async (req: express.Request, res: exp
         }
 
         const artistDAO = req.db!.createArtistDAO()
+        const genreDAO = req.db!.createGenreDAO()
         const songDAO = req.db!.createSongDAO()
         const albumDAO = req.db!.createAlbumDAO()
-        const userDAO = req.db!.createBaseUserDAO()
 
-        const artist = await artistDAO.findById(artistId)
+        const artist = await artistDAO.findByArtistUsername(artistUsername)
         if (!artist) {
             return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
@@ -38,138 +28,73 @@ export const artistProfileInfoController = async (req: express.Request, res: exp
                 }
             })
         }
+        const artistSongs = await songDAO.findByArtist(artist)
+        const artistAlbums = await albumDAO.findByArtist(artist)
 
-        const currentUser = await userDAO.findByUid(req.uid!)
-        const followed = currentUser!.following.includes(artistId)
-
-        const albumDocs = await albumDAO.findByArtist({ _id: artistId })
-        const albums: ReleaseItem[] = albumDocs.map(album => ({
-            id: album._id!,
-            title: album.title,
-            imgUrl: album.imgUrl,
-            artist: artist.artistName,
-            artistId: artist._id!,
-            releaseDate: album.releaseDate,
-            type: album.trackList.length <= 4 ? 'EP' : 'Album'
+        const artistSongsPopulated = await Promise.all(artistSongs.map(async (song) => {
+            const author = await artistDAO.findById(song.author)
+            const collaborators = await Promise.all(song.collaborators.map(async (c) => await artistDAO.findById(c.artist)))
+            const genres = await Promise.all(song.genres.map(async (genre) => await genreDAO.findById(genre)))
+            return {
+                _id: song._id,
+                imgUrl: song.imgUrl,
+                title: song.title,
+                plays: song.plays,
+                author: {
+                    _id: author!._id,
+                    artistName: author!.artistName,
+                    artistUsername: author!.artistUsername
+                },
+                type: 'song',
+                genres: genres.map(genre => genre!.genre),
+                collaborators: collaborators.map(c => ({
+                    _id: c!._id,
+                    artistName: c!.artistName,
+                    artistUsername: c!.artistUsername
+                }))
+            }
         }))
 
-        const songs = await songDAO.findByArtist({ _id: artistId })
+        const artistAlbumsPopulated = await Promise.all(artistAlbums.map(async (album) => {
+            const author = await artistDAO.findById(album.author)
+            const genres = await Promise.all(album.genres.map(async (genre) => await genreDAO.findById(genre)))
+            return {
+                _id: album._id,
+                imgUrl: album.imgUrl,
+                title: album.title,
+                author: {
+                    _id: author!._id,
+                    artistName: author!.artistName,
+                    artistUsername: author!.artistUsername
+                },
+                type: 'album',
+                genres: genres.map(genre => genre!.genre),
+                collaborators: []
+            }
+        }))
 
-        const topSongs = await Promise.all(
-            songs
-                .sort((a, b) => b.plays - a.plays)
-                .slice(0, 5)
-                .map(async (song) => {
-                    const containingAlbum = albumDocs.find(album =>
-                        album.trackList.some(trackId => trackId.toString() === song._id!.toString())
-                    )
+        const topSongs = artistSongsPopulated.sort((a, b) => b.plays - a.plays).slice(0, 4)
 
-                    const mainArtistInfo = {
-                        name: artist.artistName,
-                        artistId: artist._id!
-                    }
-
-                    const collaborators = await Promise.all(song.collaborators
-                        .filter(c => c.accepted)
-                        .map(async (collab) => {
-                            const collabArtist = await artistDAO.findById(collab.artist)
-                            return {
-                                name: collabArtist!.artistName,
-                                artistId: collabArtist!._id!
-                            }
-                        })
-                    )
-
-                    const artists = [mainArtistInfo, ...collaborators]
-
-                    return {
-                        id: song._id!,
-                        songName: song.title,
-                        imgURL: song.imgUrl,
-                        artists: artists,
-                        album: containingAlbum ? containingAlbum.title : 'Single',
-                        albumId: containingAlbum ? containingAlbum._id! : null,
-                        plays: song.plays
-                    }
-                })
-        )
-
-        const uniqueSinglesMap = new Map<string, ReleaseItem>()
-
-        songs
-            .filter(song =>
-                !albumDocs.some(album =>
-                    album.trackList.some(trackId => trackId.toString() === song._id!.toString())
-                )
-            )
-            .forEach(song => {
-                if (!uniqueSinglesMap.has(song._id!)) {
-                    uniqueSinglesMap.set(song._id!, {
-                        id: song._id!,
-                        title: song.title,
-                        imgUrl: song.imgUrl,
-                        artist: artist.artistName,
-                        artistId: artist._id!,
-                        releaseDate: song.releaseDate,
-                        type: 'Single'
-                    })
-                }
-            })
-
-        albumDocs
-            .filter(album => album.trackList.length <= 4)
-            .forEach(album => {
-                album.trackList.forEach(trackId => {
-                    const song = songs.find(s => s._id!.toString() === trackId.toString())
-                    if (song && !uniqueSinglesMap.has(song._id!)) {
-                        uniqueSinglesMap.set(song._id!, {
-                            id: song._id!,
-                            title: song.title,
-                            imgUrl: song.imgUrl,
-                            artist: artist.artistName,
-                            artistId: artist._id!,
-                            releaseDate: song.releaseDate,
-                            type: 'Single'
-                        })
-                    }
-                })
-            })
-
-        const epsYsingles: ReleaseItem[] = [
-            ...albums.filter(album => album.type === 'EP'),
-            ...Array.from(uniqueSinglesMap.values())
-        ]
-
-        const allReleases: ReleaseItem[] = [...albums, ...epsYsingles]
-        const newestRelease = allReleases.length > 0
-            ? allReleases.reduce((latest, current) =>
-                (!latest || current.releaseDate > latest.releaseDate) ? current : latest
-            )
-            : null
-
-        const profileData = {
+        const response = {
             artist: {
-                id: artist._id!,
-                name: artist.artistName,
+                _id: artist._id!,
+                artistName: artist.artistName,
                 artistUsername: artist.artistUsername,
-                followed,
-                bannerImgUrl: artist.artistBannerUrl,
-                profileImgUrl: artist.artistImgUrl
+                artistBannerUrl: artist.artistBannerUrl,
+                artistImgUrl: artist.artistImgUrl,
+                followers: artist.followerCount
             },
             topSongs,
-            newestRelease: newestRelease ? {
-                ...newestRelease,
-                releaseYear: newestRelease.releaseDate.getFullYear()
-            } : null,
-            albums: albums.filter(album => album.type === 'Album'),
-            epsYsingles
+            featuredRelease: topSongs[0], // TEMPORAL, CAMBIAR AL QUE HAYA ELEGIDO EL ARTISTA EN SU PERFIL
+            albums: artistAlbumsPopulated,
+            songs: artistSongsPopulated
         }
-        console.log("Artist profile data:", profileData)
-        res.json({
-            data: profileData
+
+        return res.json({
+            data: response
         })
-    } catch (error) {
-        console.error('Error in artist profile info:', error)
+
+    } catch {
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
                 code: 2000,

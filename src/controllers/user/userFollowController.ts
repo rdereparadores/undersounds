@@ -11,9 +11,9 @@ export const userFollowController = async (req: express.Request, res: express.Re
 
         if (artist === null) throw new Error()
         if (user!.following.includes(artist._id!)) throw new Error()
+        if (user?._id === artist._id) throw new Error()
 
-        user!.following.push(artist._id!)
-        await userDAO.update(user!)
+        await userDAO.addToFollowing(user!, artist)
         artist.followerCount += 1
         await artistDAO.update(artist)
         return res.json({
