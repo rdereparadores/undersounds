@@ -4,7 +4,7 @@ import { version } from 'os';
 
 export const songFromIdAndVersion = async (req: express.Request, res: express.Response) => {
     const { id, version } = req.body
-    console.log("intento obtener el historial de la canción: " + id)
+    //console.log("intento obtener el historial de la canción: " + id)
     try {
         if (!id) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
@@ -39,8 +39,8 @@ export const songFromIdAndVersion = async (req: express.Request, res: express.Re
                 data: response
             })
         } else {
-            console.log("La versión buscada es la actual, que tiene los valores: " + cancion._id +
-                " , " + cancion.author + " , " + cancion.description + " , " + cancion.pricing)
+            /*console.log("La versión buscada es la actual, que tiene los valores: " + cancion._id +
+                " , " + cancion.author + " , " + cancion.description + " , " + cancion.pricing)*/
 
             const response = {
                 song: cancion

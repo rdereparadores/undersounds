@@ -8,6 +8,8 @@ import { artistReleaseSongController } from '../controllers/artist/artistRelease
 import { artistSongsController } from '../controllers/artist/artistSongsController'
 import { artistAlbumsController } from '../controllers/artist/artistAlbumsController';
 import { artistReleaseAlbumController } from '../controllers/artist/artistReleaseAlbumController';
+import { artistUpdateSongController } from '../controllers/artist/artistUpdateSongController';
+import { artistUpdateAlbumController } from '../controllers/artist/artistUpdateAlbumController';
 
 export const artistRouter = express.Router()
 
@@ -746,3 +748,7 @@ artistRouter.post('/release/song', artistReleaseSongController)
 artistRouter.post('/release/album', artistReleaseAlbumController)
 
 artistRouter.get('/stats', artistStatsController)
+
+artistRouter.post('/update/song', artistUpdateSongController)
+
+artistRouter.post('/update/album', artistUpdateAlbumController)
