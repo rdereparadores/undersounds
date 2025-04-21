@@ -13,6 +13,7 @@ export interface ISongDAO extends IProductDAO {
     findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]>
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: Partial<GenreDTO>): Promise<SongDTO[]>
+    findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]>
     findMostPlayed(limit: number): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
@@ -81,6 +82,23 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return songs.map(song => SongDTO.fromDocument(song))
     }
 
+    async findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]> {
+        const songDoc = await Song.findById(song._id)
+        if (songDoc === null) return []
+
+        const recommendations = await Song.aggregate([
+            {
+                $match: {
+                    _id: { $ne: songDoc._id },
+                    genres: { $in: songDoc.genres }
+                }
+            },
+            { $sample: { size: limit } }
+        ])
+
+        return recommendations.map(song => SongDTO.fromDocument(song))
+    }
+
     async findMostPlayed(limit: number): Promise<SongDTO[]> {
         const songs = await Song.find()
             .sort({ plays: -1 })
@@ -99,7 +117,6 @@ export class SongDAO extends ProductDAO implements ISongDAO {
 
     async update(song: Partial<SongDTO>): Promise<boolean> {
         const updatedSong = await Song.findByIdAndUpdate(
-            song._id!,
             { ...song.toJson!() },
             { new: true }
         )
@@ -139,24 +156,29 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return SongDTO.fromDocument(versionDoc);
     }
 
-    async addToVersionHistory(song: Partial<SongDTO>, version: SongDTO): Promise<boolean> {
-        const songDoc = await Song.findById(song._id)
-        if (songDoc === null) return false
+    async addToVersionHistory(songNueva: Partial<SongDTO>, songVieja: SongDTO): Promise<boolean> {
+    const songViejaDoc = await Song.findById(songVieja._id);
+    if (!songViejaDoc) {
+       // console.error("No se encontró la canción vieja");
+        return false;
+    }
 
-        const songGeneric = SongDTO.fromDocument(songDoc)
-        songGeneric._id = undefined
-        songGeneric.versionHistory = []
+    songViejaDoc.versionHistory = [];
+    await songViejaDoc.save();
 
-        const newVersion = await Song.create({
-            ...songGeneric.toJson(),
-            ...version.toJson(),
-            version: songDoc.versionHistory.length
-        })
+    const songNuevaDoc = await Song.findById(songNueva._id);
+    if (!songNuevaDoc) {
+        //console.error("No se encontró la canción nueva");
+        return false;
+    }
 
-        await Song.findByIdAndUpdate(song._id, {
-            $push: { versionHistory: newVersion._id }
-        })
+    songNuevaDoc.versionHistory.push(songViejaDoc.id);
 
-        return true
+    songViejaDoc.version = songNuevaDoc.versionHistory.length - 1
+
+    await songViejaDoc.save();
+    await songNuevaDoc.save();
+
+    return true;
     }
 }
