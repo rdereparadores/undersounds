@@ -2,6 +2,7 @@ import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import { AlbumDTO } from '../../dto/AlbumDTO'
 import { SongDTO } from '../../dto/SongDTO'
+import path from 'path'
 
 export const songPlayController = async (req: express.Request, res: express.Response) => {
     const { songId } = req.params
@@ -16,6 +17,7 @@ export const songPlayController = async (req: express.Request, res: express.Resp
         }
 
         const userDAO = req.db!.createBaseUserDAO()
+        const artistDAO = req.db!.createArtistDAO()
         const songDAO = req.db!.createSongDAO()
         const albumDAO = req.db!.createAlbumDAO()
         const productDAO = req.db!.createProductDAO()
@@ -64,9 +66,12 @@ export const songPlayController = async (req: express.Request, res: express.Resp
 
         const song = await songDAO.findById(songId)
         if (!song) throw new Error()
+        const author = await artistDAO.findById(song.author)
+
         song.plays += 1
         await songDAO.update(song)
         await userDAO.addToListeningHistory(user!, song)
+        res.setHeader('Content-Disposition', `attachment; filename="${author!.artistName} - ${song.title}.${path.extname(song!.songDir).substring(1)}"`)
         res.sendFile(`${process.cwd()}/${song!.songDir}`)
 
 
