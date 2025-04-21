@@ -15,6 +15,7 @@ import { songRouter } from "./routes/songRouter"
 import { checkoutRouter } from "./routes/checkoutRouter"
 import { productRouter } from "./routes/productRouter"
 import { albumRouter } from "./routes/albumRouter"
+import {artistProfileRouter} from "./routes/artistProfileRouter";
 
 export class App {
 
@@ -49,6 +50,7 @@ export class App {
         this.app.use('/api/auth/', authRouter)
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
         this.app.use('/api/artist/', authTokenMiddleware, checkArtistMiddleware, artistRouter)
+        this.app.use('/api/artist/profile', artistProfileRouter)
         this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/product/', productRouter)
         this.app.use('/api/song/', songRouter)
