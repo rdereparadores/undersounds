@@ -99,6 +99,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
 
     async update(song: Partial<SongDTO>): Promise<boolean> {
         const updatedSong = await Song.findByIdAndUpdate(
+            song._id!,
             { ...song.toJson!() },
             { new: true }
         )
