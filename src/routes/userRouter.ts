@@ -15,7 +15,6 @@ import { userStatsController } from "../controllers/user/userStatsController";
 import { userFeaturedArtistsController } from "../controllers/user/userFeaturedArtistsController"
 import { userEmailUpdateController } from "../controllers/user/userEmailUpdateController"
 import { userPasswordResetController } from "../controllers/user/userPasswordUpdateController"
-import { librarySearchController } from "../controllers/user/userLibraryQueryController"
 import { userFeaturedContentController } from '../controllers/user/userFeaturedContentController'
 import { userFollowController } from '../controllers/user/userFollowController'
 import { userUnfollowController } from '../controllers/user/userUnfollowController'
@@ -1271,6 +1270,3 @@ userRouter.get('/stats', userStatsController)
 
 //userRouter.post('/profile/update/email', userEmailUpdateController)
 //userRouter.post('/profile/update/password', userPasswordResetController)
-
-// IMPLEMENTACION NO NECESARIA (POR AHORA)
-// userRouter.post('/library/query', librarySearchController)

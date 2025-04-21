@@ -69,7 +69,7 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
                     vinyl: Number(priceVinyl)
                 },
                 ratings: [],
-                songDir: '/protected/song/' + files.song[0].filename,
+                songDir: 'protected/song/' + files.song[0].filename,
                 
                 plays: 0,
                 genres: genreIds,

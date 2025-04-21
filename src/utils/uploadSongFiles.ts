@@ -10,7 +10,9 @@ export const audioFileFilter = (req: express.Request, file: Express.Multer.File,
     const allowedMimeTypes = [
         'audio/mpeg',
         'audio/wav',
-        'audio/flac'
+        'audio/flac',
+        'audio/m4a',
+        'audio/x-m4a'
     ]
     
     if (file.fieldname === 'song') {

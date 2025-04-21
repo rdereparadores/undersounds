@@ -1,6 +1,8 @@
 import express from 'express'
 import { songInfoController } from "../controllers/song/songInfoController"
 import { songFromIdAndVersion } from '../controllers/song/songFromIdAndVersion'
+import { songPlayController } from '../controllers/song/songPlayController'
+import { authTokenMiddleware } from '../middleware/authTokenMiddleware'
 
 export const songRouter = express.Router()
 
@@ -115,5 +117,7 @@ export const songRouter = express.Router()
  *      security: []
  */
 songRouter.post('/info', songInfoController)
+
+songRouter.get('/play/:songId', authTokenMiddleware, songPlayController)
 
 songRouter.post('/songidandversion', songFromIdAndVersion)
