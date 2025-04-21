@@ -749,6 +749,249 @@ artistRouter.post('/release/album', artistReleaseAlbumController)
 
 artistRouter.get('/stats', artistStatsController)
 
+/**
+ * @swagger
+ * /artist/update/song:
+ *   post:
+ *     tags:
+ *       - Artista
+ *     summary: Actualiza una canción existente y crea nueva versión
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - title
+ *               - description
+ *               - priceDigital
+ *               - priceCd
+ *               - priceVinyl
+ *               - priceCassette
+ *               - genres
+ *               - img
+ *               - song
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID de la canción a actualizar
+ *               title:
+ *                 type: string
+ *                 description: Nuevo título de la canción
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripción de la canción
+ *               priceDigital:
+ *                 type: number
+ *                 description: Nuevo precio digital
+ *               priceCd:
+ *                 type: number
+ *                 description: Nuevo precio CD
+ *               priceVinyl:
+ *                 type: number
+ *                 description: Nuevo precio vinilo
+ *               priceCassette:
+ *                 type: number
+ *                 description: Nuevo precio cassette
+ *               genres:
+ *                 type: string
+ *                 description: Géneros separados por comas
+ *               collaborators:
+ *                 type: string
+ *                 description: Colaboradores separados por comas
+ *               img:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nueva portada de la canción
+ *               song:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nuevo archivo de audio
+ *     responses:
+ *       '200':
+ *         description: Canción actualizada y nueva versión creada con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID de la nueva versión de la canción
+ *       '400':
+ *         description: Error en la solicitud (campos faltantes o formato de audio inválido)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *     security:
+ *       - bearerAuth: []
+ */
+
 artistRouter.post('/update/song', artistUpdateSongController)
 
+/**
+ * @swagger
+ * /artist/update/album:
+ *   post:
+ *     tags:
+ *       - Artista
+ *     summary: Actualiza un álbum existente y crea nueva versión
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - title
+ *               - description
+ *               - priceDigital
+ *               - priceCd
+ *               - priceVinyl
+ *               - priceCassette
+ *               - songs
+ *               - albumImage
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID del álbum a actualizar
+ *               title:
+ *                 type: string
+ *                 description: Nuevo título del álbum
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripción del álbum
+ *               priceDigital:
+ *                 type: number
+ *                 description: Nuevo precio digital
+ *               priceCd:
+ *                 type: number
+ *                 description: Nuevo precio CD
+ *               priceVinyl:
+ *                 type: number
+ *                 description: Nuevo precio vinilo
+ *               priceCassette:
+ *                 type: number
+ *                 description: Nuevo precio cassette
+ *               songs:
+ *                 type: string
+ *                 description: IDs de las canciones separadas por comas (track list)
+ *               albumImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nueva portada del álbum
+ *     responses:
+ *       '200':
+ *         description: Álbum actualizado y nueva versión creada con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID de la nueva versión del álbum
+ *       '400':
+ *         description: Error en la solicitud (campos faltantes o fichero inválido)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *     security:
+ *       - bearerAuth: []
+ */
 artistRouter.post('/update/album', artistUpdateAlbumController)
