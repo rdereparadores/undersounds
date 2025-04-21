@@ -4,4 +4,4 @@ import {artistProfileInfoController} from "../controllers/artist/artistProfileIn
 export const artistProfileRouter = express.Router()
 
 // PENDIENTES
-artistProfileRouter.get('/info', artistProfileInfoController)
+artistProfileRouter.post('/info', artistProfileInfoController)

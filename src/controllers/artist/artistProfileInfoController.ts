@@ -164,7 +164,7 @@ export const artistProfileInfoController = async (req: express.Request, res: exp
             albums: albums.filter(album => album.type === 'Album'),
             epsYsingles
         }
-
+        console.log("Artist profile data:", profileData)
         res.json({
             data: profileData
         })
