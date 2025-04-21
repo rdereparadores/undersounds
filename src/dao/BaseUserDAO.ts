@@ -174,7 +174,7 @@ export class BaseUserDAO implements IBaseUserDAO {
                 const song = entry.song as unknown as ProductDTO
                 const playedAt = new Date(entry.playedAt)
                 const validDate = playedAt.getMonth() === date.getMonth() && playedAt.getFullYear() === date.getFullYear()
-                if (song.author === artist._id! && validDate) {
+                if (song.author == artist._id! && validDate) {
                     isListener = true
                     return
                 }
