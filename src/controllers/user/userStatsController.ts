@@ -160,7 +160,7 @@ export const userStatsController = async (req: express.Request, res: express.Res
 
             await Promise.all(artists.map(async (artistId) => {
                 const myPlays = artistsRepeated.reduce((sum, artist) => artist === artistId ? sum + 1 : sum, 0)
-                const alpha = 1.2
+                const alpha = 0.2
                 const percentile = 100 * (1 - Math.pow(1 / myPlays, alpha))
                 artistPercentiles.push({ artist: artistId, percentile })
             }))
@@ -172,7 +172,7 @@ export const userStatsController = async (req: express.Request, res: express.Res
             const artist = await artistDAO.findById(bestPercentile.artist)
             artistBadge.artistImgUrl = artist!.artistImgUrl
             artistBadge.artistName = artist!.artistName
-            artistBadge.percentile = Math.round(bestPercentile.percentile)
+            artistBadge.percentile = Math.round(100 - bestPercentile.percentile)
         }
 
 
