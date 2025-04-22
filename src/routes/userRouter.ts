@@ -1145,6 +1145,141 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  */
 userRouter.get('/orders', userOrdersController)
 
+/**
+ * @swagger
+ * /user/stats:
+ *   get:
+ *     tags:
+ *       - Usuario
+ *     summary: Obtiene estadísticas agregadas del usuario autenticado
+ *     responses:
+ *       '200':
+ *         description: Estadísticas obtenidas con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     listeningTime:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Tiempo de escucha en minutos en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Tiempo de escucha en minutos en el mes anterior
+ *                     preferredGenre:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: string
+ *                           description: Género preferido en el mes actual
+ *                         pastMonth:
+ *                           type: string
+ *                           description: Género preferido en el mes anterior
+ *                     mostListenedArtist:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: object
+ *                           properties:
+ *                             artistName:
+ *                               type: string
+ *                               description: Artista más escuchado en el mes actual
+ *                             percentage:
+ *                               type: number
+ *                               description: Porcentaje de reproducciones de ese artista
+ *                     topArtists:
+ *                       type: array
+ *                       description: Top 5 de artistas más reproducidos
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           artistName:
+ *                             type: string
+ *                             description: Nombre del artista
+ *                           plays:
+ *                             type: number
+ *                             description: Número de reproducciones
+ *                     preferredFormat:
+ *                       type: object
+ *                       properties:
+ *                         format:
+ *                           type: string
+ *                           description: Formato de audio preferido (digital, cd, vinyl, cassette)
+ *                         percentage:
+ *                           type: number
+ *                           description: Porcentaje de reproducciones en ese formato
+ *                     ordersFormat:
+ *                       type: object
+ *                       properties:
+ *                         digital:
+ *                           type: number
+ *                           description: Cantidad de pedidos en formato digital
+ *                         cd:
+ *                           type: number
+ *                           description: Cantidad de pedidos en formato CD
+ *                         vinyl:
+ *                           type: number
+ *                           description: Cantidad de pedidos en formato vinyl
+ *                         cassette:
+ *                           type: number
+ *                           description: Cantidad de pedidos en formato cassette
+ *                     artistBadge:
+ *                       type: object
+ *                       properties:
+ *                         artistName:
+ *                           type: string
+ *                           description: Artista asignado al badge
+ *                         artistImgUrl:
+ *                           type: string
+ *                           description: URL de la imagen del artista para el badge
+ *                         percentile:
+ *                           type: number
+ *                           description: Percentil de interacción con el artista
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                       description: Código de error (token no proporcionado o inválido)
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *                       description: Mensaje de error
+ *       '500':
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                       description: Código de error genérico
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo las estadísticas del usuario"
+ *                       description: Mensaje de error
+ *     security:
+ *       - bearerAuth: []
+ */
 userRouter.get('/stats', userStatsController)
 
 // NO REVISADAS
