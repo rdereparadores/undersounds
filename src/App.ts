@@ -45,7 +45,7 @@ export class App {
         this.app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
         
         this.app.use('/api/genre/', genreRouter)
-        this.app.use('/api/ai/', aiRouter)
+        this.app.use('/api/ai/', authTokenMiddleware, aiRouter)
         this.app.use('/api/trending/', trendingRouter)
         this.app.use('/api/auth/', authRouter)
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
