@@ -97,7 +97,7 @@ export const userStatsController = async (req: express.Request, res: express.Res
             const count = artistsThisMonth.reduce((sum, item) => (
                 item === mostListenedArtist.thisMonth.artistName ? sum + 1 : sum
             ), 0)
-            mostListenedArtist.thisMonth.percentage = count / artistsThisMonth.length * 100
+            mostListenedArtist.thisMonth.percentage = Math.round(count / artistsThisMonth.length * 100)
         }
 
         // CÁLCULO DE TOPARTISTS
@@ -135,7 +135,7 @@ export const userStatsController = async (req: express.Request, res: express.Res
             const count = formats.reduce((sum, item) => (
                 item === preferredFormat.format ? sum + 1 : sum
             ), 0)
-            preferredFormat.percentage = count / formats.length * 100
+            preferredFormat.percentage = Math.round(count / formats.length * 100)
         }
 
         // CÁLCULO DE ARTISTBADGE

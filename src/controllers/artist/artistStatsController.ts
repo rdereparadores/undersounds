@@ -58,7 +58,7 @@ export const artistStatsController = async (req: express.Request, res: express.R
                 }
             })
             mostSoldFormat.format = mostFrequentValue(allFormats)
-            mostSoldFormat.percentage = allFormats.reduce((sum, format) => format === mostSoldFormat.format ? sum + 1 : sum, 0) / allFormats.length * 100
+            mostSoldFormat.percentage = Math.round(allFormats.reduce((sum, format) => format === mostSoldFormat.format ? sum + 1 : sum, 0) / allFormats.length * 100)
         }
 
         // CÁLCULO DE SALESFORMAT
