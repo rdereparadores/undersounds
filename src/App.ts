@@ -51,7 +51,6 @@ export class App {
         this.app.use('/api/user/', authTokenMiddleware, userRouter)
         this.app.use('/api/artist/', authTokenMiddleware, checkArtistMiddleware, artistRouter)
         this.app.use('/api/profile/', profileRouter)
-        this.app.use('/api/genre/', genreRouter)
         this.app.use('/api/product/', productRouter)
         this.app.use('/api/song/', songRouter)
         this.app.use('/api/album/', albumRouter)
