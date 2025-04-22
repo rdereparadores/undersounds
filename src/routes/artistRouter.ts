@@ -747,6 +747,126 @@ artistRouter.post('/release/song', artistReleaseSongController)
  */
 artistRouter.post('/release/album', artistReleaseAlbumController)
 
+/**
+ * @swagger
+ * /artist/stats:
+ *   get:
+ *     tags:
+ *       - Artista
+ *     summary: Obtiene estadísticas agregadas del artista autenticado
+ *     responses:
+ *       '200':
+ *         description: Estadísticas obtenidas con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     copiesSold:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Número de copias vendidas en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Número de copias vendidas en el mes anterior
+ *                     releases:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Número de lanzamientos en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Número de lanzamientos en el mes anterior
+ *                     mostSoldFormat:
+ *                       type: object
+ *                       properties:
+ *                         format:
+ *                           type: string
+ *                           description: Formato con más ventas (digital, cd, cassette o vinyl)
+ *                         percentage:
+ *                           type: number
+ *                           description: Porcentaje de ventas en ese formato
+ *                     salesFormat:
+ *                       type: object
+ *                       properties:
+ *                         digital:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato digital este mes
+ *                         cd:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato CD este mes
+ *                         cassette:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato cassette este mes
+ *                         vinyl:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato vinyl este mes
+ *                     topProducts:
+ *                       type: array
+ *                       description: Top 5 de productos más vendidos (título + número de ventas)
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             description: Título del producto
+ *                           sales:
+ *                             type: number
+ *                             description: Número de ventas de ese producto
+ *                     monthlyListeners:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Oyentes únicos en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Oyentes únicos en el mes anterior
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                       description: Código de error (no token o token inválido)
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *                       description: Mensaje de error
+ *       '500':
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                       description: Código de error
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo las estadísticas del artista"
+ *                       description: Mensaje de error
+ *     security:
+ *       - bearerAuth: []
+ */
 artistRouter.get('/stats', artistStatsController)
 
 /**
