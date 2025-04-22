@@ -3,19 +3,19 @@ import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 export const userFeaturedArtistsController = async (req: express.Request, res: express.Response) => {
     try {
-        //const userDAO = req.db!.createBaseUserDAO()
         const artistDAO = req.db!.createArtistDAO()
+        const userDAO = req.db!.createBaseUserDAO()
+        const user = await userDAO.findByUid(req.uid!)
 
-        //const user = await userDAO.findByUid(req.uid!)
-        // TEMPORAL: Sólo devuelve artistas aleatorios
         const allArtists = await artistDAO.getAll()
-        const allArtistsShorted = allArtists.slice(0, 4).map(artist => ({
-            name: artist.name,
-            imgUrl: artist.artistImgUrl
+        const allArtistsFiltered = allArtists.filter(artist => !user!.following.includes(artist._id!) && artist._id! != user!._id).slice(0, 4).map(artist => ({
+            imgUrl: artist.imgUrl,
+            artistUsername: artist.artistUsername,
+            artistName: artist.artistName
         }))
 
         return res.json({
-            data: allArtistsShorted
+            data: allArtistsFiltered
         })
     } catch {
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({

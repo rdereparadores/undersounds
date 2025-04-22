@@ -1,6 +1,5 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
-import { ProductDTO } from '../../dto/ProductDTO'
 
 export const userFeaturedContentController = async (req: express.Request, res: express.Response) => {
     try {
@@ -8,14 +7,30 @@ export const userFeaturedContentController = async (req: express.Request, res: e
         const artistDAO = req.db!.createArtistDAO()
         const productDAO = req.db!.createProductDAO()
         const user = await userDAO.findByUid(req.uid!)
-        const featuredContent: ProductDTO[] = await Promise.all(user!.following.map(async (artistId) => {
+        const featuredContent: any[] = await Promise.all(user!.following.map(async (artistId) => {
             const artist = await artistDAO.findById(artistId)
             const artistProducts = await productDAO.findByArtist(artist!)
-            return artistProducts[0]
+            const product = artistProducts[0]
+            if (!product) return undefined
+            return {
+                imgUrl: product.imgUrl,
+                title: product.title,
+                type: product.productType,
+                _id: product._id!,
+                releaseDate: product.releaseDate,
+                author: {
+                    artistUsername: artist?.artistUsername,
+                    artistName: artist?.artistName
+                }
+            }
         }))
 
         return res.json({
-            data: featuredContent
+            data: featuredContent.filter(c => c !== undefined).sort((a, b) => {
+                const dateA = new Date(a.releaseDate)
+                const dateB = new Date(b.releaseDate)
+                return dateB.getDate() - dateA.getDate()
+            }).slice(0, 4)
         })
     } catch {
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({
