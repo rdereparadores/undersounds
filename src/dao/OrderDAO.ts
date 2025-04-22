@@ -3,6 +3,7 @@ import { OrderDTO } from "../dto/OrderDTO"
 import { ProductDTO } from "../dto/ProductDTO"
 import { UserDTO } from "../dto/UserDTO"
 import { Order } from "../models/Order"
+import {BaseUser} from "../models/BaseUser";
 
 export interface IOrderDAO {
     create(orders: OrderDTO): Promise<OrderDTO>
@@ -26,6 +27,8 @@ export interface IOrderDAO {
 
     checkIfPaid(order: Partial<OrderDTO>): Promise<boolean>
     markAsPaid(order: Partial<OrderDTO>): Promise<boolean>
+    hasUserPurchasedProductFormat(userId: string, productId: string, format: string): Promise<boolean>;
+    getUserPurchasedProductFormats(userId: string, productId: string): Promise<{format: string, purchaseDate: Date}[]>;
 }
 
 export class OrderDAO implements IOrderDAO {
@@ -127,5 +130,54 @@ export class OrderDAO implements IOrderDAO {
         )
 
         return result !== null
+    }
+
+    async hasUserPurchasedProductFormat(userId: string, productId: string, format: string): Promise<boolean> {
+        const userDoc = await BaseUser.findOne({ uid: userId });
+        if (!userDoc) return false;
+
+        const orders = await Order.find({
+            user: userDoc._id,
+            paid: true,
+            "lines.product": productId,
+            "lines.format": format
+        });
+
+        return orders.length > 0;
+    }
+
+    async getUserPurchasedProductFormats(userId: string, productId: string): Promise<{format: string, purchaseDate: Date}[]> {
+        const userDoc = await BaseUser.findOne({ uid: userId });
+        if (!userDoc) return [];
+
+        const orders = await Order.find({
+            user: userDoc._id,
+            paid: true,
+        }).sort({ purchaseDate: -1 });
+
+        const formats: {format: string, purchaseDate: Date}[] = [];
+
+        for (const order of orders) {
+            for (const line of order.lines) {
+                if (line.product.toString() === productId) {
+                    formats.push({
+                        format: line.format,
+                        purchaseDate: order.purchaseDate
+                    });
+                }
+            }
+        }
+
+        const uniqueFormats: {format: string, purchaseDate: Date}[] = [];
+        const formatsSeen = new Set<string>();
+
+        for (const format of formats) {
+            if (!formatsSeen.has(format.format)) {
+                formatsSeen.add(format.format);
+                uniqueFormats.push(format);
+            }
+        }
+
+        return uniqueFormats;
     }
 }

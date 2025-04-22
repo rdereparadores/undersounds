@@ -26,23 +26,43 @@ export const productRatingsController = async (req: express.Request, res: expres
         }
 
         const ratings = await productDAO.getRatings(product)
+        const userDAO = req.db!.createBaseUserDAO()
+
+        const ratingsWithUserInfo = [];
+        for (const rating of ratings) {
+            try {
+                const user = await userDAO.findById(rating.author);
+                ratingsWithUserInfo.push({
+                    ...rating,
+                    authorUsername: user?.username || 'Usuario desconocido',
+                    authorImgUrl: user?.imgUrl || '/public/uploads/user/profile/generic.jpg'
+                });
+            } catch (error) {
+                ratingsWithUserInfo.push({
+                    ...rating,
+                    authorUsername: 'Usuario desconocido',
+                    authorImgUrl: '/public/uploads/user/profile/generic.jpg'
+                });
+            }
+        }
 
         let averageRating = 0
-        if (ratings && ratings.length > 0) {
-            const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0)
-            averageRating = sum / ratings.length
+        if (ratingsWithUserInfo && ratingsWithUserInfo.length > 0) {
+            const sum = ratingsWithUserInfo.reduce((acc, rating) => acc + rating.rating, 0)
+            averageRating = sum / ratingsWithUserInfo.length
         }
 
         const response = {
-            ratings: ratings || [],
+            ratings: ratingsWithUserInfo || [],
             averageRating,
-            totalRatings: ratings ? ratings.length : 0
-        };
+            totalRatings: ratingsWithUserInfo ? ratingsWithUserInfo.length : 0
+        }
 
         res.json({
             data: response
         })
-    } catch {
+    } catch (error) {
+        console.error("Error en productRatingsController:", error);
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
                 code: 2000,

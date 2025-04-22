@@ -33,6 +33,10 @@
         "httpCode": "400",
         "message": "Error en la subida del archivo"
     },
+    "3003": {
+        "httpCode": "400",
+        "message": "Error al realizar la valoración. El usuario ya valoró el producto anteriormente"
+    },
 
     "4000": {
         "httpCode": "400",
