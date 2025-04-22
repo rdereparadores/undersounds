@@ -20,24 +20,23 @@ export const userStatsController = async (req: express.Request, res: express.Res
         const ordersFormat = { digital: 0, cd: 0, vinyl: 0, cassette: 0 }
         const topArtists: { artistName: string, plays: number }[] = []
 
-        const listeningHistoryPopulated = await Promise.all(user!.listeningHistory.map(async (item) => {
+        const listeningHistoryPopulated = ( await Promise.all(user!.listeningHistory.map(async (item) => {
             const song = await songDAO.findById(item.song)
-            if (!song) throw new Error()
+            if (!song) return null;
+
             const author = await artistDAO.findById(song.author)
-            if (!author) throw new Error()
+            if (!author) return null;
 
             const genres = await Promise.all(song.genres.map(async (genreId) => {
                 const genre = await genreDAO.findById(genreId)
                 if (!genre) throw new Error()
                 return genre
             }))
-
             const collaborators = await Promise.all(song.collaborators.map(async (collaborator) => {
                 const artist = await artistDAO.findById(collaborator.artist)
                 if (!artist) throw new Error()
                 return artist
             }))
-
             return {
                 ...item,
                 song: {
@@ -46,8 +45,8 @@ export const userStatsController = async (req: express.Request, res: express.Res
                     genres,
                     collaborators
                 }
-            }
-        }))
+            };
+        }))).filter((item): item is NonNullable<typeof item> => item != null);
         const historyThisMonth = listeningHistoryPopulated.filter(item => {
             const playedAt = new Date(item.playedAt)
             const now = new Date()
