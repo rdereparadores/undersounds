@@ -2,8 +2,7 @@ import express from 'express'
 import { userIsFollowingController } from '../controllers/user/userIsFollowingController'
 import { userLibrarySongsController } from '../controllers/user/userLibrarySongsController'
 import { userLibraryAlbumsController } from '../controllers/user/userLibraryAlbumsController'
-import { userOrdersController } from '../controllers/order/userOrdersController'
-import { userOrdersOrderController } from '../controllers/order/userOrdersOrderController'
+import { userOrdersController } from '../controllers/user/userOrdersController'
 import { userProfileAddressAddController } from '../controllers/user/userProfileAddressAddController'
 import { userProfileAddressSetDefaultController } from '../controllers/user/userProfileAddressSetDefaultController'
 import { userProfileController } from '../controllers/user/userProfileController'
@@ -1145,124 +1144,6 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *          - bearerAuth: []
  */
 userRouter.get('/orders', userOrdersController)
-
-/**
- * @swagger
- * /user/orders/order:
- *  post:
- *      tags:
- *          - Usuario
- *      summary: Obtiene la información detallada de un pedido específico
- *      requestBody:
- *          required: true
- *          content:
- *              application/json:
- *                  schema:
- *                      type: object
- *                      required:
- *                          - orderId
- *                      properties:
- *                          orderId:
- *                              type: string
- *                              description: ID del pedido a consultar
- *      responses:
- *          '200':
- *              description: Información del pedido obtenida con éxito
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              data:
- *                                  type: object
- *                                  properties:
- *                                      _id:
- *                                          type: string
- *                                          description: ID del pedido
- *                                      purchaseDate:
- *                                          type: string
- *                                          format: date
- *                                          description: Fecha de compra
- *                                      status:
- *                                          type: string
- *                                          enum: [processing, shipped, delivered]
- *                                          description: Estado del pedido
- *                                      paid:
- *                                          type: boolean
- *                                          description: Indica si el pedido está pagado
- *                                      lines:
- *                                          type: array
- *                                          items:
- *                                              type: object
- *                                              properties:
- *                                                  quantity:
- *                                                      type: number
- *                                                      description: Cantidad
- *                                                  price:
- *                                                      type: number
- *                                                      description: Precio
- *                                                  format:
- *                                                      type: string
- *                                                      enum: [digital, cd, vinyl, cassette]
- *                                                      description: Formato
- *          '400':
- *              description: Error en la solicitud
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              error:
- *                                  type: object
- *                                  properties:
- *                                      code:
- *                                          type: number
- *                                          example: 3000
- *                                          description: Código de error
- *                                      message:
- *                                          type: string
- *                                          example: "Datos necesarios no proporcionados"
- *                                          description: Mensaje de error
- *          '401':
- *              description: No autorizado
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              error:
- *                                  type: object
- *                                  properties:
- *                                      code:
- *                                          type: number
- *                                          example: 1000
- *                                          description: Código de error
- *                                      message:
- *                                          type: string
- *                                          example: "Token de usuario no proporcionado"
- *                                          description: Mensaje de error
- *          '500':
- *              description: Error del servidor
- *              content:
- *                  application/json:
- *                      schema:
- *                          type: object
- *                          properties:
- *                              error:
- *                                  type: object
- *                                  properties:
- *                                      code:
- *                                          type: number
- *                                          example: 2000
- *                                          description: Código de error
- *                                      message:
- *                                          type: string
- *                                          example: "Error obteniendo la información de la base de datos"
- *                                          description: Mensaje de error
- *      security:
- *          - bearerAuth: []
- */
-userRouter.post('/orders/order', userOrdersOrderController)
 
 userRouter.get('/stats', userStatsController)
 

@@ -52,10 +52,23 @@ export const checkoutCreate = async (req: express.Request, res: express.Response
             })
         }))
 
+        if (lines.findIndex(item => item.format != 'digital') != -1) {
+            stripeLineItems.push({
+                price_data: {
+                    currency: 'eur',
+                    product_data: {
+                        name: 'Gastos de envío'
+                    },
+                    unit_amount: 499,
+                },
+                quantity: 1,
+            })
+        }
+
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
         const session = await stripe.checkout.sessions.create({
             success_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/success/{CHECKOUT_SESSION_ID}`,
-            cancel_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/deny/{CHECKOUT_SESSION_ID}`,
+            cancel_url: `http://${process.env.APP_URL}:${process.env.PORT}/shop/checkout/deny/`,
             line_items: stripeLineItems,
             mode: 'payment',
             payment_method_types: ['card']

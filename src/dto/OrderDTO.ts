@@ -74,6 +74,7 @@ export class OrderDTO implements OrderDTOProps {
     
     static fromDocument(doc: IOrder) {
         return new OrderDTO({
+            _id: doc._id.toString(),
             purchaseDate: doc.purchaseDate,
             status: doc.status,
             paid: doc.paid,
