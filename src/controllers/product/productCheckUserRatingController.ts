@@ -38,19 +38,15 @@ export const productCheckUserRatingController = async (req: express.Request, res
             })
         }
 
-        const ratings = await productDAO.getRatings(product)
-
-        const userRatings = format
-            ? ratings.filter(r => r.author === user._id!.toString() && r.format === format)
-            : ratings.filter(r => r.author === user._id!.toString());
+        const ratings = await productDAO.getRatings(product);
+        const userRatings = ratings.filter(r => r.author === user._id!.toString());
 
         return res.json({
             data: {
                 hasRated: userRatings.length > 0,
-                ratings: userRatings.length > 0 ? userRatings : null,
-                userId: user._id
+                ratings: userRatings.length > 0 ? userRatings : null
             }
-        })
+        });
     } catch (error) {
         console.error("Error al verificar valoraciones de usuario:", error)
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({
