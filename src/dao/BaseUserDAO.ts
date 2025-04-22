@@ -172,6 +172,7 @@ export class BaseUserDAO implements IBaseUserDAO {
             let isListener = false
             user.listeningHistory.forEach(entry => {
                 const song = entry.song as unknown as ProductDTO
+                if(!song) return null;
                 const playedAt = new Date(entry.playedAt)
                 const validDate = playedAt.getMonth() === date.getMonth() && playedAt.getFullYear() === date.getFullYear()
                 if (song.author == artist._id! && validDate) {
@@ -182,7 +183,6 @@ export class BaseUserDAO implements IBaseUserDAO {
             return isListener
         })
         return listeners.length
-
     }
 
 }
