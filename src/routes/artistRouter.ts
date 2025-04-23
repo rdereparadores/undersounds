@@ -10,7 +10,6 @@ import { artistAlbumsController } from '../controllers/artist/artistAlbumsContro
 import { artistReleaseAlbumController } from '../controllers/artist/artistReleaseAlbumController';
 import { artistUpdateSongController } from '../controllers/artist/artistUpdateSongController';
 import { artistUpdateAlbumController } from '../controllers/artist/artistUpdateAlbumController';
-import {artistTransactionsController} from "../controllers/artist/artistTransitionsController";
 
 export const artistRouter = express.Router()
 
@@ -869,8 +868,6 @@ artistRouter.post('/release/album', artistReleaseAlbumController)
  *       - bearerAuth: []
  */
 artistRouter.get('/stats', artistStatsController)
-
-artistRouter.get('/transactions', artistTransactionsController)
 
 /**
  * @swagger

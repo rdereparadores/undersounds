@@ -1,6 +1,6 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
-import { SongDTO, SongDTOProps } from '../../dto/SongDTO'
+import { SongDTO } from '../../dto/SongDTO'
 import { uploadSongFiles } from '../../utils/uploadSongFiles'
 import mm from 'music-metadata'
 
@@ -52,7 +52,7 @@ export const artistReleaseSongController = async (req: express.Request, res: exp
             const artist = await artistDAO.findByUid(req.uid!)
 
             const metadata = await mm.parseFile(files.song[0].path)
-            const duration = metadata.format.duration || 0
+            const duration = Math.round(metadata.format.duration!) || 0
 
             const song = new SongDTO({
                 title,
