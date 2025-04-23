@@ -5,12 +5,9 @@ import { AlbumDTO } from '../../dto/AlbumDTO'
 import { uploadAlbumImage } from '../../utils/uploadAlbumImage'
 
 export const artistAlbumsUpdateController = async (req: express.Request, res: express.Response) => {
-    console.log("intento crear un álbum: " + req.body.title)
 
     uploadAlbumImage(req, res, async (err) => {
-        console.log("Intento subir el archivo")
         if (err) {
-            console.error("Error al subir el archivo", err)
             return res.status(Number(apiErrorCodes[3002].httpCode)).json({
                 error: {
                     code: 3002,
@@ -18,11 +15,8 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
                 }
             })
         }
-        console.log("Sigo")
-        console.log("Archivos subidos:", req.files)
         try {
             if (!req.files) {
-                console.error("Error en el numero de archivos")
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
@@ -30,24 +24,15 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
                     }
                 })
             }
-
-            console.log("sigo")
             const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, songs } = req.body
             if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette  || !songs) {
-                console.log("He fallado al conseguir el body")
-                console.log(title + description + songs)
                 throw new Error()
             }
-
-            console.log("He conseguido los valores del body")
 
             const artistDAO = req.db!.createArtistDAO()
             const songDAO = req.db!.createSongDAO()
 
-            console.log("He conseguido el artista, genero y canción")
-
             const songsSplitted: string[] = songs.split(',')
-            console.log("He dividido las canciones que son: " + songsSplitted)
 
             const songArray = await Promise.all(songsSplitted.map(async (songID: string) => {
                 const song = await songDAO.findById(songID)
@@ -63,7 +48,6 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
 
             let albumDuration = 0
             songDTOArray.forEach((song) => albumDuration = albumDuration + song.duration)
-            console.log("El álbum dura: " + albumDuration)
 
             const genreMatrix = await Promise.all(songsSplitted.map(async (songID: string) => {
                 const song = await songDAO.findById(songID)
@@ -76,15 +60,10 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
             var genreArrayUnique = genreArray.filter(function(elem, index, self) {
                 return index === self.indexOf(elem);
             })
-            console.log("El album tiene los generos: " + genreArrayUnique)
-            
-            console.log("He conseguido los generos y las canciones")
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
 
-            console.log("El artita con uid: " + req.uid)
             const artist = await artistDAO.findByUid(req.uid!)
 
-            console.log("Empiezo a crear el album")
             const album = new AlbumDTO({
                 title,
                 releaseDate: new Date(),
@@ -104,7 +83,6 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
                 trackList: songArray,
                 versionHistory: []
             })
-            console.log("album creado")
 
             const albumDAO = req.db?.createAlbumDAO()
             const albumDoc = await albumDAO?.create(album)
