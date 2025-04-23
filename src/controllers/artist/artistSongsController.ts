@@ -12,12 +12,13 @@ export const artistSongsController = async (req: express.Request, res: express.R
             const genres = await Promise.all(song.genres.map(async (genre) => genreDAO.findById(genre)))
             const collaborators = await Promise.all(song.collaborators.map(async (collaborator) => await artistDAO.findById(collaborator.artist)))
             return {
-                _id: song?._id,
-                title: song?.title,
-                releaseDate: song?.releaseDate,
-                imgUrl: song?.imgUrl,
+                ...song,
+                productType: undefined,
+                author: undefined,
+                ratings: undefined,
+                songDir: undefined,
+                versionHistory: undefined,
                 genres: genres.map(genre => genre!.genre),
-                plays: song?.plays,
                 collaborators: collaborators.map(collaborator => ({
                     _id: collaborator?._id,
                     artistUsername: collaborator?.artistUsername,
@@ -25,7 +26,6 @@ export const artistSongsController = async (req: express.Request, res: express.R
                     artistImgUrl: collaborator?.artistImgUrl
                 }))
             }
-
         }))
 
         //console.log(songs)
