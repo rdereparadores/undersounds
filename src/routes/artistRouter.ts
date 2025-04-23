@@ -998,7 +998,7 @@ artistRouter.get('/transitions', artistTransactionsController)
  *       - bearerAuth: []
  */
 
-artistRouter.post('/update/song', artistSongsUpdateController)
+artistRouter.post('/songs/update', artistSongsUpdateController)
 
 /**
  * @swagger
@@ -1117,4 +1117,4 @@ artistRouter.post('/update/song', artistSongsUpdateController)
  *     security:
  *       - bearerAuth: []
  */
-artistRouter.post('/update/album', artistAlbumsUpdateController)
+artistRouter.post('/albums/update', artistAlbumsUpdateController)
