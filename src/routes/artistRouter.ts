@@ -1,6 +1,1127 @@
 import express from 'express'
+import { artistProfileController } from '../controllers/artist/artistProfileController'
+import { artistProfileUpdateController } from '../controllers/artist/artistProfileUpdateController'
+import {artistStatsController} from "../controllers/artist/artistStatsController";
+import { artistProfileUpdateProfileImageController } from '../controllers/artist/artistProfileUpdateProfileImageController';
+import { artistProfileUpdateBannerImageController } from '../controllers/artist/artistProfileUpdateBannerImageController';
+import { artistReleaseSongController } from '../controllers/artist/artistReleaseSongController';
+import { artistSongsController } from '../controllers/artist/artistSongsController'
+import { artistAlbumsController } from '../controllers/artist/artistAlbumsController';
+import { artistReleaseAlbumController } from '../controllers/artist/artistReleaseAlbumController';
+import { artistSongsUpdateController } from '../controllers/artist/artistSongsUpdateController';
+import { artistAlbumsUpdateController } from '../controllers/artist/artistAlbumsUpdateController';
+import {artistTransactionsController} from "../controllers/artist/artistTransitionsController";
+import { artistSongsHistoryController } from '../controllers/artist/artistSongsHistoryController';
+import { artistAlbumsHistoryController } from '../controllers/artist/artistAlbumsHistoryController';
 
-const artistRouter = express.Router()
+export const artistRouter = express.Router()
 
-artistRouter.get('profile', artistProfileController)
-artistRouter.post('profile/update', artistProfileUpdateController)
+// REVISADAS
+
+/**
+ * @swagger
+ * /artist/profile:
+ *  get:
+ *      tags:
+ *          - Artista
+ *      summary: Obtiene el perfil del artista autenticado
+ *      responses:
+ *          '200':
+ *              description: Perfil del artista obtenido con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      artistName:
+ *                                          type: string
+ *                                          description: Nombre artístico
+ *                                      artistUsername:
+ *                                          type: string
+ *                                          description: Nombre de usuario del artista
+ *                                      artistImgUrl:
+ *                                          type: string
+ *                                          description: URL de la imagen de perfil
+ *                                      artistBannerUrl:
+ *                                          type: string
+ *                                          description: URL de la imagen de banner
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.get('/profile', artistProfileController)
+
+/**
+ * @swagger
+ * /artist/songs:
+ *  get:
+ *      tags:
+ *          - Artista
+ *      summary: Obtiene las canciones del artista autenticado
+ *      responses:
+ *          '200':
+ *              description: Canciones obtenidas con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: array
+ *                                  items:
+ *                                      type: object
+ *                                      properties:
+ *                                          _id:
+ *                                              type: string
+ *                                              description: ID de la canción
+ *                                          title:
+ *                                              type: string
+ *                                              description: Título de la canción
+ *                                          description:
+ *                                              type: string
+ *                                              description: Descripción de la canción
+ *                                          imgUrl:
+ *                                              type: string
+ *                                              description: URL de la portada
+ *                                          releaseDate:
+ *                                              type: string
+ *                                              format: date
+ *                                              description: Fecha de lanzamiento
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.get('/songs', artistSongsController)
+
+/**
+ * @swagger
+ * /artist/albums:
+ *  get:
+ *      tags:
+ *          - Artista
+ *      summary: Obtiene los álbumes del artista autenticado
+ *      responses:
+ *          '200':
+ *              description: Álbumes obtenidos con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: array
+ *                                  items:
+ *                                      type: object
+ *                                      properties:
+ *                                          _id:
+ *                                              type: string
+ *                                              description: ID del álbum
+ *                                          title:
+ *                                              type: string
+ *                                              description: Título del álbum
+ *                                          description:
+ *                                              type: string
+ *                                              description: Descripción del álbum
+ *                                          imgUrl:
+ *                                              type: string
+ *                                              description: URL de la portada
+ *                                          releaseDate:
+ *                                              type: string
+ *                                              format: date
+ *                                              description: Fecha de lanzamiento
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.get('/albums', artistAlbumsController)
+
+/**
+ * @swagger
+ * /artist/profile/update:
+ *  post:
+ *      tags:
+ *          - Artista
+ *      summary: Actualiza la información del perfil del artista
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          artistName:
+ *                              type: string
+ *                              description: Nombre artístico
+ *                          artistUsername:
+ *                              type: string
+ *                              description: Nombre de usuario del artista
+ *      responses:
+ *          '200':
+ *              description: Perfil actualizado con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      message:
+ *                                          type: string
+ *                                          example: "OK"
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.post('/profile/update', artistProfileUpdateController)
+
+/**
+ * @swagger
+ * /artist/profile/update/profileImage:
+ *  post:
+ *      tags:
+ *          - Artista
+ *      summary: Actualiza la imagen de perfil del artista
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              multipart/form-data:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          artistProfileImg:
+ *                              type: string
+ *                              format: binary
+ *                              description: Imagen de perfil
+ *      responses:
+ *          '200':
+ *              description: Imagen de perfil actualizada con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      message:
+ *                                          type: string
+ *                                          example: "OK"
+ *          '400':
+ *              description: Error en la solicitud
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.post('/profile/update/profileImage', artistProfileUpdateProfileImageController)
+
+/**
+ * @swagger
+ * /artist/profile/update/bannerImage:
+ *  post:
+ *      tags:
+ *          - Artista
+ *      summary: Actualiza la imagen de banner del artista
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              multipart/form-data:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          artistBannerImg:
+ *                              type: string
+ *                              format: binary
+ *                              description: Imagen de banner
+ *      responses:
+ *          '200':
+ *              description: Imagen de banner actualizada con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      message:
+ *                                          type: string
+ *                                          example: "OK"
+ *          '400':
+ *              description: Error en la solicitud
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.post('/profile/update/bannerImage', artistProfileUpdateBannerImageController)
+
+/**
+ * @swagger
+ * /artist/release/song:
+ *  post:
+ *      tags:
+ *          - Artista
+ *      summary: Publica una nueva canción
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              multipart/form-data:
+ *                  schema:
+ *                      type: object
+ *                      required:
+ *                          - title
+ *                          - description
+ *                          - priceDigital
+ *                          - priceCd
+ *                          - priceVinyl
+ *                          - priceCassette
+ *                          - genres
+ *                          - img
+ *                          - song
+ *                      properties:
+ *                          title:
+ *                              type: string
+ *                              description: Título de la canción
+ *                          description:
+ *                              type: string
+ *                              description: Descripción de la canción
+ *                          priceDigital:
+ *                              type: number
+ *                              description: Precio en formato digital
+ *                          priceCd:
+ *                              type: number
+ *                              description: Precio en formato CD
+ *                          priceVinyl:
+ *                              type: number
+ *                              description: Precio en formato vinilo
+ *                          priceCassette:
+ *                              type: number
+ *                              description: Precio en formato cassette
+ *                          genres:
+ *                              type: string
+ *                              description: Géneros separados por comas
+ *                          collaborators:
+ *                              type: string
+ *                              description: Colaboradores separados por comas
+ *                          img:
+ *                              type: string
+ *                              format: binary
+ *                              description: Imagen de portada
+ *                          song:
+ *                              type: string
+ *                              format: binary
+ *                              description: Archivo de audio
+ *      responses:
+ *          '200':
+ *              description: Canción publicada con éxito
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              data:
+ *                                  type: object
+ *                                  properties:
+ *                                      id:
+ *                                          type: string
+ *                                          description: ID de la canción creada
+ *          '400':
+ *              description: Error en la solicitud
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 3000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Datos necesarios no proporcionados"
+ *                                          description: Mensaje de error
+ *          '401':
+ *              description: No autorizado
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 1000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Token de usuario no proporcionado"
+ *                                          description: Mensaje de error
+ *          '500':
+ *              description: Error del servidor
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: number
+ *                                          example: 2000
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          example: "Error obteniendo la información de la base de datos"
+ *                                          description: Mensaje de error
+ *      security:
+ *          - bearerAuth: []
+ */
+artistRouter.post('/release/song', artistReleaseSongController)
+
+/**
+ * @swagger
+ * /artist/release/album:
+ *   post:
+ *     tags:
+ *       - Artista
+ *     summary: Publica un nuevo álbum
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - priceDigital
+ *               - priceCd
+ *               - priceVinyl
+ *               - priceCassette
+ *               - songs
+ *               - albumImage
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Título del álbum
+ *               description:
+ *                 type: string
+ *                 description: Descripción del álbum
+ *               priceDigital:
+ *                 type: number
+ *                 description: Precio en formato digital
+ *               priceCd:
+ *                 type: number
+ *                 description: Precio en formato CD
+ *               priceVinyl:
+ *                 type: number
+ *                 description: Precio en formato vinilo
+ *               priceCassette:
+ *                 type: number
+ *                 description: Precio en formato cassette
+ *               songs:
+ *                 type: string
+ *                 description: IDs de las canciones separadas por comas
+ *               albumImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de portada del álbum
+ *     responses:
+ *       '200':
+ *         description: Álbum publicado con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID del álbum creado
+ *       '400':
+ *         description: Error en la solicitud
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                       description: Código de error (datos faltantes o invalidos)
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *                       description: Mensaje de error
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                       description: Código de error de autenticación
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *                       description: Mensaje de error
+ *       '500':
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                       description: Código de error interno
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *                       description: Mensaje descriptivo del error
+ *     security:
+ *       - bearerAuth: []
+ */
+artistRouter.post('/release/album', artistReleaseAlbumController)
+
+/**
+ * @swagger
+ * /artist/stats:
+ *   get:
+ *     tags:
+ *       - Artista
+ *     summary: Obtiene estadísticas agregadas del artista autenticado
+ *     responses:
+ *       '200':
+ *         description: Estadísticas obtenidas con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     copiesSold:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Número de copias vendidas en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Número de copias vendidas en el mes anterior
+ *                     releases:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Número de lanzamientos en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Número de lanzamientos en el mes anterior
+ *                     mostSoldFormat:
+ *                       type: object
+ *                       properties:
+ *                         format:
+ *                           type: string
+ *                           description: Formato con más ventas (digital, cd, cassette o vinyl)
+ *                         percentage:
+ *                           type: number
+ *                           description: Porcentaje de ventas en ese formato
+ *                     salesFormat:
+ *                       type: object
+ *                       properties:
+ *                         digital:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato digital este mes
+ *                         cd:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato CD este mes
+ *                         cassette:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato cassette este mes
+ *                         vinyl:
+ *                           type: number
+ *                           description: Cantidad de ventas en formato vinyl este mes
+ *                     topProducts:
+ *                       type: array
+ *                       description: Top 5 de productos más vendidos (título + número de ventas)
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           title:
+ *                             type: string
+ *                             description: Título del producto
+ *                           sales:
+ *                             type: number
+ *                             description: Número de ventas de ese producto
+ *                     monthlyListeners:
+ *                       type: object
+ *                       properties:
+ *                         thisMonth:
+ *                           type: number
+ *                           description: Oyentes únicos en el mes actual
+ *                         pastMonth:
+ *                           type: number
+ *                           description: Oyentes únicos en el mes anterior
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                       description: Código de error (no token o token inválido)
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *                       description: Mensaje de error
+ *       '500':
+ *         description: Error del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                       description: Código de error
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo las estadísticas del artista"
+ *                       description: Mensaje de error
+ *     security:
+ *       - bearerAuth: []
+ */
+artistRouter.get('/stats', artistStatsController)
+
+artistRouter.get('/transitions', artistTransactionsController)
+
+/**
+ * @swagger
+ * /artist/update/song:
+ *   post:
+ *     tags:
+ *       - Artista
+ *     summary: Actualiza una canción existente y crea nueva versión
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - title
+ *               - description
+ *               - priceDigital
+ *               - priceCd
+ *               - priceVinyl
+ *               - priceCassette
+ *               - genres
+ *               - img
+ *               - song
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID de la canción a actualizar
+ *               title:
+ *                 type: string
+ *                 description: Nuevo título de la canción
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripción de la canción
+ *               priceDigital:
+ *                 type: number
+ *                 description: Nuevo precio digital
+ *               priceCd:
+ *                 type: number
+ *                 description: Nuevo precio CD
+ *               priceVinyl:
+ *                 type: number
+ *                 description: Nuevo precio vinilo
+ *               priceCassette:
+ *                 type: number
+ *                 description: Nuevo precio cassette
+ *               genres:
+ *                 type: string
+ *                 description: Géneros separados por comas
+ *               collaborators:
+ *                 type: string
+ *                 description: Colaboradores separados por comas
+ *               img:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nueva portada de la canción
+ *               song:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nuevo archivo de audio
+ *     responses:
+ *       '200':
+ *         description: Canción actualizada y nueva versión creada con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID de la nueva versión de la canción
+ *       '400':
+ *         description: Error en la solicitud (campos faltantes o formato de audio inválido)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *     security:
+ *       - bearerAuth: []
+ */
+
+artistRouter.post('/songs/update', artistSongsUpdateController)
+
+artistRouter.post('/songs/history', artistSongsHistoryController)
+
+
+/**
+ * @swagger
+ * /artist/update/album:
+ *   post:
+ *     tags:
+ *       - Artista
+ *     summary: Actualiza un álbum existente y crea nueva versión
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - title
+ *               - description
+ *               - priceDigital
+ *               - priceCd
+ *               - priceVinyl
+ *               - priceCassette
+ *               - songs
+ *               - albumImage
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID del álbum a actualizar
+ *               title:
+ *                 type: string
+ *                 description: Nuevo título del álbum
+ *               description:
+ *                 type: string
+ *                 description: Nueva descripción del álbum
+ *               priceDigital:
+ *                 type: number
+ *                 description: Nuevo precio digital
+ *               priceCd:
+ *                 type: number
+ *                 description: Nuevo precio CD
+ *               priceVinyl:
+ *                 type: number
+ *                 description: Nuevo precio vinilo
+ *               priceCassette:
+ *                 type: number
+ *                 description: Nuevo precio cassette
+ *               songs:
+ *                 type: string
+ *                 description: IDs de las canciones separadas por comas (track list)
+ *               albumImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Nueva portada del álbum
+ *     responses:
+ *       '200':
+ *         description: Álbum actualizado y nueva versión creada con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID de la nueva versión del álbum
+ *       '400':
+ *         description: Error en la solicitud (campos faltantes o fichero inválido)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *       '401':
+ *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 1000
+ *                     message:
+ *                       type: string
+ *                       example: "Token de usuario no proporcionado"
+ *       '500':
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *     security:
+ *       - bearerAuth: []
+ */
+artistRouter.post('/albums/update', artistAlbumsUpdateController)
+
+artistRouter.post('/albums/history', artistAlbumsHistoryController)

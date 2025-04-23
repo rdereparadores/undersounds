@@ -5,3 +5,5 @@ src/views/
 src/utils/admin.json
 public/
 protected/
+src/utils/redis.ts
+.idea

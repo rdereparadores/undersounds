@@ -1,0 +1,58 @@
+{
+    "1000": {
+        "httpCode": "401",
+        "message": "Token de usuario no proporcionado"
+    },
+    "1001": {
+        "httpCode": "401",
+        "message": "Rol de artista requerido"
+    },
+    "1002": {
+        "httpCode": "401",
+        "message": "Token de usuario no válido o expirado"
+    },
+    "1003": {
+        "httpCode": "401",
+        "message": "Usuario sin acceso al recurso"
+    },
+    
+    "2000": {
+        "httpCode": "500",
+        "message": "Error obteniendo la información de la base de datos"
+    },
+
+    "3000": {
+        "httpCode": "400",
+        "message": "Datos necesarios no proporcionados"
+    },
+    "3001": {
+        "httpCode": "400",
+        "message": "Datos proporcionados no válidos"
+    },
+    "3002": {
+        "httpCode": "400",
+        "message": "Error en la subida del archivo"
+    },
+    "3003": {
+        "httpCode": "400",
+        "message": "Error al realizar la valoración. El usuario ya valoró el producto anteriormente"
+    },
+
+    "4000": {
+        "httpCode": "400",
+        "message": "El nombre de usuario ya existe"
+    },
+    "4001": {
+        "httpCode": "400",
+        "message": "El correo electrónico ya está registrado"
+    },
+    "4002": {
+        "httpCode": "400",
+        "message": "El correo electrónico proporcionado no es válido"
+    },
+
+    "5000": {
+        "httpCode": "400",
+        "message": "Prompt no válido"
+    }
+}

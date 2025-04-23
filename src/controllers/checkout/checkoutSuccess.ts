@@ -1,25 +1,48 @@
 import express from 'express'
 import Stripe from 'stripe'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 export const checkoutSuccess = async (req: express.Request, res: express.Response) => {
-    if (!req.body.sessionId) {
-        res.status(200).send({ err: 'NO_SESSION_ID_PROVIDED' })
-        return
+    const { sessionId } = req.body
+    if (!sessionId) {
+        return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+            error: {
+                code: 3000,
+                message: apiErrorCodes[3000].message
+            }
+        })
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
-    const sessionId: string = req.body.sessionId
+    const orderDAO = req.db!.createOrderDAO()
+    const userDAO = req.db!.createBaseUserDAO()
+    const order = await orderDAO.findByStripeCheckoutId(sessionId)
+    if (!order) throw new Error()
 
     try {
         const session = await stripe.checkout.sessions.retrieve(sessionId)
         if (session.payment_status == 'paid') {
-            // Buscar pedido asociado a ese ID, marcar como pagado
-            res.send({msg: 'ORDER_PAID'})
+            await orderDAO.markAsPaid(order)
+            await Promise.all(order.lines.map(async (line) => {
+                if (line.format === 'digital') {
+                    await userDAO.addToLibrary({ _id: order.user }, { _id: line.product })
+                }
+            }))
+            res.json({
+                data: { paid: true }
+            })
         } else {
-            // Devolver error
-            res.send({msg: 'ORDER_NOT_PAID'})
+            res.json({
+                data: { paid: false }
+            })
         }
     } catch (err) {
-        res.status(400).send({msg: 'SESSION_ID_NOT_FOUND'})
+        console.log(err)
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
+            error: {
+                code: 2000,
+                message: apiErrorCodes[2000].message
+            }
+        })
     }
 }

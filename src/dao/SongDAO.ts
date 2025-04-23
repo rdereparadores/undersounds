@@ -6,7 +6,7 @@ import { IProductDAO, ProductDAO } from "./ProductDAO"
 
 export interface ISongDAO extends IProductDAO {
     create(song: SongDTO): Promise<SongDTO>
-    
+
     findById(_id: string): Promise<SongDTO | null>
     findByTitle(title: string): Promise<SongDTO[]>
     findByArtist(artist: Partial<ArtistDTO>): Promise<SongDTO[]>
@@ -14,6 +14,7 @@ export interface ISongDAO extends IProductDAO {
     findByTopViews(limit: number): Promise<SongDTO[]>
     findByGenre(genre: Partial<GenreDTO>): Promise<SongDTO[]>
     findRecommendations(song: Partial<SongDTO>, limit: number): Promise<SongDTO[]>
+    findMostPlayed(limit: number): Promise<SongDTO[]>
 
     getAll(): Promise<SongDTO[]>
 
@@ -50,7 +51,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         const songs = await Song.find({ author: artist._id })
         if (songs === null) return []
 
-        return songs.map(song => SongDTO.fromDocument(song))
+        return songs.map(song => SongDTO.fromDocument(song)).filter(song => song.version === undefined)
     }
 
     async findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]> {
@@ -98,6 +99,15 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         return recommendations.map(song => SongDTO.fromDocument(song))
     }
 
+    async findMostPlayed(limit: number): Promise<SongDTO[]> {
+        const songs = await Song.find()
+            .sort({ plays: -1 })
+            .limit(limit)
+        if (songs === null) return []
+
+        return songs.map(song => SongDTO.fromDocument(song))
+    }
+
     async getAll(): Promise<SongDTO[]> {
         const songs = await Song.find()
         if (songs === null) return []
@@ -124,37 +134,51 @@ export class SongDAO extends ProductDAO implements ISongDAO {
     }
 
     async getVersionFromVersionHistory(song: Partial<SongDTO>, version: number): Promise<SongDTO | null> {
-        const songDoc = await Song.findById(song._id)
-        if (songDoc === null || songDoc.versionHistory.length === 0) return null
-
-        const versionDoc = await Song.find({
+    
+        const songDoc = await Song.findById(song._id);
+        if (!songDoc) {
+            return null;
+        }
+    
+        if (!songDoc.versionHistory || songDoc.versionHistory.length === 0) {
+            return null;
+        }
+    
+        const versionDoc = await Song.findOne({
             _id: { $in: songDoc.versionHistory },
             version: version
-        })
-
-        if (versionDoc === null) return null
-
-        return SongDTO.fromDocument(versionDoc[0])
+        });
+    
+        if (!versionDoc) {
+            return null;
+        }
+    
+        return SongDTO.fromDocument(versionDoc);
     }
 
-    async addToVersionHistory(song: Partial<SongDTO>, version: SongDTO): Promise<boolean> {
-        const songDoc = await Song.findById(song._id)
-        if (songDoc === null) return false
+    async addToVersionHistory(songNueva: Partial<SongDTO>, songVieja: SongDTO): Promise<boolean> {
+    const songViejaDoc = await Song.findById(songVieja._id);
+    if (!songViejaDoc) {
+       // console.error("No se encontró la canción vieja");
+        return false;
+    }
 
-        const songGeneric = SongDTO.fromDocument(songDoc)
-        songGeneric._id = undefined
-        songGeneric.versionHistory = []
+    songViejaDoc.versionHistory = [];
+    await songViejaDoc.save();
 
-        const newVersion = await Song.create({
-            ...songGeneric.toJson(),
-            ...version.toJson(),
-            version: songDoc.versionHistory.length
-        })
+    const songNuevaDoc = await Song.findById(songNueva._id);
+    if (!songNuevaDoc) {
+        //console.error("No se encontró la canción nueva");
+        return false;
+    }
 
-        await Song.findByIdAndUpdate(song._id, {
-            $push: { versionHistory: newVersion._id }
-        })
+    songNuevaDoc.versionHistory.push(songViejaDoc.id);
 
-        return true
+    songViejaDoc.version = songNuevaDoc.versionHistory.length - 1
+
+    await songViejaDoc.save();
+    await songNuevaDoc.save();
+
+    return true;
     }
 }

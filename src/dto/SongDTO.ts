@@ -3,9 +3,7 @@ import { ProductDTO, ProductDTOProps } from "./ProductDTO"
 
 export interface SongDTOProps extends ProductDTOProps {
     songDir: string,
-    duration: number,
     plays: number,
-    genres: string[],
     collaborators: {
         artist: string,
         accepted: boolean
@@ -15,9 +13,7 @@ export interface SongDTOProps extends ProductDTOProps {
 
 export class SongDTO extends ProductDTO implements SongDTOProps {
     songDir: string
-    duration: number
     plays: number
-    genres: string[]
     collaborators: {
         artist: string,
         accepted: boolean
@@ -27,9 +23,7 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
     constructor(props: SongDTOProps) {
         super(props)
         this.songDir = props.songDir
-        this.duration = props.duration
         this.plays = props.plays
-        this.genres = props.genres
         this.collaborators = props.collaborators
         this.versionHistory = props.versionHistory
     }
@@ -38,9 +32,7 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
         return {
             ...super.toJson(),
             songDir: this.songDir,
-            duration: this.duration,
             plays: this.plays,
-            genres: this.genres,
             collaborators: this.collaborators,
             versionHistory: this.versionHistory
         }
@@ -51,9 +43,7 @@ export class SongDTO extends ProductDTO implements SongDTOProps {
         return new SongDTO({
             ...productProps,
             songDir: doc.songDir,
-            duration: doc.duration,
             plays: doc.plays,
-            genres: doc.genres.map(genre => genre.toString()),
             collaborators: doc.collaborators.map(collaborator => (
                 { 
                     artist: collaborator.artist.toString(),

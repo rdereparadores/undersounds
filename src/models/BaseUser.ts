@@ -12,7 +12,10 @@ export interface IBaseUser extends Document {
     userType: 'user' | 'artist',
     following: Schema.Types.ObjectId[],
     library: Schema.Types.ObjectId[],
-    listeningHistory: Schema.Types.ObjectId[],
+    listeningHistory: {
+        song: Schema.Types.ObjectId,
+        playedAt: Date
+    }[],
     addresses: {
         alias: string,
         name: string,
@@ -39,7 +42,10 @@ export const BaseUserSchema = new Schema<IBaseUser>({
     imgUrl: { type: String, default: '/assets/img/profile/user/default.jpg' },
     following: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
     library: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
-    listeningHistory: [{ type: Schema.Types.ObjectId, ref: 'Song' }],
+    listeningHistory: [{
+        song: { type: Schema.Types.ObjectId, ref: 'Product' },
+        playedAt: { type: Date, default: new Date() }
+    }],
     addresses: [{
         alias: { type: String, required: true, sparse: true },
         name: { type: String, required: true },

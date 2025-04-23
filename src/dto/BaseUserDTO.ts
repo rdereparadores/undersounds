@@ -1,6 +1,7 @@
 import { IBaseUser } from "../models/BaseUser"
 
 export interface AddressDTO {
+    _id?: string,
     alias: string,
     name: string,
     surname: string,
@@ -27,7 +28,10 @@ export interface BaseUserDTOProps {
     userType: 'user' | 'artist',
     following: string[],
     library: string[],
-    listeningHistory: string[],
+    listeningHistory: {
+        song: string,
+        playedAt: Date
+    }[],
     addresses: AddressDTO[]
 }
 
@@ -43,7 +47,10 @@ export class BaseUserDTO implements BaseUserDTOProps {
     userType: 'user' | 'artist'
     following: string[]
     library: string[]
-    listeningHistory: string[]
+    listeningHistory: {
+        song: string,
+        playedAt: Date
+    }[]
     addresses: AddressDTO[]
 
     constructor(props: BaseUserDTOProps) {
@@ -93,7 +100,7 @@ export class BaseUserDTO implements BaseUserDTOProps {
             userType: doc.userType,
             following: doc.following.map(artist => artist.toString()),
             library: doc.library.map(product => product.toString()),
-            listeningHistory: doc.listeningHistory.map(song => song.toString()),
+            listeningHistory: doc.listeningHistory.map(song => ({ song: song.song.toString(), playedAt: song.playedAt })),
             addresses: doc.addresses
         })
     }

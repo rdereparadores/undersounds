@@ -1,74 +1,89 @@
-import express, { NextFunction, Request, request, Response, response } from 'express'
+import express from 'express'
 import 'dotenv/config'
-import { UserDTO } from '../../dto/UserDTO';
-import { ArtistDTO } from '../../dto/ArtistDTO';
-import { appFireBase, auth } from '../../utils/firebase';
-import {
-    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    GoogleAuthProvider,
-    signInWithPopup,
-} from "firebase/auth";
-import { FirebaseError } from 'firebase/app';
+import { UserDTO } from '../../dto/UserDTO'
+import { ArtistDTO } from '../../dto/ArtistDTO'
+import { appFireBase, auth } from '../../utils/firebase'
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { FirebaseError } from 'firebase/app'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
-
-export const authSignUpController = async (request: express.Request, response: express.Response) => {
+export const authSignUpController = async (req: express.Request, res: express.Response) => {
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, request.body.email, request.body.password)
+        const { name, surname, username, birthDate, email, password, userType, artistName, artistUsername } = req.body
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
         const idToken = await userCredential.user.getIdToken()
+
         const decodedToken = await appFireBase.auth().verifyIdToken(idToken)
 
-        const exist = await request.db?.createBaseUserDAO().findByUid(decodedToken.uid)
+        const userDAO = req.db!.createUserDAO()
+        const artistDAO = req.db!.createArtistDAO()
 
-        if (request.body.userType === "user" && exist === null) {
-            const user = await request.db?.createUserDAO().create(new UserDTO({
-                name: request.body.name,
-                sur_name: request.body.surName,
-                user_name: request.body.userName,
-                birth_date: request.body.birthDate,
-                email: request.body.email,
+        if (userType === "user") {
+            await userDAO.create(new UserDTO({
+                name: name,
+                surname: surname,
+                username: username,
+                birthDate: birthDate,
+                email: email,
                 uid: decodedToken.uid,
-                img_url: "",
-                user_type: 'user',
+                imgUrl: '/public/uploads/user/profile/generic.jpg',
+                userType: 'user',
                 following: [],
                 library: [],
-                listening_history: [],
+                listeningHistory: [],
                 addresses: []
             }))
-            response.send({ msg: { token: decodedToken } })
-
+        } else if (userType === "artist") {
+            await artistDAO.create(new ArtistDTO({
+                name: name,
+                artistName: artistName,
+                surname: surname,
+                username: username,
+                artistUsername: artistUsername,
+                birthDate: birthDate,
+                email: email,
+                uid: decodedToken.uid,
+                imgUrl: '/public/uploads/user/profile/generic.jpg',
+                userType: 'artist',
+                following: [],
+                library: [],
+                listeningHistory: [],
+                addresses: [],
+                artistBannerUrl: '/public/uploads/artist/banner/generic.jpg',
+                artistImgUrl: '/public/uploads/artist/profile/generic.jpg',
+                followerCount: 0
+            }))
         } else {
-            if (request.body.userType === "artist" && exist === null) {
-                const registroArtist = request.db?.createArtistDAO().create(new ArtistDTO({
-                    name: request.body.name,
-                    artist_name: request.body.artistName,
-                    sur_name: request.body.surName,
-                    user_name: request.body.artistUserName,
-                    artist_user_name: request.body.artistUserName,
-                    birth_date: request.body.birthDate,
-                    email: request.body.email,
-                    uid: decodedToken.uid,
-                    img_url: "",
-                    user_type: 'artist',
-                    following: [],
-                    library: [],
-                    listening_history: [],
-                    addresses: []
-                }));
-                response.send({ msg: { token: decodedToken } })
-
-            } else {
-                response.send({ err: "USER_ALREADY_EXISTS" })
-            }
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+                error: {
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
+                }
+            })
         }
-    } catch (error: unknown) {
+
+        res.json({
+            data: {
+                token: idToken
+            }
+        })
+    } catch (error) {
         if (error instanceof FirebaseError) {
             const errorCode = error.code
             if (errorCode === 'auth/email-already-in-use') {
-                response.send({ err: "EMAIL_ALREADY_IN_USE" })
+                return res.status(Number(apiErrorCodes[4001].httpCode)).json({
+                    error: {
+                        code: 4001,
+                        message: apiErrorCodes[4001].message
+                    }
+                })
             } else if (errorCode === 'auth/invalid-email') {
-                response.send({ err: "INVALID_EMAIL" })
-            } else if (errorCode === 'auth/weak-password') {
-                response.send({ err: "WEAK_PASSWORD" })
+                return res.status(Number(apiErrorCodes[4002].httpCode)).json({
+                    error: {
+                        code: 4002,
+                        message: apiErrorCodes[4002].message
+                    }
+                })
             }
         }
     }

@@ -71,7 +71,7 @@ export class ArtistDAO extends BaseUserDAO implements IArtistDAO {
             { ...artist.toJson!() },
             { new: true }
         )
-
+        
         return updatedArtist !== null
     }
 

@@ -1,11 +1,11 @@
 import { AlbumDAO } from "../dao/AlbumDAO"
-import { ArtistDAO } from "../dao/ArtistDAO"
 import { BaseUserDAO } from "../dao/BaseUserDAO"
+import { UserDAO } from "../dao/UserDAO"
+import { ArtistDAO } from "../dao/ArtistDAO"
 import { GenreDAO } from "../dao/GenreDAO"
 import { OrderDAO } from "../dao/OrderDAO"
 import { ProductDAO } from "../dao/ProductDAO"
 import { SongDAO } from "../dao/SongDAO"
-import { UserDAO } from "../dao/UserDAO"
 
 export interface InterfaceDAOFactory {
     createBaseUserDAO(): BaseUserDAO

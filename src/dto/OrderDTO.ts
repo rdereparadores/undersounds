@@ -8,6 +8,14 @@ export interface OrderDTOProps {
     trackingNumber?: string,
     stripeCheckoutId: string,
     user: string,
+    address: {
+        name: string,
+        surname: string,
+        address: string,
+        city: string,
+        zipCode: string,
+        country: string
+    },
     lines: {
         quantity: number,
         format: 'digital' | 'cd' | 'cassette' | 'vinyl',
@@ -24,6 +32,14 @@ export class OrderDTO implements OrderDTOProps {
     trackingNumber?: string
     stripeCheckoutId: string
     user: string
+    address: {
+        name: string,
+        surname: string,
+        address: string,
+        city: string,
+        zipCode: string,
+        country: string
+    }
     lines: {
         quantity: number,
         format: 'digital' | 'cd' | 'cassette' | 'vinyl',
@@ -40,6 +56,7 @@ export class OrderDTO implements OrderDTOProps {
         this.stripeCheckoutId = props.stripeCheckoutId
         this.user = props.user
         this.lines = props.lines
+        this.address = props.address
     }
 
     toJson(): OrderDTOProps {
@@ -50,18 +67,21 @@ export class OrderDTO implements OrderDTOProps {
             trackingNumber: this.trackingNumber,
             stripeCheckoutId: this.stripeCheckoutId,
             user: this.user,
-            lines: this.lines
+            lines: this.lines,
+            address: this.address
         }
     }
     
     static fromDocument(doc: IOrder) {
         return new OrderDTO({
+            _id: doc._id.toString(),
             purchaseDate: doc.purchaseDate,
             status: doc.status,
             paid: doc.paid,
             trackingNumber: doc.trackingNumber,
             stripeCheckoutId: doc.stripeCheckoutId,
             user: doc.user.toString(),
+            address: doc.address,
             lines: doc.lines.map(line => ({
                 quantity: line.quantity,
                 format: line.format,

@@ -9,6 +9,8 @@ export interface ProductDTOProps {
     version?: number,
     productType: 'song' | 'album',
     author: string,
+    duration: number,
+    genres: string[],
     pricing: {
         cd: number,
         digital: number,
@@ -27,6 +29,8 @@ export class ProductDTO implements ProductDTOProps {
     version?: number
     productType: 'song' | 'album'
     author: string
+    duration: number
+    genres: string[]
     pricing: {
         cd: number
         digital: number
@@ -44,6 +48,8 @@ export class ProductDTO implements ProductDTOProps {
         this.version = props.version
         this.productType = props.productType
         this.author = props.author
+        this.duration = props.duration
+        this.genres = props.genres
         this.pricing = props.pricing
         this.ratings = props.ratings
     }
@@ -58,6 +64,8 @@ export class ProductDTO implements ProductDTOProps {
             version: this.version,
             productType: this.productType,
             author: this.author,
+            duration: this.duration,
+            genres: this.genres,
             pricing: this.pricing,
             ratings: this.ratings
         }
@@ -73,6 +81,8 @@ export class ProductDTO implements ProductDTOProps {
             version: doc.version,
             productType: doc.productType,
             author: doc.author.toString(),
+            duration: doc.duration,
+            genres: doc.genres.map(genre => genre.toString()),
             pricing: doc.pricing,
             ratings: doc.ratings.map(rating => rating.toString())
         })

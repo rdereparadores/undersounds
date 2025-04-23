@@ -4,6 +4,7 @@ import { RatingDTO } from "../dto/RatingDTO"
 import { Product } from "../models/Product"
 import { Rating } from "../models/Rating"
 import { GenreDTO } from "../dto/GenreDTO"
+import { BaseUser } from "../models/BaseUser"
 
 export interface IProductDAO {
     findById(_id: string): Promise<ProductDTO | null>
@@ -13,10 +14,12 @@ export interface IProductDAO {
     findWithFilters(
         skip: number,
         limit: number,
+        query?: string,
         genres?: Partial<GenreDTO>[],
         date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
         sortBy?: 'relevance' | 'releaseDate'
-    ): Promise<{products: ProductDTO[], totalCount: number}>
+    ): Promise<{ products: (ProductDTO)[], totalCount: number }>
+    findRecommendations(product: Partial<ProductDTO>, limit: number): Promise<ProductDTO[]>
 
     getAll(): Promise<ProductDTO[]>
 
@@ -25,10 +28,15 @@ export interface IProductDAO {
     getRatings(product: Partial<ProductDTO>): Promise<RatingDTO[]>
     addRating(product: Partial<ProductDTO>, rating: RatingDTO): Promise<boolean>
     removeRating(product: Partial<ProductDTO>, rating: Partial<RatingDTO>): Promise<boolean>
+
+    hasUserRatedProductFormat(userId: string, productId: string, format: string): Promise<boolean>
+    getUserRatedFormats(userId: string, productId: string): Promise<string[]>
+    getRatingById(ratingId: string): Promise<RatingDTO | null>
+    updateRating(ratingId: string, data: Partial<RatingDTO>): Promise<boolean>
 }
 
 export class ProductDAO implements IProductDAO {
-    constructor() {}
+    constructor() { }
 
     async findById(_id: string): Promise<ProductDTO | null> {
         const product = await Product.findById(_id)
@@ -69,20 +77,29 @@ export class ProductDAO implements IProductDAO {
     async findWithFilters(
         page: number,
         limit: number,
+        query?: string,
         genres?: Partial<GenreDTO>[],
         date?: 'today' | 'week' | 'month' | '3months' | '6months' | 'year',
         sortBy?: 'relevance' | 'releaseDate'
-    ): Promise<{products: ProductDTO[], totalCount: number}> {
+    ): Promise<{ products: (ProductDTO)[], totalCount: number }> {
         const filterQuery: {
-            genres?: string[],
+            genres?: { $all: string[] },
             releaseDate?: {
                 $gte?: Date,
                 $lte?: Date
-            }
+            },
+            title?: { $regex: string, $options: string }
         } = {}
 
         if (genres) {
-            filterQuery.genres = genres.map(genre => genre._id!)
+            const genreIds = genres.map(genre => genre._id!).filter(id => !!id)
+            if (genreIds.length > 0) {
+                filterQuery.genres = { $all: genreIds }
+            }
+        }
+
+        if (query) {
+            filterQuery.title = { $regex: query, $options: 'i' }
         }
 
         if (date) {
@@ -123,16 +140,38 @@ export class ProductDAO implements IProductDAO {
 
         const totalCount = await Product.countDocuments(filterQuery)
 
-        let query = Product.find(filterQuery).sort(sortOptions)
-        query = query.skip((page - 1) * limit).limit(limit)
-        const products = await query.exec()
+        let queryResult = Product.find(filterQuery).sort(sortOptions)
+        if (page > 0 && limit > 0) {
+            queryResult = queryResult.skip((page - 1) * limit).limit(limit)
+        }
+        const products = await queryResult.exec()
 
-        const productDTOs = products.map(product => ProductDTO.fromDocument(product))
+        const productDTOs = await Promise.all(products.map(async (product) => {
+            return ProductDTO.fromDocument(product)
+        }))
+        const productDTOsFiltered = productDTOs.filter(product => product !== undefined)
 
         return {
-            products: productDTOs,
+            products: productDTOsFiltered,
             totalCount
         }
+    }
+
+    async findRecommendations(product: Partial<ProductDTO>, limit: number): Promise<ProductDTO[]> {
+        const productDoc = await Product.findById(product._id)
+        if (productDoc === null) return []
+
+        const recommendations = await Product.aggregate([
+            {
+                $match: {
+                    _id: { $ne: productDoc._id },
+                    genres: { $in: productDoc.genres }
+                }
+            },
+            { $sample: { size: limit } }
+        ])
+
+        return recommendations.map(product => ProductDTO.fromDocument(product))
     }
 
     async getAll(): Promise<ProductDTO[]> {
@@ -146,38 +185,103 @@ export class ProductDAO implements IProductDAO {
     }
 
     async getRatings(product: Partial<ProductDTO>): Promise<RatingDTO[]> {
-        const productDoc = await Product.findById(product._id)
+        const productDoc = await Product.findById(product._id);
 
-        if (productDoc === null) return []
-        if (!productDoc.ratings || productDoc.ratings.length === 0) return []
+        if (productDoc === null || !productDoc.ratings || productDoc.ratings.length === 0) return [];
 
-        const ratings = await Rating.find({
-            _id: {$in: productDoc.ratings}
-        })
+        try {
+            const ratings = await Rating.find({
+                _id: { $in: productDoc.ratings }
+            });
 
-        return ratings.map(rating => RatingDTO.fromDocument(rating))
+            const ratingDTOs = [];
+            for (const rating of ratings) {
+                const ratingDTO = RatingDTO.fromDocument(rating);
+                ratingDTOs.push(ratingDTO);
+            }
+
+            return ratingDTOs;
+        } catch (error) {
+            console.error("Error al obtener valoraciones:", error);
+            return [];
+        }
     }
 
     async addRating(product: Partial<ProductDTO>, rating: RatingDTO): Promise<boolean> {
-        await Rating.create({
-            ...rating.toJson()
-        })
+        try {
+            const newRating = await Rating.create({
+                ...rating.toJson()
+            })
 
-        const result = await Product.findByIdAndUpdate(product._id, {
-            $push: { ratings: rating._id }
-        }, { new: true })
+            if (!newRating) return false
 
-        return result !== null
+            const result = await Product.findByIdAndUpdate(product._id, {
+                $push: { ratings: newRating._id }
+            }, { new: true })
+
+            return result !== null
+        } catch (error) {
+            console.error("Error al agregar valoración:", error)
+            return false
+        }
     }
 
     async removeRating(product: Partial<ProductDTO>, rating: Partial<RatingDTO>): Promise<boolean> {
-        const ratingResult = await Rating.findByIdAndDelete(rating._id)
-        if (ratingResult === null) return false
+        try {
+            const ratingResult = await Rating.findByIdAndDelete(rating._id)
+            if (ratingResult === null) return false
 
-        const productResult = await Product.findByIdAndUpdate(product._id, {
-            $pop: { ratings: rating._id }
-        }, { new: true })
+            const productResult = await Product.findByIdAndUpdate(product._id, {
+                $pull: { ratings: rating._id }
+            }, { new: true })
 
-        return productResult !== null
+            return productResult !== null
+        } catch (error) {
+            console.error("Error al eliminar valoración:", error)
+            return false
+        }
+    }
+
+    async hasUserRatedProductFormat(userId: string, productId: string, format: string): Promise<boolean> {
+        const userDoc = await BaseUser.findOne({ uid: userId });
+        if (!userDoc) return false;
+
+        const product = await Product.findById(productId);
+        if (!product || !product.ratings || product.ratings.length === 0) return false;
+
+        const ratings = await Rating.find({
+            _id: { $in: product.ratings },
+            author: userDoc._id,
+            format: format
+        });
+
+        return ratings.length > 0;
+    }
+
+    async getUserRatedFormats(userId: string, productId: string): Promise<string[]> {
+        const userDoc = await BaseUser.findOne({ uid: userId });
+        if (!userDoc) return [];
+
+        const product = await Product.findById(productId);
+        if (!product || !product.ratings || product.ratings.length === 0) return [];
+
+        const ratings = await Rating.find({
+            _id: { $in: product.ratings },
+            author: userDoc._id
+        });
+
+        return ratings.map(rating => rating.format);
+    }
+
+    async getRatingById(ratingId: string): Promise<RatingDTO | null> {
+        const rating = await Rating.findById(ratingId);
+        if (!rating) return null;
+
+        return RatingDTO.fromDocument(rating);
+    }
+
+    async updateRating(ratingId: string, data: Partial<RatingDTO>): Promise<boolean> {
+        const result = await Rating.findByIdAndUpdate(ratingId, data, { new: true });
+        return result !== null;
     }
 }
