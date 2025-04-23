@@ -1,6 +1,5 @@
 import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
-import mm from 'music-metadata'
 import { AlbumDTO } from '../../dto/AlbumDTO'
 import { uploadAlbumImage } from '../../utils/uploadAlbumImage'
 

@@ -4,7 +4,7 @@ import { SongDTO, SongDTOProps } from '../../dto/SongDTO'
 import { uploadSongFiles } from '../../utils/uploadSongFiles'
 import mm from 'music-metadata'
 
-export const artistUpdateSongController = async (req: express.Request, res: express.Response) => {
+export const artistSongsUpdateController = async (req: express.Request, res: express.Response) => {
     //console.log("intento actualizar una canción")
     uploadSongFiles(req, res, async (err) => {
         if (err) {

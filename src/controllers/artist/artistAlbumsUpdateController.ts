@@ -4,7 +4,7 @@ import mm from 'music-metadata'
 import { AlbumDTO } from '../../dto/AlbumDTO'
 import { uploadAlbumImage } from '../../utils/uploadAlbumImage'
 
-export const artistUpdateAlbumController = async (req: express.Request, res: express.Response) => {
+export const artistAlbumsUpdateController = async (req: express.Request, res: express.Response) => {
     console.log("intento crear un álbum: " + req.body.title)
 
     uploadAlbumImage(req, res, async (err) => {

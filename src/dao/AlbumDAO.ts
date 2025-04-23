@@ -47,7 +47,7 @@ export class AlbumDAO extends ProductDAO implements IAlbumDAO {
 
     async findByArtist(artist: Partial<ArtistDTO>): Promise<AlbumDTO[]> {
         const albums = await Album.find({ author: artist._id })
-        return albums.map(album => AlbumDTO.fromDocument(album))
+        return albums.map(album => AlbumDTO.fromDocument(album)).filter(album => album.version === undefined)
     }
 
     async findByReleaseDateRange(from: Date, to: Date): Promise<AlbumDTO[]> {

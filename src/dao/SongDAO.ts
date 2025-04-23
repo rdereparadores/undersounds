@@ -51,7 +51,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
         const songs = await Song.find({ author: artist._id })
         if (songs === null) return []
 
-        return songs.map(song => SongDTO.fromDocument(song))
+        return songs.map(song => SongDTO.fromDocument(song)).filter(song => song.version === undefined)
     }
 
     async findByReleaseDateRange(from: Date, to: Date): Promise<SongDTO[]> {
