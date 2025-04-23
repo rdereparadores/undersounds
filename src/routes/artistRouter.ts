@@ -11,6 +11,8 @@ import { artistReleaseAlbumController } from '../controllers/artist/artistReleas
 import { artistSongsUpdateController } from '../controllers/artist/artistSongsUpdateController';
 import { artistAlbumsUpdateController } from '../controllers/artist/artistAlbumsUpdateController';
 import {artistTransactionsController} from "../controllers/artist/artistTransitionsController";
+import { artistSongsHistoryController } from '../controllers/artist/artistSongsHistoryController';
+import { artistAlbumsHistoryController } from '../controllers/artist/artistAlbumsHistoryController';
 
 export const artistRouter = express.Router()
 
@@ -1000,6 +1002,9 @@ artistRouter.get('/transitions', artistTransactionsController)
 
 artistRouter.post('/songs/update', artistSongsUpdateController)
 
+artistRouter.post('/songs/history', artistSongsHistoryController)
+
+
 /**
  * @swagger
  * /artist/update/album:
@@ -1118,3 +1123,5 @@ artistRouter.post('/songs/update', artistSongsUpdateController)
  *       - bearerAuth: []
  */
 artistRouter.post('/albums/update', artistAlbumsUpdateController)
+
+artistRouter.post('/albums/history', artistAlbumsHistoryController)
