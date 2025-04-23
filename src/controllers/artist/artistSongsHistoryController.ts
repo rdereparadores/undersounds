@@ -2,6 +2,7 @@ import express from 'express'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
 
 export const artistSongsHistoryController = async (req: express.Request, res: express.Response) => {
+    console.log("intento obtener el historial del id: " + req.body.songId)
     const { songId } = req.body
     try {
         if (!songId) {
@@ -12,12 +13,13 @@ export const artistSongsHistoryController = async (req: express.Request, res: ex
                 }
             })
         }
-
+        console.log("Sigo")
         const songDAO = req.db!.createSongDAO()
         const artistDAO = req.db!.createArtistDAO()
         const genreDAO = req.db!.createGenreDAO()
         const song = await songDAO.findById(songId)
         const artist = await artistDAO.findByUid(req.uid!)
+        console.log("He encontrado al artista: " + artist?.username + " y la canción " + song?.title )
 
         if (!song) {
             return res.status(Number(apiErrorCodes[3001].httpCode)).json({
@@ -36,7 +38,7 @@ export const artistSongsHistoryController = async (req: express.Request, res: ex
                 }
             })
         }
-
+        console.log("Sigo he encontrado artista y cancion")
         const history = await Promise.all(song.versionHistory!.map(async (version) => {
             const song = await songDAO.findById(version)
             const genres = await Promise.all(song!.genres.map(async (genre) => genreDAO.findById(genre)))
@@ -56,7 +58,7 @@ export const artistSongsHistoryController = async (req: express.Request, res: ex
                 }))
             }
         }))
-
+        console.log("Tiene un historial con: " + history.forEach((song) => song._id))
         return res.json({
             data: history
         })
