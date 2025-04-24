@@ -9,10 +9,10 @@ export const trendingRouter = express.Router()
  *  get:
  *      tags:
  *          - Tendencias
- *      summary: Obtiene las canciones más reproducidas en la plataforma
+ *      summary: Obtiene las canciones más reproducidas
  *      responses:
  *          '200':
- *              description: Lista de canciones en tendencia obtenida con éxito
+ *              description: Obtiene las 10 canciones más reproducidas
  *              content:
  *                  application/json:
  *                      schema:
@@ -29,18 +29,21 @@ export const trendingRouter = express.Router()
  *                                                  _id:
  *                                                      type: string
  *                                                      description: ID de la canción
- *                                                  title:
- *                                                      type: string
- *                                                      description: Título de la canción
  *                                                  imgUrl:
  *                                                      type: string
  *                                                      description: URL de la portada
- *                                                  author:
+ *                                                  title:
  *                                                      type: string
- *                                                      description: ID del artista
- *                                                  plays:
- *                                                      type: number
- *                                                      description: Número de reproducciones
+ *                                                      description: Título de la canción
+ *                                                  author:
+ *                                                      type: object
+ *                                                      properties:
+ *                                                          _id:
+ *                                                              type: string
+ *                                                              description: ID del artista
+ *                                                          artistName:
+ *                                                              type: string
+ *                                                              description: Nombre del artista
  *          '500':
  *              description: Error del servidor al obtener las canciones en tendencia
  *              content:

@@ -9,7 +9,7 @@ export const shopRouter = express.Router()
  *   post:
  *     tags:
  *       - Tienda
- *     summary: Consulta productos en la tienda con filtros y paginación
+ *     summary: Búsqueda de productos
  *     requestBody:
  *       required: true
  *       content:
@@ -18,11 +18,13 @@ export const shopRouter = express.Router()
  *             type: object
  *             properties:
  *               page:
- *                 type: integer
+ *                 type: number
  *                 description: Número de página (por defecto 1)
  *               genres:
- *                 type: string
- *                 description: Géneros separados por comas para filtrar
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Géneros para filtrar
  *               date:
  *                 type: string
  *                 format: date
@@ -35,7 +37,7 @@ export const shopRouter = express.Router()
  *                 description: Término de búsqueda libre sobre título o descripción
  *     responses:
  *       '200':
- *         description: Resultados de la consulta exitosos
+ *         description: Productos que cumplen con los filtros especificados
  *         content:
  *           application/json:
  *             schema:
@@ -46,61 +48,52 @@ export const shopRouter = express.Router()
  *                   properties:
  *                     products:
  *                       type: array
- *                       description: Lista de productos encontrados
  *                       items:
  *                         type: object
  *                         properties:
  *                           _id:
  *                             type: string
  *                             description: ID del producto
- *                           title:
- *                             type: string
- *                           releaseDate:
- *                             type: string
- *                             format: date-time
- *                           description:
- *                             type: string
  *                           imgUrl:
  *                             type: string
- *                           version:
- *                             type: number
- *                           productType:
+ *                             description: URL de la imagen del producto
+ *                           title:
  *                             type: string
- *                             enum:
- *                               - song
- *                               - album
+ *                             description: Título del producto
  *                           author:
+ *                             type: object
+ *                             properties:
+ *                               _id:
+ *                                 type: string
+ *                                 description: ID del artista
+ *                               artistName:
+ *                                 type: string
+ *                                 description: Nombre del artista
+ *                           collaborators:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 _id:
+ *                                   type: string
+ *                                   description: ID del colaborador
+ *                                 artistName:
+ *                                   type: string
+ *                                   description: Nombre del artista colaborador
+ *                           type:
  *                             type: string
- *                             description: Nombre del artista
- *                           duration:
- *                             type: number
- *                             description: Duración en segundos
+ *                             enum: [song, album]
+ *                             description: Tipo de producto
  *                           genres:
  *                             type: array
  *                             items:
  *                               type: string
- *                             description: Nombres de géneros asociados
- *                           pricing:
- *                             type: object
- *                             properties:
- *                               cd:
- *                                 type: number
- *                               digital:
- *                                 type: number
- *                               cassette:
- *                                 type: number
- *                               vinyl:
- *                                 type: number
- *                           ratings:
- *                             type: array
- *                             items:
- *                               type: string
- *                             description: IDs de valoraciones
+ *                             description: Géneros del producto
  *                     totalCount:
- *                       type: integer
+ *                       type: number
  *                       description: Total de productos encontrados
  *       '500':
- *         description: Error interno del servidor
+ *         description: Error del servidor
  *         content:
  *           application/json:
  *             schema:
@@ -115,7 +108,7 @@ export const shopRouter = express.Router()
  *                       description: Código de error interno
  *                     message:
  *                       type: string
- *                       example: "Error interno al procesar la consulta"
+ *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
  *     security: []
  */
