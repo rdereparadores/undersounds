@@ -28,11 +28,7 @@ export interface IProductDAO {
     getRatings(product: Partial<ProductDTO>): Promise<RatingDTO[]>
     addRating(product: Partial<ProductDTO>, rating: RatingDTO): Promise<boolean>
     removeRating(product: Partial<ProductDTO>, rating: Partial<RatingDTO>): Promise<boolean>
-
-    hasUserRatedProductFormat(userId: string, productId: string, format: string): Promise<boolean>
-    getUserRatedFormats(userId: string, productId: string): Promise<string[]>
-    getRatingById(ratingId: string): Promise<RatingDTO | null>
-    updateRating(ratingId: string, data: Partial<RatingDTO>): Promise<boolean>
+    updateRating(rating: Partial<RatingDTO>): Promise<boolean>
 }
 
 export class ProductDAO implements IProductDAO {
@@ -207,10 +203,10 @@ export class ProductDAO implements IProductDAO {
         }
     }
 
-    async addRating(product: Partial<ProductDTO>, rating: RatingDTO): Promise<boolean> {
+    async addRating(product: Partial<ProductDTO>, rating: Partial<RatingDTO>): Promise<boolean> {
         try {
             const newRating = await Rating.create({
-                ...rating.toJson()
+                ...rating
             })
 
             if (!newRating) return false
@@ -242,46 +238,10 @@ export class ProductDAO implements IProductDAO {
         }
     }
 
-    async hasUserRatedProductFormat(userId: string, productId: string, format: string): Promise<boolean> {
-        const userDoc = await BaseUser.findOne({ uid: userId });
-        if (!userDoc) return false;
-
-        const product = await Product.findById(productId);
-        if (!product || !product.ratings || product.ratings.length === 0) return false;
-
-        const ratings = await Rating.find({
-            _id: { $in: product.ratings },
-            author: userDoc._id,
-            format: format
-        });
-
-        return ratings.length > 0;
-    }
-
-    async getUserRatedFormats(userId: string, productId: string): Promise<string[]> {
-        const userDoc = await BaseUser.findOne({ uid: userId });
-        if (!userDoc) return [];
-
-        const product = await Product.findById(productId);
-        if (!product || !product.ratings || product.ratings.length === 0) return [];
-
-        const ratings = await Rating.find({
-            _id: { $in: product.ratings },
-            author: userDoc._id
-        });
-
-        return ratings.map(rating => rating.format);
-    }
-
-    async getRatingById(ratingId: string): Promise<RatingDTO | null> {
-        const rating = await Rating.findById(ratingId);
-        if (!rating) return null;
-
-        return RatingDTO.fromDocument(rating);
-    }
-
-    async updateRating(ratingId: string, data: Partial<RatingDTO>): Promise<boolean> {
-        const result = await Rating.findByIdAndUpdate(ratingId, data, { new: true });
-        return result !== null;
+    async updateRating(rating: Partial<RatingDTO>): Promise<boolean> {
+        const result = await Rating.findByIdAndUpdate(rating._id, {
+            ...rating.toJson!()
+        }, { new: true })
+        return result !== null
     }
 }

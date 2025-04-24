@@ -17,6 +17,7 @@ import { userPasswordResetController } from "../controllers/user/userPasswordUpd
 import { userFeaturedContentController } from '../controllers/user/userFeaturedContentController'
 import { userFollowController } from '../controllers/user/userFollowController'
 import { userUnfollowController } from '../controllers/user/userUnfollowController'
+import { userFollowingController } from '../controllers/user/userFollowingController'
 
 export const userRouter = express.Router()
 
@@ -677,6 +678,7 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  */
 userRouter.post('/is-following', userIsFollowingController)
 
+userRouter.get('/following', userFollowingController)
 userRouter.post('/follow', userFollowController)
 userRouter.post('/unfollow', userUnfollowController)
 
