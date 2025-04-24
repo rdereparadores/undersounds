@@ -15,7 +15,7 @@ export const userProfileAddressSetDefaultController = async (req: express.Reques
         const baseUserDAO = req.db!.createBaseUserDAO()
         const user = await baseUserDAO.findByUid(req.uid!)
 
-        const addressExists = user!.addresses.some(address => address._id === addressId)
+        const addressExists = user!.addresses.some(address => address._id == addressId)
         if (!addressExists) {
             return res.status(Number(apiErrorCodes[3001].httpCode)).json({
                 error: {
