@@ -1,21 +1,18 @@
 import express from 'express'
 import { productRecommendationsController } from '../controllers/product/productRecommendationsController'
 import { productRatingsController } from '../controllers/product/productRatingsController'
-import { productAddRatingController } from '../controllers/product/productAddRatingController'
-import { productRemoveRatingController } from '../controllers/product/productRemoveRatingController'
-import { productUpdateRatingController } from '../controllers/product/productUpdateRatingController'
-import { productCheckUserRatingController } from '../controllers/product/productCheckUserRatingController'
-import { productUserPurchasedFormatsController } from '../controllers/product/productUserPurchasedFormatsController'
 import { authTokenMiddleware } from '../middleware/authTokenMiddleware'
+import { productRatingsAddController } from '../controllers/product/productRatingsAddController'
+import { productRatingsRemoveController } from '../controllers/product/productRatingsRemoveController'
+import { productRatingsUpdateController } from '../controllers/product/productRatingsUpdateController'
+import { productRatingsUserController } from '../controllers/product/productRatingsUserController'
 
 export const productRouter = express.Router()
 
 productRouter.post('/ratings', productRatingsController)
+productRouter.post('/ratings/add', authTokenMiddleware, productRatingsAddController)
+productRouter.post('/ratings/remove', authTokenMiddleware, productRatingsRemoveController)
+productRouter.post('/ratings/update', authTokenMiddleware, productRatingsUpdateController)
+productRouter.post('/ratings/user', authTokenMiddleware, productRatingsUserController)
 
 productRouter.post('/recommendations', productRecommendationsController)
-
-productRouter.post('/add-rating', authTokenMiddleware, productAddRatingController)
-productRouter.delete('/remove-rating', authTokenMiddleware, productRemoveRatingController)
-productRouter.put('/update-rating', authTokenMiddleware, productUpdateRatingController)
-productRouter.post('/user-rating', authTokenMiddleware, productCheckUserRatingController)
-productRouter.post('/user-purchased-formats', authTokenMiddleware, productUserPurchasedFormatsController)

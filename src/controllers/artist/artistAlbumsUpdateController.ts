@@ -84,12 +84,9 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
                 versionHistory: []
             })
 
-            const albumDAO = req.db?.createAlbumDAO()
-            const albumDoc = await albumDAO?.create(album)
-
             return res.json({
                 data: {
-                    id: albumDoc?._id
+                    message: 'OK'
                 }
             })
 

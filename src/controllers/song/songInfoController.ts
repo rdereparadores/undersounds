@@ -57,7 +57,8 @@ export const songInfoController = async (req: express.Request, res: express.Resp
                 collaborators,
                 productType: undefined,
                 ratings: undefined,
-                versionHistory: undefined
+                versionHistory: undefined,
+                songDir: undefined
             }
         }
 

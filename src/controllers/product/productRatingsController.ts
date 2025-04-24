@@ -61,8 +61,7 @@ export const productRatingsController = async (req: express.Request, res: expres
         res.json({
             data: response
         })
-    } catch (error) {
-        console.error("Error en productRatingsController:", error);
+    } catch {
         return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
                 code: 2000,
