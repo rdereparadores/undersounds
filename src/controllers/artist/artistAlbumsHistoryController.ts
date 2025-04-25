@@ -42,18 +42,12 @@ export const artistAlbumsHistoryController = async (req: express.Request, res: e
             const genres = await Promise.all(album!.genres.map(async (genre) => await genreDAO.findById(genre)))
             const trackList = await Promise.all(album!.trackList.map(async (track) => {
                 const song = await songDAO.findById(track)
-                const collaborators = await Promise.all(song!.collaborators.map(async (collaborator) => await artistDAO.findById(collaborator.artist)))
                 return {
                     _id: song?._id,
                     title: song?.title,
                     releaseDate: song?.releaseDate,
                     imgUrl: song?.imgUrl,
                     plays: song?.plays,
-                    collaborators: collaborators.map(collaborator => ({
-                        _id: collaborator?._id,
-                        artistUsername: collaborator?.artistUsername,
-                        artistName: collaborator?.artistName
-                    }))
                 }
             }))
             return {
@@ -67,6 +61,29 @@ export const artistAlbumsHistoryController = async (req: express.Request, res: e
             }
         }))
         
+        const actualAlbum = await albumDAO.findById(albumId)
+        const actualGenres = await Promise.all(actualAlbum!.genres.map(async (genre) => await genreDAO.findById(genre)))
+        const actualTrackList = await Promise.all(actualAlbum!.trackList.map(async (track) => {
+            const song = await songDAO.findById(track)
+            return {
+                _id: song?._id,
+                title: song?.title,
+                releaseDate: song?.releaseDate,
+                imgUrl: song?.imgUrl,
+                plays: song?.plays,
+            }
+        }))
+
+        history.push( {
+            ...actualAlbum,
+            productType: undefined,
+            author: undefined,
+            genres: actualGenres.map(genre => genre?.genre),
+            ratings: undefined,
+            versionHistory: undefined,
+            trackList: actualTrackList
+            }
+        )
 
         return res.json({
             data: history
