@@ -5,16 +5,8 @@ import { uploadSongFiles } from '../../utils/uploadSongFiles'
 import mm from 'music-metadata'
 
 export const artistSongsUpdateController = async (req: express.Request, res: express.Response) => {
-    const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, collaborators, genres, songId } = req.body
-    if (!songId) {
-        return res.status(Number(apiErrorCodes[3000].httpCode)).json({
-            error: {
-                code: 3000,
-                message: apiErrorCodes[3000].message
-            }
-        })
-    }
     uploadSongFiles(req, res, async (err) => {
+
         if (err) {
             return res.status(Number(apiErrorCodes[3002].httpCode)).json({
                 error: {
@@ -23,8 +15,18 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
                 }
             })
         }
+
+        const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, collaborators, genres, songId } = req.body
+        if (!songId) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+                error: {
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
+                }
+            })
+        }
         try {
-            if (!req.files || Number(req.files.length) < 2) {
+            if (!req.files || Number(req.files.length) < 1) {
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
@@ -36,9 +38,10 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
             const artistDAO = req.db!.createArtistDAO()
             const genreDAO = req.db!.createGenreDAO()
             const songDAO = req.db!.createSongDAO()
-            
+
             const song = await songDAO.findById(songId)
             const oldSong = await songDAO.findById(songId)
+
             if (!song) throw new Error()
 
             if (genres) {
@@ -73,7 +76,7 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
             if (priceVinyl) {
                 song.pricing.vinyl = Number(priceVinyl)
             }
-            
+
             if (collaborators) {
                 const collaboratorsSplitted = collaborators.split(',')
                 song.collaborators = await Promise.all(collaboratorsSplitted.map(async (collaborator: string) => {
@@ -84,24 +87,25 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
             }
 
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
-            
-            if (files.song[0]) {
+
+            if (files.song) {
                 song.songDir = 'protected/song/' + files.song[0].filename
                 const metadata = await mm.parseFile(files.song[0].path)
                 song.duration = metadata.format.duration || 0
             }
 
-            if (files.img[0]) {
+            if (files.img) {
                 song.imgUrl = '/public/uploads/song/cover/' + files.img[0].filename
             }
 
+            console.log(song.genres)
             oldSong!._id = undefined
             oldSong!.versionHistory = []
             oldSong!.version = song.versionHistory!.length
             const result = await songDAO.create(oldSong!)
             song.versionHistory!.push(result._id!)
             await songDAO.update(song)
-
+            
             return res.json({
                 data: {
                     message: 'OK'
