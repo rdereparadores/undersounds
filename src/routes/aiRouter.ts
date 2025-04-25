@@ -5,11 +5,14 @@ export const aiRouter = express.Router()
 
 /**
  * @swagger
- * /ai/image:
+ * /api/ai/image:
  *  post:
  *      tags:
- *          - IA
- *      summary: Genera una imagen usando IA basada en un prompt
+ *          - AI
+ *      summary: Genera una imagen utilizando inteligencia artificial
+ *      description: Genera una imagen utilizando DALL-E 3 basada en un prompt proporcionado.
+ *      security:
+ *          - bearerAuth: []
  *      requestBody:
  *          required: true
  *          content:
@@ -21,10 +24,10 @@ export const aiRouter = express.Router()
  *                      properties:
  *                          prompt:
  *                              type: string
- *                              description: Texto descriptivo para generar la imagen
+ *                              description: Descripción textual para generar la imagen
  *      responses:
  *          '200':
- *              description: Imagen generada con éxito
+ *              description: Se ha generado una imagen con IA correctamente
  *              content:
  *                  application/json:
  *                      schema:
@@ -37,7 +40,7 @@ export const aiRouter = express.Router()
  *                                          type: string
  *                                          description: URL de la imagen generada
  *          '400':
- *              description: Error en la solicitud del cliente
+ *              description: Prompt no válido o faltante
  *              content:
  *                  application/json:
  *                      schema:
@@ -47,13 +50,39 @@ export const aiRouter = express.Router()
  *                                  type: object
  *                                  properties:
  *                                      code:
- *                                          type: number
+ *                                          type: integer
  *                                          example: 5000
  *                                          description: Código de error
  *                                      message:
  *                                          type: string
  *                                          example: "Prompt no válido"
  *                                          description: Mensaje de error
- *      security: []
+ *          '401':
+ *              description: Error de autenticación
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              error:
+ *                                  type: object
+ *                                  properties:
+ *                                      code:
+ *                                          type: integer
+ *                                          description: Código de error
+ *                                      message:
+ *                                          type: string
+ *                                          description: Mensaje de error
+ *                      examples:
+ *                          TokenMissing:
+ *                              value:
+ *                                  error:
+ *                                      code: 1000
+ *                                      message: "Token de usuario no proporcionado"
+ *                          TokenInvalid:
+ *                              value:
+ *                                  error:
+ *                                      code: 1002
+ *                                      message: "Token de usuario no válido o expirado"
  */
 aiRouter.post('/image', aiImageController)
