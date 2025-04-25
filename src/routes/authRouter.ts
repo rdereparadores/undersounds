@@ -10,12 +10,12 @@ export const authRouter = express.Router()
 
 /**
  * @swagger
- * /auth/signup:
+ * /api/auth/signup:
  *   post:
  *     tags:
  *       - Autenticación
  *     summary: Registro de usuario
- *     description: Registra un usuario con correo electrónico y contraseña. Devuelve un JWT.
+ *     description: Registra un usuario con correo electrónico y contraseña. Devuelve un JWT para la sesión.
  *     requestBody:
  *       required: true
  *       content:
@@ -112,7 +112,7 @@ export const authRouter = express.Router()
  *                     code: 4002
  *                     message: "El correo electrónico proporcionado no es válido"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al obtener datos de la base.
  *         content:
  *           application/json:
  *             schema:
@@ -123,13 +123,16 @@ export const authRouter = express.Router()
  *                   properties:
  *                     code:
  *                       type: number
- *                       example: 2000
  *                     message:
  *                       type: string
- *                       example: "Error obteniendo la información de la base de datos"
+ *             example:
+ *               error:
+ *                 code: 2000
+ *                 message: "Error obteniendo la información de la base de datos"
  *     security: []
  */
-authRouter.post('/signup', authSignUpController)
+authRouter.post('/signup', authSignUpController);
+
 
 
 /**
@@ -205,8 +208,8 @@ authRouter.post('/signin', authTokenMiddleware, authSignInController)
  *   post:
  *     tags:
  *       - Autenticación
- *     summary: Registro de usuario con una cuenta de Google
- *     description: Permite registrarse o iniciar sesión usando una cuenta de Google y obtiene un JWT.
+ *     summary: Registro o inicio de sesión con cuenta de Google
+ *     description: Permite registrarse o iniciar sesión usando una cuenta de Google y devuelve un JWT para la sesión.
  *     requestBody:
  *       required: true
  *       content:
@@ -241,7 +244,7 @@ authRouter.post('/signin', authTokenMiddleware, authSignInController)
  *                 description: URL de la imagen de perfil del usuario
  *     responses:
  *       '200':
- *         description: Usuario registrado correctamente con una cuenta de Google. Se devuelve el token de sesión.
+ *         description: Operación exitosa. Se devuelve el token de sesión.
  *         content:
  *           application/json:
  *             schema:
@@ -254,7 +257,7 @@ authRouter.post('/signin', authTokenMiddleware, authSignInController)
  *                       type: string
  *                       description: JWT para acceder a la plataforma
  *       '400':
- *         description: Datos necesarios no proporcionados.
+ *         description: Errores en los datos de entrada.
  *         content:
  *           application/json:
  *             schema:
@@ -265,44 +268,29 @@ authRouter.post('/signin', authTokenMiddleware, authSignInController)
  *                   properties:
  *                     code:
  *                       type: number
- *                       example: 3000
  *                     message:
  *                       type: string
- *                       example: "Datos necesarios no proporcionados"
- *       '400':
- *         description: El correo electrónico ya está registrado.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: object
- *                   properties:
- *                     code:
- *                       type: number
- *                       example: 4001
- *                     message:
- *                       type: string
- *                       example: "El correo electrónico ya está registrado."
- *       '400':
- *         description: El correo electrónico proporcionado no es válido.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: object
- *                   properties:
- *                     code:
- *                       type: number
- *                       example: 4002
- *                     message:
- *                       type: string
- *                       example: "El correo electrónico proporcionado no es válido"
+ *             examples:
+ *               missingFields:
+ *                 summary: Campos faltantes
+ *                 value:
+ *                   error:
+ *                     code: 3000
+ *                     message: "Datos necesarios no proporcionados"
+ *               emailRegistered:
+ *                 summary: Email ya registrado
+ *                 value:
+ *                   error:
+ *                     code: 4001
+ *                     message: "El correo electrónico ya está registrado."
+ *               invalidEmail:
+ *                 summary: Email inválido
+ *                 value:
+ *                   error:
+ *                     code: 4002
+ *                     message: "El correo electrónico proporcionado no es válido"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al obtener datos de la base de datos.
  *         content:
  *           application/json:
  *             schema:
@@ -319,7 +307,7 @@ authRouter.post('/signin', authTokenMiddleware, authSignInController)
  *                       example: "Error obteniendo la información de la base de datos"
  *     security: []
  */
-authRouter.post('/signupgoogle', authSignUpGoogleController)
+authRouter.post('/signupgoogle', authSignUpGoogleController);
 
 //authRouter.post('/setotp', authSetOtpController)
 //authRouter.post('/confirmotp', authConfirmOtpController)

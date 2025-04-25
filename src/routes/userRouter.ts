@@ -1503,14 +1503,17 @@ userRouter.get('/orders', userOrdersController)
 
 /**
  * @swagger
- * /user/stats:
+ * /api/user/stats:
  *   get:
  *     tags:
  *       - Usuario
- *     summary: Obtiene estadísticas agregadas del usuario autenticado
+ *     summary: Estadísticas de un usuario
+ *     description: Obtiene estadísticas agregadas del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: Obtiene las estadísticas de un usuario.
+ *         description: Estadísticas devueltas correctamente.
  *         content:
  *           application/json:
  *             schema:
@@ -1598,7 +1601,7 @@ userRouter.get('/orders', userOrdersController)
  *                           type: number
  *                           description: Percentil de interacción con el artista
  *       '401':
- *         description: Token de usuario no proporcionado.
+ *         description: Errores de autenticación/autorización.
  *         content:
  *           application/json:
  *             schema:
@@ -1609,28 +1612,23 @@ userRouter.get('/orders', userOrdersController)
  *                   properties:
  *                     code:
  *                       type: number
- *                       example: 1000
  *                     message:
  *                       type: string
- *                       example: "Token de usuario no proporcionado"
- *       '401':
- *         description: Token de usuario inválido o expirado.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: object
- *                   properties:
- *                     code:
- *                       type: number
- *                       example: 1002
- *                     message:
- *                       type: string
- *                       example: "Token de usuario no válido o expirado"
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario no válido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al obtener datos de la base de datos.
  *         content:
  *           application/json:
  *             schema:
@@ -1645,10 +1643,9 @@ userRouter.get('/orders', userOrdersController)
  *                     message:
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
- *     security:
- *       - bearerAuth: []
  */
-userRouter.get('/stats', userStatsController)
+userRouter.get('/stats', userStatsController);
+
 
 // NO REVISADAS
 
