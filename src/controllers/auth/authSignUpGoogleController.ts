@@ -5,6 +5,8 @@ import { appFireBase, auth } from '../../utils/firebase';
 import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
 import { FirebaseError } from 'firebase/app';
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { transporter } from '../../utils/mailSending';
+import { newAccountWelcome } from '../../utils/mailTemplates/newAccountWelcome';
 
 const customConfig: Config = {
     dictionaries: [adjectives, colors, animals],
@@ -15,19 +17,14 @@ const customConfig: Config = {
 export const authSignUpGoogleController = async (req: express.Request, res: express.Response) => {
     try {
         const { idToken, userType, name, email, imgUrl } = req.body
-        console.log("INTENTO CREAR UN USUARIO O ARTISTA")
         const decodedToken = await appFireBase.auth().verifyIdToken(idToken)
 
         const userDAO = req.db!.createBaseUserDAO()
         const artistDAO = req.db!.createArtistDAO()
         const exist = await userDAO.findByUid(decodedToken.uid)
 
-        console.log("La respuesta de si existe es: " + exist)
-        console.log("Lo recibido del frontend es: " + name + userType + email)
-
         const username: string = uniqueNamesGenerator(customConfig)
         const birthDate: Date = new Date(1990, 1, 1)
-        console.log("el nombre unico es: " + username + " y la date: " + birthDate)
 
         if (userType === "user") {
             await userDAO.create(new UserDTO({
@@ -37,7 +34,7 @@ export const authSignUpGoogleController = async (req: express.Request, res: expr
                 birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                imgUrl: '/public/uploads/user/profile/generic.jpg',
+                imgUrl,
                 userType: 'user',
                 following: [],
                 library: [],
@@ -54,14 +51,14 @@ export const authSignUpGoogleController = async (req: express.Request, res: expr
                 birthDate: birthDate,
                 email: email,
                 uid: decodedToken.uid,
-                imgUrl: '/public/uploads/user/profile/generic.jpg',
+                imgUrl,
                 userType: 'artist',
                 following: [],
                 library: [],
                 listeningHistory: [],
                 addresses: [],
                 artistBannerUrl: '/public/uploads/artist/banner/generic.jpg',
-                artistImgUrl: '/public/uploads/artist/profile/generic.jpg',
+                artistImgUrl: imgUrl,
                 followerCount: 0
             }))
         } else {
@@ -72,6 +69,13 @@ export const authSignUpGoogleController = async (req: express.Request, res: expr
                 }
             })
         }
+
+        transporter.sendMail({
+            from: '"Soporte Undersounds" <soporteundersounds@gmail.com>',
+            to: email,
+            subject: `¡Bienvenido a UnderSounds!`,
+            html: newAccountWelcome(username)
+        })
 
         res.json({
             data: {

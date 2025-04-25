@@ -13,11 +13,11 @@ import { userProfileAddressRemoveController } from '../controllers/user/userProf
 import { userStatsController } from "../controllers/user/userStatsController";
 import { userFeaturedArtistsController } from "../controllers/user/userFeaturedArtistsController"
 import { userEmailUpdateController } from "../controllers/user/userEmailUpdateController"
-import { userPasswordResetController } from "../controllers/user/userPasswordUpdateController"
 import { userFeaturedContentController } from '../controllers/user/userFeaturedContentController'
 import { userFollowController } from '../controllers/user/userFollowController'
 import { userUnfollowController } from '../controllers/user/userUnfollowController'
 import { userFollowingController } from '../controllers/user/userFollowingController'
+import { userPasswordUpdateController } from '../controllers/user/userPasswordUpdateController'
 
 export const userRouter = express.Router()
 
@@ -1284,7 +1284,5 @@ userRouter.get('/orders', userOrdersController)
  */
 userRouter.get('/stats', userStatsController)
 
-// NO REVISADAS
-
-//userRouter.post('/profile/update/email', userEmailUpdateController)
-//userRouter.post('/profile/update/password', userPasswordResetController)
+userRouter.post('/update/email', userEmailUpdateController)
+userRouter.post('/update/password', userPasswordUpdateController)

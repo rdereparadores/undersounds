@@ -16,6 +16,7 @@ import { checkoutRouter } from "./routes/checkoutRouter"
 import { productRouter } from "./routes/productRouter"
 import { albumRouter } from "./routes/albumRouter"
 import { profileRouter } from "./routes/profileRouter"
+import { otpRouter } from "./routes/otpRouter"
 
 export class App {
 
@@ -56,6 +57,7 @@ export class App {
         this.app.use('/api/album/', albumRouter)
         this.app.use('/api/shop/', shopRouter)
         this.app.use('/api/checkout/', authTokenMiddleware, checkoutRouter)
+        this.app.use('/api/otp', authTokenMiddleware, otpRouter)
         
         this.app.get('*', async (req, res) => {
             res.sendFile(`${process.cwd()}/src/views/index.html`, (err) => {

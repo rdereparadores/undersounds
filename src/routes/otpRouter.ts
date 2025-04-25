@@ -1,7 +1,6 @@
 import express from 'express'
+import { otpCreateController } from '../controllers/otp/otpCreateController'
 
-const otpRouter = express.Router()
+export const otpRouter = express.Router()
 
-// PENDIENTES
-//otpRouter.post('/create', otpCreateController)
-//otpRouter.post('/check', otpCheckController)
+otpRouter.get('/create', otpCreateController)
