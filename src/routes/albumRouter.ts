@@ -108,7 +108,7 @@ export const albumRouter = express.Router()
  *                                     followers:
  *                                       type: number
  *       '400':
- *         description: Datos necesarios no proporcionados.
+ *         description: Errores en los datos de entrada.
  *         content:
  *           application/json:
  *             schema:
@@ -119,26 +119,21 @@ export const albumRouter = express.Router()
  *                   properties:
  *                     code:
  *                       type: number
- *                       example: 3000
  *                     message:
  *                       type: string
- *                       example: "Datos necesarios no proporcionados"
- *       '400':
- *         description: Datos proporcionados no válidos.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: object
- *                   properties:
- *                     code:
- *                       type: number
- *                       example: 3001
- *                     message:
- *                       type: string
- *                       example: "Datos proporcionados no válidos"
+ *             examples:
+ *               missingAlbumId:
+ *                 summary: Campo albumId faltante
+ *                 value:
+ *                   error:
+ *                     code: 3000
+ *                     message: "Datos necesarios no proporcionados"
+ *               invalidAlbumId:
+ *                 summary: ID de álbum no válido
+ *                 value:
+ *                   error:
+ *                     code: 3001
+ *                     message: "Datos proporcionados no válidos"
  *       '500':
  *         description: Error obteniendo la información de la base de datos.
  *         content:
