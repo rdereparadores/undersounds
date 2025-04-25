@@ -10,7 +10,7 @@ export const authRouter = express.Router()
 
 /**
  * @swagger
- * /api/auth/signup:
+ * /auth/signup:
  *   post:
  *     tags:
  *       - Autenticación

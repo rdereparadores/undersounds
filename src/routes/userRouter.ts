@@ -1503,7 +1503,7 @@ userRouter.get('/orders', userOrdersController)
 
 /**
  * @swagger
- * /api/user/stats:
+ * /user/stats:
  *   get:
  *     tags:
  *       - Usuario
