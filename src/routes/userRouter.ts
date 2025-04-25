@@ -1014,7 +1014,7 @@ userRouter.post('/unfollow', userUnfollowController)
  *     tags:
  *       - Usuario
  *     summary: Contenido destacado para el usuario
- *     description: Obtiene el contenido destacado para el usuario. No requiere autenticación.
+ *     description: Obtiene el contenido destacado para el usuario autenticado.
  *     responses:
  *       '200':
  *         description: Obtiene el contenido destacado para el usuario.
@@ -1045,8 +1045,7 @@ userRouter.post('/unfollow', userUnfollowController)
  *                         description: ID del contenido
  *                       releaseDate:
  *                         type: string
- *                         format: date-time
- *                         description: Fecha de lanzamiento
+ *                         description: Fecha de lanzamiento (ISO 8601)
  *                       author:
  *                         type: object
  *                         properties:
@@ -1056,8 +1055,27 @@ userRouter.post('/unfollow', userUnfollowController)
  *                           artistName:
  *                             type: string
  *                             description: Nombre del artista
+ *       '401':
+ *         description: Token de usuario no proporcionado o inválido/expirado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       enum:
+ *                         - 1000
+ *                         - 1002
+ *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                     message:
+ *                       type: string
+ *                       description: Mensaje de error correspondiente
  *       '500':
- *         description: Error obteniendo la información de la base de datos
+ *         description: Error obteniendo la información de la base de datos.
  *         content:
  *           application/json:
  *             schema:
@@ -1074,9 +1092,9 @@ userRouter.post('/unfollow', userUnfollowController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security: []
+ *     security:
+ *       - bearerAuth: []
  */
-
 userRouter.get('/featured/content', userFeaturedContentController)
 
 /**
