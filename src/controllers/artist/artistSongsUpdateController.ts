@@ -26,14 +26,14 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
             })
         }
         try {
-            if (!req.files || Number(req.files.length) < 1) {
+            /*if (!req.files || Number(req.files.length) < 1) {
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
                         message: apiErrorCodes[3000].message
                     }
                 })
-            }
+            }*/
 
             const artistDAO = req.db!.createArtistDAO()
             const genreDAO = req.db!.createGenreDAO()
@@ -98,7 +98,6 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
                 song.imgUrl = '/public/uploads/song/cover/' + files.img[0].filename
             }
 
-            console.log(song.genres)
             oldSong!._id = undefined
             oldSong!.versionHistory = []
             oldSong!.version = song.versionHistory!.length

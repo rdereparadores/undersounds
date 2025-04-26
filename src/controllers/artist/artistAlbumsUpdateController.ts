@@ -3,6 +3,7 @@ import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import mm from 'music-metadata'
 import { AlbumDTO } from '../../dto/AlbumDTO'
 import { uploadAlbumImage } from '../../utils/uploadAlbumImage'
+import { SongDAO } from '../../dao/SongDAO'
 
 export const artistAlbumsUpdateController = async (req: express.Request, res: express.Response) => {
     uploadAlbumImage(req, res, async (err) => {
@@ -15,7 +16,7 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
             })
         }
 
-        const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, songsArray,genres ,albumId } = req.body
+        const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, songArray, genres, albumId } = req.body
         if (!albumId) {
             return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
@@ -25,18 +26,19 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
             })
         }
         try {
-            if (!req.files || Number(req.files.length) < 1) {
+            /*if (!req.files || Number(req.files.length) < 1) {
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
                         message: apiErrorCodes[3000].message
                     }
                 })
-            }
+            }*/
 
             const artistDAO = req.db!.createArtistDAO()
             const genreDAO = req.db!.createGenreDAO()
             const albumDAO = req.db!.createAlbumDAO()
+            const songDAO = req.db!.createSongDAO()
 
             const album = await albumDAO.findById(albumId)
             const oldAlbum = await albumDAO.findById(albumId)
@@ -67,8 +69,26 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
                 album.pricing.vinyl = Number(priceVinyl)
             }
 
-            if(songsArray){
-                album.trackList = songsArray
+            if (songArray) {
+                //Añade las canciones al array de canciones
+                const songArraySplitted: string[] = songArray.split(',')
+                const genreList: string[] = []
+                var duration: number = 0
+
+                album.trackList = await Promise.all(songArraySplitted.map(async (song: string) => {
+                    const tracklistDoc = await songDAO.findById(song)
+                    if (tracklistDoc === null) throw new Error()
+                    tracklistDoc.genres.forEach((g) => {
+                        if (!genreList.includes(g)) {
+                            genreList.push(g)
+                        }
+                    })
+                    duration = duration + tracklistDoc.duration
+                    return tracklistDoc._id!
+                }))
+
+                album.duration = Math.round(duration)
+                album.genres = genreList
             }
 
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
@@ -83,14 +103,14 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
             const result = await albumDAO.create(oldAlbum!)
             album.versionHistory!.push(result._id!)
             await albumDAO.update(album)
-            
+
             return res.json({
                 data: {
                     message: 'OK'
                 }
             })
 
-        } catch {
+        } catch (err) {
             return res.status(Number(apiErrorCodes[2000].httpCode)).json({
                 error: {
                     code: 2000,
