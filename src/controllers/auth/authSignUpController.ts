@@ -6,6 +6,8 @@ import { appFireBase, auth } from '../../utils/firebase'
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { FirebaseError } from 'firebase/app'
 import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { transporter } from '../../utils/mailSending'
+import { newAccountWelcome } from '../../utils/mailTemplates/newAccountWelcome'
 
 export const authSignUpController = async (req: express.Request, res: express.Response) => {
     try {
@@ -61,6 +63,13 @@ export const authSignUpController = async (req: express.Request, res: express.Re
                 }
             })
         }
+
+        transporter.sendMail({
+            from: '"Soporte Undersounds" <soporteundersounds@gmail.com>',
+            to: email,
+            subject: `¡Bienvenido a UnderSounds!`,
+            html: newAccountWelcome(username)
+        })
 
         res.json({
             data: {

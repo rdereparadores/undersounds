@@ -1,59 +1,49 @@
 import express from 'express'
-import {getAuth} from "firebase-admin/auth";
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { getAuth } from 'firebase-admin/auth'
+import { client } from '../../utils/redis'
+import { appFireBase } from '../../utils/firebase'
 
 export const userEmailUpdateController = async (req: express.Request, res: express.Response) => {
+    const { email, otp } = req.body
     try {
-        if (!req.body.uid || !req.body.email) {
-            return res.status(400).json({
+        if (!otp || !email) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
-                    code: 2002,
-                    message: 'UID y email son requeridos'
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
                 }
             })
         }
 
-        const userDAO = req.db!.createUserDAO()
+        const userDAO = req.db!.createBaseUserDAO()
+        const user = await userDAO.findByUid(req.uid!)
 
-        const existingUser = await userDAO.findByEmail(req.body.email)
-        if (existingUser && existingUser.uid !== req.body.uid) {
-            return res.status(409).json({
-                error: {
-                    code: 2003,
-                    message: 'Este email ya está en uso'
-                }
-            })
+        const realOtp = await client.hGet('otp', req.uid!)
+
+        if (realOtp != otp) throw new Error()
+
+        await client.hDel('otp', req.uid!)
+
+        await getAuth(appFireBase).updateUser(
+            req.uid!, {
+            email
         }
-
-        const user = await userDAO.findByUid(req.body.uid)
-        if (!user) {
-            return res.status(404).json({
-                error: {
-                    code: 2004,
-                    message: 'Usuario no encontrado'
-                }
-            })
-        }
-
-        await getAuth().updateUser(
-            req.body.uid, {
-                email: req.body.email
-            }
         )
 
-        user.email = req.body.email
-        await userDAO.update(user)
+        user!.email = email
+        await userDAO.update(user!)
 
         return res.json({
             data: {
                 message: 'OK'
             }
         })
-    } catch (error) {
-        console.error('Error al actualizar email:', error)
-        return res.status(500).json({
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                code: 3000,
-                message: 'Error actualizando el email'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
         })
     }

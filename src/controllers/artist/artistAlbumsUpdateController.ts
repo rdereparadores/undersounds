@@ -3,9 +3,9 @@ import apiErrorCodes from '../../utils/apiErrorCodes.json'
 import mm from 'music-metadata'
 import { AlbumDTO } from '../../dto/AlbumDTO'
 import { uploadAlbumImage } from '../../utils/uploadAlbumImage'
+import { SongDAO } from '../../dao/SongDAO'
 
 export const artistAlbumsUpdateController = async (req: express.Request, res: express.Response) => {
-
     uploadAlbumImage(req, res, async (err) => {
         if (err) {
             return res.status(Number(apiErrorCodes[3002].httpCode)).json({
@@ -15,85 +15,102 @@ export const artistAlbumsUpdateController = async (req: express.Request, res: ex
                 }
             })
         }
+
+        const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, songArray, genres, albumId } = req.body
+        if (!albumId) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+                error: {
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
+                }
+            })
+        }
         try {
-            if (!req.files) {
+            /*if (!req.files || Number(req.files.length) < 1) {
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
                         message: apiErrorCodes[3000].message
                     }
                 })
-            }
-            const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, songs } = req.body
-            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette  || !songs) {
-                throw new Error()
-            }
+            }*/
 
             const artistDAO = req.db!.createArtistDAO()
+            const genreDAO = req.db!.createGenreDAO()
+            const albumDAO = req.db!.createAlbumDAO()
             const songDAO = req.db!.createSongDAO()
 
-            const songsSplitted: string[] = songs.split(',')
+            const album = await albumDAO.findById(albumId)
+            const oldAlbum = await albumDAO.findById(albumId)
 
-            const songArray = await Promise.all(songsSplitted.map(async (songID: string) => {
-                const song = await songDAO.findById(songID)
-                if (song === null) throw new Error()
-                return song._id!
-            }))
+            if (!album) throw new Error()
 
-            const songDTOArray = await Promise.all(songsSplitted.map(async (songID: string) => {
-                const song = await songDAO.findById(songID)
-                if (song === null) throw new Error()
-                return song
-            }))
+            if (title) {
+                album.title = title
+            }
 
-            let albumDuration = 0
-            songDTOArray.forEach((song) => albumDuration = albumDuration + song.duration)
+            if (description) {
+                album.description = description
+            }
 
-            const genreMatrix = await Promise.all(songsSplitted.map(async (songID: string) => {
-                const song = await songDAO.findById(songID)
-                if (song === null) throw new Error()
-                return song.genres
-            }))
+            if (priceDigital) {
+                album.pricing.digital = Number(priceDigital)
+            }
 
-            const genreArray = genreMatrix.flat()
+            if (priceCassette) {
+                album.pricing.cassette = Number(priceCassette)
+            }
 
-            var genreArrayUnique = genreArray.filter(function(elem, index, self) {
-                return index === self.indexOf(elem);
-            })
+            if (priceCd) {
+                album.pricing.cd = Number(priceCd)
+            }
+
+            if (priceVinyl) {
+                album.pricing.vinyl = Number(priceVinyl)
+            }
+
+            if (songArray) {
+                //Añade las canciones al array de canciones
+                const songArraySplitted: string[] = songArray.split(',')
+                const genreList: string[] = []
+                var duration: number = 0
+
+                album.trackList = await Promise.all(songArraySplitted.map(async (song: string) => {
+                    const tracklistDoc = await songDAO.findById(song)
+                    if (tracklistDoc === null) throw new Error()
+                    tracklistDoc.genres.forEach((g) => {
+                        if (!genreList.includes(g)) {
+                            genreList.push(g)
+                        }
+                    })
+                    duration = duration + tracklistDoc.duration
+                    return tracklistDoc._id!
+                }))
+
+                album.duration = Math.round(duration)
+                album.genres = genreList
+            }
+
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
 
-            const artist = await artistDAO.findByUid(req.uid!)
+            if (files.albumImage) {
+                album.imgUrl = '/public/uploads/album/cover/' + files.albumImage[0].filename
+            }
 
-            const album = new AlbumDTO({
-                title,
-                releaseDate: new Date(),
-                description,
-                imgUrl: '/public/uploads/album/cover/' + files.albumImage[0].filename,
-                productType: 'album',
-                author: artist!._id!.toString(),
-                duration: albumDuration,
-                genres: genreArrayUnique,
-                pricing: {
-                    cd: Number(priceCd),
-                    digital: Number(priceDigital),
-                    cassette: Number(priceCassette),
-                    vinyl: Number(priceVinyl)
-                },
-                ratings: [],
-                trackList: songArray,
-                versionHistory: []
-            })
-
-            const albumDAO = req.db?.createAlbumDAO()
-            const albumDoc = await albumDAO?.create(album)
+            oldAlbum!._id = undefined
+            oldAlbum!.versionHistory = []
+            oldAlbum!.version = album.versionHistory!.length
+            const result = await albumDAO.create(oldAlbum!)
+            album.versionHistory!.push(result._id!)
+            await albumDAO.update(album)
 
             return res.json({
                 data: {
-                    id: albumDoc?._id
+                    message: 'OK'
                 }
             })
 
-        } catch {
+        } catch (err) {
             return res.status(Number(apiErrorCodes[2000].httpCode)).json({
                 error: {
                     code: 2000,

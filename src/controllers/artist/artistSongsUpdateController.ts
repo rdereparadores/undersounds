@@ -6,6 +6,7 @@ import mm from 'music-metadata'
 
 export const artistSongsUpdateController = async (req: express.Request, res: express.Response) => {
     uploadSongFiles(req, res, async (err) => {
+
         if (err) {
             return res.status(Number(apiErrorCodes[3002].httpCode)).json({
                 error: {
@@ -14,34 +15,71 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
                 }
             })
         }
+
+        const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, collaborators, genres, songId } = req.body
+        if (!songId) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
+                error: {
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
+                }
+            })
+        }
         try {
-            if (!req.files || Number(req.files.length) < 2) {
+            /*if (!req.files || Number(req.files.length) < 1) {
                 return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                     error: {
                         code: 3000,
                         message: apiErrorCodes[3000].message
                     }
                 })
-            }
-            const { title, description, priceDigital, priceCd, priceVinyl, priceCassette, collaborators, genres, id } = req.body
-            if (!title || !description || !priceDigital || !priceCd || !priceVinyl || !priceCassette || !genres || !id) {
-                throw new Error()
-            }
+            }*/
 
             const artistDAO = req.db!.createArtistDAO()
             const genreDAO = req.db!.createGenreDAO()
+            const songDAO = req.db!.createSongDAO()
 
-            const genresSplitted: string[] = genres.split(',')
-            const genreIds = await Promise.all(genresSplitted.map(async (genreName: string) => {
-                const genre = await genreDAO.findByGenre(genreName)
-                if (genre === null) throw new Error()
-                return genre._id!
-            }))
+            const song = await songDAO.findById(songId)
+            const oldSong = await songDAO.findById(songId)
 
-            let collaboratorList: { accepted: boolean, artist: string }[] = []
+            if (!song) throw new Error()
+
+            if (genres) {
+                const genresSplitted: string[] = genres.split(',')
+                song.genres = await Promise.all(genresSplitted.map(async (genreName: string) => {
+                    const genre = await genreDAO.findByGenre(genreName)
+                    if (genre === null) throw new Error()
+                    return genre._id!
+                }))
+            }
+
+            if (title) {
+                song.title = title
+            }
+
+            if (description) {
+                song.description = description
+            }
+
+            if (priceDigital) {
+                song.pricing.digital = Number(priceDigital)
+            }
+
+            if (priceCassette) {
+                song.pricing.cassette = Number(priceCassette)
+            }
+
+            if (priceCd) {
+                song.pricing.cd = Number(priceCd)
+            }
+
+            if (priceVinyl) {
+                song.pricing.vinyl = Number(priceVinyl)
+            }
+
             if (collaborators) {
-                const collaboratorsSplitted: string[] = collaborators.split(',')
-                collaboratorList = await Promise.all(collaboratorsSplitted.map(async (collaborator: string) => {
+                const collaboratorsSplitted = collaborators.split(',')
+                song.collaborators = await Promise.all(collaboratorsSplitted.map(async (collaborator: string) => {
                     const collaboratorDoc = await artistDAO.findByArtistUsername(collaborator)
                     if (collaboratorDoc === null) throw new Error()
                     return { accepted: false, artist: collaboratorDoc._id! }
@@ -50,56 +88,26 @@ export const artistSongsUpdateController = async (req: express.Request, res: exp
 
             const files = req.files as { [fieldname: string]: Express.Multer.File[] }
 
-            const artist = await artistDAO.findByUid(req.uid!)
-
-            const metadata = await mm.parseFile(files.song[0].path)
-            const duration = metadata.format.duration || 0
-
-            const songDAOVieja = req.db?.createSongDAO()
-            const songDTOVieja = await songDAOVieja?.findById(id)
-
-            const songDTONueva = new SongDTO({
-                title: title,
-                releaseDate: new Date(),
-                description: description,
-                imgUrl: '/public/uploads/song/cover/' + files.img[0].filename,
-                productType: 'song',
-                author: artist!._id!.toString(),
-                duration: duration,
-                pricing: {
-                    cd: Number(priceCd),
-                    digital: Number(priceDigital),
-                    cassette: Number(priceCassette),
-                    vinyl: Number(priceVinyl)
-                },
-                ratings: [],
-                songDir: 'protected/song/' + files.song[0].filename,
-
-                plays: 0,
-                genres: genreIds,
-                collaborators: collaboratorList.length === 0 ? [] : collaboratorList,
-                versionHistory: songDTOVieja?.versionHistory
-            })
-
-            const songDAONueva = req.db?.createSongDAO()
-            const songDocNueva = await songDAONueva?.create(songDTONueva)
-
-            if (songDocNueva === undefined || songDTOVieja === undefined) {
-                console.log(songDTONueva)
-                console.log(songDTOVieja)
-                return
+            if (files.song) {
+                song.songDir = 'protected/song/' + files.song[0].filename
+                const metadata = await mm.parseFile(files.song[0].path)
+                song.duration = metadata.format.duration || 0
             }
 
-            if (songDocNueva === null || songDTOVieja === null) {
-                console.log(songDTONueva)
-                console.log(songDTOVieja)
-                return
+            if (files.img) {
+                song.imgUrl = '/public/uploads/song/cover/' + files.img[0].filename
             }
 
-            await songDAONueva?.addToVersionHistory(songDocNueva, songDTOVieja)
+            oldSong!._id = undefined
+            oldSong!.versionHistory = []
+            oldSong!.version = song.versionHistory!.length
+            const result = await songDAO.create(oldSong!)
+            song.versionHistory!.push(result._id!)
+            await songDAO.update(song)
+            
             return res.json({
                 data: {
-                    id: songDocNueva?._id
+                    message: 'OK'
                 }
             })
 

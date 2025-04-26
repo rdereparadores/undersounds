@@ -32,7 +32,7 @@ export const songInfoController = async (req: express.Request, res: express.Resp
             const genreDoc = await genreDAO.findById(genreId)
             return genreDoc!.genre
         }))
-        const collaborators = await Promise.all(song!.collaborators.filter(c => c.accepted).map(async (collaborator) => {
+        const collaborators = await Promise.all(song!.collaborators.map(async (collaborator) => {
             const artist = await artistDAO.findById(collaborator.artist)
             return {
                 _id: artist!._id!,
@@ -57,7 +57,8 @@ export const songInfoController = async (req: express.Request, res: express.Resp
                 collaborators,
                 productType: undefined,
                 ratings: undefined,
-                versionHistory: undefined
+                versionHistory: undefined,
+                songDir: undefined
             }
         }
 

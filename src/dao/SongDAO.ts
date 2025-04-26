@@ -100,7 +100,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
     }
 
     async findMostPlayed(limit: number): Promise<SongDTO[]> {
-        const songs = await Song.find()
+        const songs = await Song.find({version: undefined})
             .sort({ plays: -1 })
             .limit(limit)
         if (songs === null) return []
@@ -117,6 +117,7 @@ export class SongDAO extends ProductDAO implements ISongDAO {
 
     async update(song: Partial<SongDTO>): Promise<boolean> {
         const updatedSong = await Song.findByIdAndUpdate(
+            song._id!,
             { ...song.toJson!() },
             { new: true }
         )
