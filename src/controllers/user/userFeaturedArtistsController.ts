@@ -9,7 +9,7 @@ export const userFeaturedArtistsController = async (req: express.Request, res: e
 
         const allArtists = await artistDAO.getAll()
         const allArtistsFiltered = allArtists.filter(artist => !user!.following.includes(artist._id!) && artist._id! != user!._id).slice(0, 4).map(artist => ({
-            imgUrl: artist.imgUrl,
+            imgUrl: artist.artistImgUrl,
             artistUsername: artist.artistUsername,
             artistName: artist.artistName
         }))

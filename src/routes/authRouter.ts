@@ -4,7 +4,6 @@ import { authSignUpController } from '../controllers/auth/authSignUpController'
 import { authSignInController } from '../controllers/auth/authSignInController'
 import { authTokenMiddleware } from '../middleware/authTokenMiddleware'
 import { authSignUpGoogleController } from '../controllers/auth/authSignUpGoogleController'
-import { authConfirmOtpController, authSetOtpController } from '../controllers/auth/authOtpController'
 
 export const authRouter = express.Router()
 
@@ -133,8 +132,6 @@ export const authRouter = express.Router()
  */
 authRouter.post('/signup', authSignUpController);
 
-
-
 /**
  * @swagger
  * /auth/signin:
@@ -142,7 +139,9 @@ authRouter.post('/signup', authSignUpController);
  *     tags:
  *       - Autenticación
  *     summary: Inicio de sesión
- *     description: Inicia sesión y devuelve el rol de usuario. Requiere autenticación previa con token.
+ *     description: Verifica el token JWT enviado en el header y devuelve el rol del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: Inicio de sesión correcto. Se proporciona el rol de usuario.
@@ -175,12 +174,25 @@ authRouter.post('/signup', authSignUpController);
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al verificar el token.
  *         content:
  *           application/json:
  *             schema:
@@ -197,8 +209,6 @@ authRouter.post('/signup', authSignUpController);
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 authRouter.post('/signin', authTokenMiddleware, authSignInController)
 
@@ -307,7 +317,4 @@ authRouter.post('/signin', authTokenMiddleware, authSignInController)
  *                       example: "Error obteniendo la información de la base de datos"
  *     security: []
  */
-authRouter.post('/signupgoogle', authSignUpGoogleController);
-
-//authRouter.post('/setotp', authSetOtpController)
-//authRouter.post('/confirmotp', authConfirmOtpController)
+authRouter.post('/signupgoogle', authSignUpGoogleController)

@@ -1,47 +1,42 @@
-// userPasswordResetController.ts
 import express from 'express'
+import apiErrorCodes from '../../utils/apiErrorCodes.json'
+import { client } from '../../utils/redis'
 import { getAuth } from 'firebase-admin/auth'
+import { appFireBase } from '../../utils/firebase'
 
-export const userPasswordResetController = async (req: express.Request, res: express.Response) => {
+export const userPasswordUpdateController = async (req: express.Request, res: express.Response) => {
+    const { password, otp } = req.body
     try {
-        if (!req.body.email) {
-            return res.status(400).json({
+        if (!otp || !password) {
+            return res.status(Number(apiErrorCodes[3000].httpCode)).json({
                 error: {
-                    code: 2005,
-                    message: 'El email es requerido'
+                    code: 3000,
+                    message: apiErrorCodes[3000].message
                 }
             })
         }
 
-        const userDAO = req.db!.createUserDAO()
+        const realOtp = await client.hGet('otp', req.uid!)
 
-        const user = await userDAO.findByEmail(req.body.email)
-        if (!user) {
-            return res.json({
-                data: {
-                    message: 'Si el email está registrado, recibirás un correo para restablecer tu contraseña'
-                }
-            })
-        }
+        if (realOtp != otp) throw new Error()
 
-        await getAuth().updateUser(
-            req.body.uid, {
-                password: req.body.password
-            }
-        )
+        await client.hDel('otp', req.uid!)
+
+        await getAuth(appFireBase).updateUser(
+            req.uid!, {
+            password
+        })
 
         return res.json({
             data: {
-                message: 'Se ha actualizado correctamente la contraseña'
+                message: 'OK'
             }
         })
-    } catch (error) {
-        console.error('Error al actualizar la contraseña:', error)
-
-        return res.status(500).json({
+    } catch {
+        return res.status(Number(apiErrorCodes[2000].httpCode)).json({
             error: {
-                code: 3000,
-                message: 'Error al procesar la solicitud'
+                code: 2000,
+                message: apiErrorCodes[2000].message
             }
         })
     }
