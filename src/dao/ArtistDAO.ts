@@ -11,6 +11,8 @@ export interface IArtistDAO extends IBaseUserDAO {
     findByUid(uid: string): Promise<ArtistDTO | null>
     findByArtistUsername(artistUsername: string): Promise<ArtistDTO | null>
 
+    searchByArtistUsername(query: string): Promise<ArtistDTO[]>
+
     getAll(): Promise<ArtistDTO[]>
 
     update(artist: ArtistDTO): Promise<boolean>
@@ -59,6 +61,13 @@ export class ArtistDAO extends BaseUserDAO implements IArtistDAO {
         if (artist === null) return null
         
         return ArtistDTO.fromDocument(artist)
+    }
+
+    async searchByArtistUsername(query: string): Promise<ArtistDTO[]> {
+        const artists = await Artist.find({
+            artistUsername: { $regex: query, $options: "i" }
+        })
+        return artists.map(artist => ArtistDTO.fromDocument(artist))
     }
 
     async getAll(): Promise<ArtistDTO[]> {

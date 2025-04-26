@@ -1,5 +1,6 @@
 import express from 'express'
 import { profileArtistInfoController } from '../controllers/profile/profileArtistInfoController'
+import { profileArtistSearchController } from '../controllers/profile/profileArtistSearchController'
 
 export const profileRouter = express.Router()
 
@@ -84,3 +85,5 @@ export const profileRouter = express.Router()
  *                       example: "Error obteniendo la información de la base de datos"
  */
 profileRouter.post('/artist/info', profileArtistInfoController)
+
+profileRouter.post('/artist/search', profileArtistSearchController)
