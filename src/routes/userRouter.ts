@@ -1664,6 +1664,190 @@ userRouter.get('/orders', userOrdersController)
  */
 userRouter.get('/stats', userStatsController);
 
-
+/**
+ * @swagger
+ * /user/update/email:
+ *   post:
+ *     tags:
+ *       - Usuario
+ *     summary: Actualización del email del usuario
+ *     description: Permite al usuario autenticado actualizar su dirección de correo electrónico mediante un código OTP.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Nueva dirección de correo electrónico
+ *               otp:
+ *                 type: string
+ *                 description: Código OTP recibido para verificar la actualización
+ *     responses:
+ *       '200':
+ *         description: Correo electrónico actualizado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "OK"
+ *       '400':
+ *         description: Datos necesarios no proporcionados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *       '401':
+ *         description: Token de usuario no proporcionado o inválido/expirado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       enum:
+ *                         - 1000
+ *                         - 1002
+ *                     message:
+ *                       type: string
+ *                       description: Mensaje de error correspondiente
+ *       '500':
+ *         description: Error obteniendo la información de la base de datos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ *     security:
+ *       - bearerAuth: []
+ */
 userRouter.post('/update/email', userEmailUpdateController)
+
+/**
+ * @swagger
+ * /user/update/password:
+ *   post:
+ *     tags:
+ *       - Usuario
+ *     summary: Actualización de la contraseña del usuario
+ *     description: Permite al usuario autenticado actualizar su contraseña mediante un código OTP.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *               - otp
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 description: Nueva contraseña
+ *               otp:
+ *                 type: string
+ *                 description: Código OTP recibido para verificar la actualización
+ *     responses:
+ *       '200':
+ *         description: Contraseña actualizada.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                       example: "OK"
+ *       '400':
+ *         description: Datos necesarios no proporcionados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
+ *       '401':
+ *         description: Token de usuario no proporcionado o inválido/expirado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       enum:
+ *                         - 1000
+ *                         - 1002
+ *                     message:
+ *                       type: string
+ *                       description: Mensaje de error correspondiente
+ *       '500':
+ *         description: Error obteniendo la información de la base de datos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 2000
+ *                     message:
+ *                       type: string
+ *                       example: "Error obteniendo la información de la base de datos"
+ */
 userRouter.post('/update/password', userPasswordUpdateController)
