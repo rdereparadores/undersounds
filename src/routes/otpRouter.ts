@@ -11,6 +11,8 @@ export const otpRouter = express.Router()
  *       - OTP
  *     summary: Generar un OTP para cambios avanzados
  *     description: Genera un código OTP y lo envía al correo electrónico del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: OTP generado y enviado por correo electrónico.
@@ -44,6 +46,19 @@ export const otpRouter = express.Router()
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
  *         description: Error interno del servidor al generar o enviar OTP.
  *         content:
@@ -62,7 +77,5 @@ export const otpRouter = express.Router()
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 otpRouter.get('/create', otpCreateController)

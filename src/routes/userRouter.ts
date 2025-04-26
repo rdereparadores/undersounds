@@ -32,9 +32,11 @@ export const userRouter = express.Router()
  *       - Usuario
  *     summary: Perfil de usuario
  *     description: Devuelve el perfil del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: Devuelve el perfil del usuario autenticado.
+ *         description: Perfil obtenido con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -77,12 +79,25 @@ export const userRouter = express.Router()
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al obtener el perfil.
  *         content:
  *           application/json:
  *             schema:
@@ -99,8 +114,6 @@ export const userRouter = express.Router()
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/profile', userProfileController)
 
@@ -110,8 +123,10 @@ userRouter.get('/profile', userProfileController)
  *   get:
  *     tags:
  *       - Usuario
- *     summary: Devuelve las direcciones de un usuario
+ *     summary: Devuelve las direcciones del usuario autenticado
  *     description: Obtiene todas las direcciones del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: Direcciones obtenidas con éxito.
@@ -176,12 +191,25 @@ userRouter.get('/profile', userProfileController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al obtener las direcciones.
  *         content:
  *           application/json:
  *             schema:
@@ -198,8 +226,6 @@ userRouter.get('/profile', userProfileController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/profile/address', userProfileAddressController)
 
@@ -211,6 +237,8 @@ userRouter.get('/profile/address', userProfileAddressController)
  *       - Usuario
  *     summary: Actualización de datos de usuario
  *     description: Actualiza nombre, apellidos y fecha de nacimiento del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -234,7 +262,7 @@ userRouter.get('/profile/address', userProfileAddressController)
  *                 description: Fecha de nacimiento en formato ISO (YYYY-MM-DD)
  *     responses:
  *       '200':
- *         description: Datos actualizados.
+ *         description: Datos actualizados con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -246,6 +274,22 @@ userRouter.get('/profile/address', userProfileAddressController)
  *                     message:
  *                       type: string
  *                       example: "OK"
+ *       '400':
+ *         description: Datos necesarios no proporcionados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
  *       '401':
  *         description: Token de usuario no proporcionado o inválido/expirado.
  *         content:
@@ -261,12 +305,25 @@ userRouter.get('/profile/address', userProfileAddressController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al actualizar los datos.
  *         content:
  *           application/json:
  *             schema:
@@ -278,13 +335,9 @@ userRouter.get('/profile/address', userProfileAddressController)
  *                     code:
  *                       type: number
  *                       example: 2000
- *                       description: Código de error genérico
  *                     message:
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
- *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/profile/update', userProfileUpdateController)
 
@@ -296,6 +349,8 @@ userRouter.post('/profile/update', userProfileUpdateController)
  *       - Usuario
  *     summary: Actualización de la imagen de usuario
  *     description: Actualiza la foto de perfil del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -311,7 +366,7 @@ userRouter.post('/profile/update', userProfileUpdateController)
  *                 description: Imagen de perfil (image/jpeg, image/png o image/jpg)
  *     responses:
  *       '200':
- *         description: Actualiza la foto de perfil del usuario.
+ *         description: Foto de perfil actualizada con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -338,10 +393,23 @@ userRouter.post('/profile/update', userProfileUpdateController)
  *                       enum:
  *                         - 3000
  *                         - 3002
- *                       description: 3000=datos necesarios no proporcionados; 3002=error en la subida del archivo
+ *                       description: 3000 = datos necesarios no proporcionados; 3002 = error en la subida del archivo
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingData:
+ *                 summary: Datos faltantes
+ *                 value:
+ *                   error:
+ *                     code: 3000
+ *                     message: "Datos necesarios no proporcionados"
+ *               uploadError:
+ *                 summary: Error en la subida
+ *                 value:
+ *                   error:
+ *                     code: 3002
+ *                     message: "Error en la subida del archivo"
  *       '401':
  *         description: Token de usuario no proporcionado o inválido/expirado.
  *         content:
@@ -357,12 +425,25 @@ userRouter.post('/profile/update', userProfileUpdateController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al actualizar la imagen.
  *         content:
  *           application/json:
  *             schema:
@@ -379,8 +460,6 @@ userRouter.post('/profile/update', userProfileUpdateController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/profile/update/image', userProfileUpdateImageController)
 
@@ -392,6 +471,8 @@ userRouter.post('/profile/update/image', userProfileUpdateImageController)
  *       - Usuario
  *     summary: Añadir dirección
  *     description: Añade una nueva dirección al perfil del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -444,7 +525,7 @@ userRouter.post('/profile/update/image', userProfileUpdateImageController)
  *                 description: Observaciones u comentarios adicionales
  *     responses:
  *       '200':
- *         description: Dirección añadida.
+ *         description: Dirección añadida con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -487,12 +568,25 @@ userRouter.post('/profile/update/image', userProfileUpdateImageController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al añadir la dirección.
  *         content:
  *           application/json:
  *             schema:
@@ -507,8 +601,6 @@ userRouter.post('/profile/update/image', userProfileUpdateImageController)
  *                     message:
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/profile/address/add', userProfileAddressAddController)
 
@@ -520,6 +612,8 @@ userRouter.post('/profile/address/add', userProfileAddressAddController)
  *       - Usuario
  *     summary: Eliminar dirección
  *     description: Elimina una dirección del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -534,7 +628,7 @@ userRouter.post('/profile/address/add', userProfileAddressAddController)
  *                 description: ID de la dirección a eliminar
  *     responses:
  *       '200':
- *         description: Dirección eliminada.
+ *         description: Dirección eliminada con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -577,12 +671,25 @@ userRouter.post('/profile/address/add', userProfileAddressAddController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al eliminar la dirección.
  *         content:
  *           application/json:
  *             schema:
@@ -597,8 +704,6 @@ userRouter.post('/profile/address/add', userProfileAddressAddController)
  *                     message:
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
 
@@ -609,6 +714,9 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *     tags:
  *       - Usuario
  *     summary: Comprueba si un usuario sigue a un artista
+ *     description: Devuelve si el usuario autenticado sigue al artista indicado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -620,10 +728,10 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *             properties:
  *               artistUsername:
  *                 type: string
- *                 description: Nombre de usuario del artista
+ *                 description: Nombre de usuario del artista a comprobar
  *     responses:
  *       '200':
- *         description: Devuelve si el usuario sigue al artista o no.
+ *         description: Comprobación realizada con éxito
  *         content:
  *           application/json:
  *             schema:
@@ -635,6 +743,17 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *                     following:
  *                       type: boolean
  *                       description: Indica si el usuario sigue al artista
+ *             examples:
+ *               follows:
+ *                 summary: Usuario sigue al artista
+ *                 value:
+ *                   data:
+ *                     following: true
+ *               notFollows:
+ *                 summary: Usuario no sigue al artista
+ *                 value:
+ *                   data:
+ *                     following: false
  *       '400':
  *         description: Datos necesarios no proporcionados.
  *         content:
@@ -648,7 +767,7 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *                     code:
  *                       type: number
  *                       example: 3000
- *                       description: Código de error
+ *                       description: Código de error por datos faltantes
  *                     message:
  *                       type: string
  *                       example: "Datos necesarios no proporcionados"
@@ -668,12 +787,25 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos
+ *         description: Error interno del servidor al comprobar el seguimiento.
  *         content:
  *           application/json:
  *             schema:
@@ -690,8 +822,6 @@ userRouter.post('/profile/address/remove', userProfileAddressRemoveController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/is-following', userIsFollowingController)
 
@@ -703,9 +833,11 @@ userRouter.post('/is-following', userIsFollowingController)
  *       - Usuario
  *     summary: Recuperar artistas seguidos
  *     description: Obtiene la lista de artistas que el usuario autenticado sigue.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: Artistas seguidos.
+ *         description: Artistas seguidos obtenidos con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -740,12 +872,25 @@ userRouter.post('/is-following', userIsFollowingController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos
+ *         description: Error interno del servidor al obtener la información.
  *         content:
  *           application/json:
  *             schema:
@@ -762,8 +907,6 @@ userRouter.post('/is-following', userIsFollowingController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/following', userFollowingController)
 
@@ -775,6 +918,8 @@ userRouter.get('/following', userFollowingController)
  *       - Usuario
  *     summary: Seguir artista
  *     description: Permite al usuario autenticado seguir a un artista dado su nombre de usuario.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -801,6 +946,22 @@ userRouter.get('/following', userFollowingController)
  *                     message:
  *                       type: string
  *                       example: "OK"
+ *       '400':
+ *         description: Datos necesarios no proporcionados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
  *       '401':
  *         description: Token de usuario no proporcionado o inválido/expirado.
  *         content:
@@ -816,12 +977,25 @@ userRouter.get('/following', userFollowingController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al procesar la petición.
  *         content:
  *           application/json:
  *             schema:
@@ -838,8 +1012,6 @@ userRouter.get('/following', userFollowingController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/follow', userFollowController)
 
@@ -851,6 +1023,8 @@ userRouter.post('/follow', userFollowController)
  *       - Usuario
  *     summary: Dejar de seguir a un artista
  *     description: Permite al usuario autenticado dejar de seguir a un artista dado su nombre de usuario.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -877,6 +1051,22 @@ userRouter.post('/follow', userFollowController)
  *                     message:
  *                       type: string
  *                       example: "OK"
+ *       '400':
+ *         description: Datos necesarios no proporcionados.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     code:
+ *                       type: number
+ *                       example: 3000
+ *                     message:
+ *                       type: string
+ *                       example: "Datos necesarios no proporcionados"
  *       '401':
  *         description: Token de usuario no proporcionado o inválido/expirado.
  *         content:
@@ -892,12 +1082,25 @@ userRouter.post('/follow', userFollowController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos.
+ *         description: Error interno del servidor al procesar la petición.
  *         content:
  *           application/json:
  *             schema:
@@ -914,8 +1117,6 @@ userRouter.post('/follow', userFollowController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/unfollow', userUnfollowController)
 
@@ -926,6 +1127,9 @@ userRouter.post('/unfollow', userUnfollowController)
  *     tags:
  *       - Usuario
  *     summary: Establece una dirección dada como predeterminada
+ *     description: Marca la dirección indicada como predeterminada en el perfil del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -983,11 +1187,25 @@ userRouter.post('/unfollow', userUnfollowController)
  *                       enum:
  *                         - 1000
  *                         - 1002
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos
+ *         description: Error obteniendo la información de la base de datos.
  *         content:
  *           application/json:
  *             schema:
@@ -1002,10 +1220,8 @@ userRouter.post('/unfollow', userUnfollowController)
  *                     message:
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
- *     security:
- *       - bearerAuth: []
  */
-
+userRouter.patch('/profile/address/set-default', userProfileAddressSetDefaultController)
 
 /**
  * @swagger
@@ -1015,6 +1231,8 @@ userRouter.post('/unfollow', userUnfollowController)
  *       - Usuario
  *     summary: Contenido destacado para el usuario
  *     description: Obtiene el contenido destacado para el usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: Obtiene el contenido destacado para el usuario.
@@ -1045,6 +1263,7 @@ userRouter.post('/unfollow', userUnfollowController)
  *                         description: ID del contenido
  *                       releaseDate:
  *                         type: string
+ *                         format: date-time
  *                         description: Fecha de lanzamiento (ISO 8601)
  *                       author:
  *                         type: object
@@ -1070,10 +1289,23 @@ userRouter.post('/unfollow', userUnfollowController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
  *         description: Error obteniendo la información de la base de datos.
  *         content:
@@ -1092,8 +1324,6 @@ userRouter.post('/unfollow', userUnfollowController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/featured/content', userFeaturedContentController)
 
@@ -1105,6 +1335,8 @@ userRouter.get('/featured/content', userFeaturedContentController)
  *       - Usuario
  *     summary: Artistas destacados para el usuario
  *     description: Obtiene los artistas destacados para el usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: Artistas destacados obtenidos con éxito
@@ -1142,10 +1374,23 @@ userRouter.get('/featured/content', userFeaturedContentController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
  *         description: Error obteniendo la información de la base de datos
  *         content:
@@ -1164,8 +1409,6 @@ userRouter.get('/featured/content', userFeaturedContentController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/featured/artists', userFeaturedArtistsController)
 
@@ -1177,6 +1420,8 @@ userRouter.get('/featured/artists', userFeaturedArtistsController)
  *       - Usuario
  *     summary: Canciones de la librería del usuario
  *     description: Obtiene las canciones añadidas por el usuario a su biblioteca digital, incluyendo detalles de duración y colaboradores.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: Canciones obtenidas con éxito
@@ -1238,12 +1483,25 @@ userRouter.get('/featured/artists', userFeaturedArtistsController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos
+ *         description: Error interno del servidor al obtener las canciones.
  *         content:
  *           application/json:
  *             schema:
@@ -1260,8 +1518,6 @@ userRouter.get('/featured/artists', userFeaturedArtistsController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/library/songs', userLibrarySongsController)
 
@@ -1273,6 +1529,8 @@ userRouter.get('/library/songs', userLibrarySongsController)
  *       - Usuario
  *     summary: Álbumes de la librería digital del usuario
  *     description: Obtiene los álbumes añadidos por el usuario a su biblioteca digital, incluyendo detalles de pistas y colaboradores.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
  *         description: Álbumes obtenidos con éxito
@@ -1361,10 +1619,23 @@ userRouter.get('/library/songs', userLibrarySongsController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
  *         description: Error obteniendo la información de la base de datos
  *         content:
@@ -1383,8 +1654,6 @@ userRouter.get('/library/songs', userLibrarySongsController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/library/albums', userLibraryAlbumsController)
 
@@ -1395,9 +1664,12 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *     tags:
  *       - Usuario
  *     summary: Pedidos de un usuario
+ *     description: Recupera el historial de pedidos del usuario autenticado.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       '200':
- *         description: Pedidos obtenidos.
+ *         description: Pedidos obtenidos con éxito.
  *         content:
  *           application/json:
  *             schema:
@@ -1416,7 +1688,8 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *                         description: Indica si el pedido está pagado
  *                       purchaseDate:
  *                         type: string
- *                         description: Fecha de compra
+ *                         format: date-time
+ *                         description: Fecha y hora de la compra
  *                       totalPrice:
  *                         type: number
  *                         description: Precio total del pedido
@@ -1457,7 +1730,7 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *                               description: Cantidad comprada
  *                       address:
  *                         type: object
- *                         description: Datos de envío
+ *                         description: Datos de envío del pedido
  *                         properties:
  *                           name:
  *                             type: string
@@ -1478,7 +1751,7 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *                             type: string
  *                             description: País
  *       '401':
- *         description: No autorizado (token faltante, inválido o expirado)
+ *         description: No autorizado (token faltante, inválido o expirado).
  *         content:
  *           application/json:
  *             schema:
@@ -1492,12 +1765,25 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *                       enum:
  *                         - 1000
  *                         - 1002
- *                       description: 1000=token no proporcionado, 1002=token inválido o expirado
+ *                       description: 1000 = token no proporcionado; 1002 = token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
- *         description: Error obteniendo la información de la base de datos
+ *         description: Error interno del servidor al obtener los pedidos.
  *         content:
  *           application/json:
  *             schema:
@@ -1514,8 +1800,6 @@ userRouter.get('/library/albums', userLibraryAlbumsController)
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
  *                       description: Mensaje de error
- *     security:
- *       - bearerAuth: []
  */
 userRouter.get('/orders', userOrdersController)
 
@@ -1672,6 +1956,8 @@ userRouter.get('/stats', userStatsController);
  *       - Usuario
  *     summary: Actualización del email del usuario
  *     description: Permite al usuario autenticado actualizar su dirección de correo electrónico mediante un código OTP.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -1734,9 +2020,23 @@ userRouter.get('/stats', userStatsController);
  *                       enum:
  *                         - 1000
  *                         - 1002
+ *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
  *         description: Error obteniendo la información de la base de datos.
  *         content:
@@ -1753,8 +2053,6 @@ userRouter.get('/stats', userStatsController);
  *                     message:
  *                       type: string
  *                       example: "Error obteniendo la información de la base de datos"
- *     security:
- *       - bearerAuth: []
  */
 userRouter.post('/update/email', userEmailUpdateController)
 
@@ -1830,9 +2128,23 @@ userRouter.post('/update/email', userEmailUpdateController)
  *                       enum:
  *                         - 1000
  *                         - 1002
+ *                       description: 1000=token no proporcionado; 1002=token inválido o expirado
  *                     message:
  *                       type: string
  *                       description: Mensaje de error correspondiente
+ *             examples:
+ *               missingToken:
+ *                 summary: Token no proporcionado
+ *                 value:
+ *                   error:
+ *                     code: 1000
+ *                     message: "Token de usuario no proporcionado"
+ *               invalidToken:
+ *                 summary: Token inválido o expirado
+ *                 value:
+ *                   error:
+ *                     code: 1002
+ *                     message: "Token de usuario inválido o expirado"
  *       '500':
  *         description: Error obteniendo la información de la base de datos.
  *         content:
