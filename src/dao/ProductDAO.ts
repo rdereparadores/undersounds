@@ -84,8 +84,11 @@ export class ProductDAO implements IProductDAO {
                 $gte?: Date,
                 $lte?: Date
             },
-            title?: { $regex: string, $options: string }
-        } = {}
+            title?: { $regex: string, $options: string },
+            version: undefined
+        } = {
+            version: undefined
+        }
 
         if (genres) {
             const genreIds = genres.map(genre => genre._id!).filter(id => !!id)
@@ -161,7 +164,8 @@ export class ProductDAO implements IProductDAO {
             {
                 $match: {
                     _id: { $ne: productDoc._id },
-                    genres: { $in: productDoc.genres }
+                    genres: { $in: productDoc.genres },
+                    version: undefined
                 }
             },
             { $sample: { size: limit } }
