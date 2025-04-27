@@ -135,6 +135,7 @@ export class ProductDAO implements IProductDAO {
             sortOptions.releaseDate = -1
         } else {
             sortOptions.plays = -1
+            sortOptions.title = 1
         }
 
         const totalCount = await Product.countDocuments(filterQuery)
