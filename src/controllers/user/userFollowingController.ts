@@ -10,7 +10,7 @@ export const userFollowingController = async (req: express.Request, res: express
         const following = await Promise.all(user!.following.map(async (id) => {
             const artist = await artistDAO.findById(id)
             return {
-                imgUrl: artist!.imgUrl,
+                imgUrl: artist!.artistImgUrl,
                 artistName: artist!.artistName,
                 artistUsername: artist!.artistUsername
             }

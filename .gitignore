@@ -2,8 +2,7 @@ node_modules/
 dist/
 src/views/
 .env
-src/utils/admin.json
 public/
 protected/
-src/utils/redis.ts
 .idea
+docker/aci-deployment.yaml
